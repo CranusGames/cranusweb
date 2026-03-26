@@ -6,14 +6,14 @@ import { games } from "@/lib/games";
 
 export default function GamesPage() {
   return (
-    <main className="min-h-screen px-6 py-20" style={{ background: "var(--bg)" }}>
+    <main className="min-h-screen px-6 py-24" style={{ background: "var(--bg)" }}>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="mb-16 text-center"
+          className="mb-20 flex flex-col items-center text-center"
         >
           <Link
             href="/"
@@ -117,7 +117,7 @@ export default function GamesPage() {
                   </div>
 
                   {/* Info */}
-                  <div className="p-4">
+                  <div className="p-4 text-center">
                     <h2
                       className="font-bold text-base mb-1 leading-tight"
                       style={{ color: "var(--text)" }}
