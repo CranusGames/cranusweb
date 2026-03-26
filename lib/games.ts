@@ -4,6 +4,7 @@ export type Game = {
   genre: string;
   description: string;
   itchSlug: string;
+  coverImage: string;
   tags: string[];
 };
 
@@ -14,6 +15,7 @@ export const games: Game[] = [
     genre: "Adventure",
     description: "Rüya dünyasında geçen bir macera oyunu.",
     itchSlug: "dream-land",
+    coverImage: "https://img.itch.zone/aW1nLzI1NDQ2MzYzLnBuZw==/315x250%23c/XiGIE8.png",
     tags: ["adventure"],
   },
   {
@@ -22,6 +24,7 @@ export const games: Game[] = [
     genre: "Adventure",
     description: "Ördeklerle dolu sürpriz dolu bir macera.",
     itchSlug: "what-the-duck",
+    coverImage: "https://img.itch.zone/aW1nLzI0NTc5NDMwLmpwZw==/315x250%23c/WJJKiE.jpg",
     tags: ["adventure", "funny"],
   },
   {
@@ -30,6 +33,7 @@ export const games: Game[] = [
     genre: "Horror",
     description: "Serinin üçüncü bölümü. Karanlık bir korku deneyimi.",
     itchSlug: "annie-3",
+    coverImage: "https://img.itch.zone/aW1nLzIzNjU0MjkwLmpwZw==/315x250%23c/%2BMYq1Z.jpg",
     tags: ["horror"],
   },
   {
@@ -37,7 +41,8 @@ export const games: Game[] = [
     title: "Mini Pekka vs Sneaky Golem",
     genre: "Action",
     description: "Battle for the Pancake — epik bir mücadele.",
-    itchSlug: "mini-pekka-vs-sneaky-golem-battle-for-the-pancake",
+    itchSlug: "pancake",
+    coverImage: "https://img.itch.zone/aW1nLzIzMjY0NjcxLmpwZw==/315x250%23c/VfDDuM.jpg",
     tags: ["action", "battle"],
   },
   {
@@ -46,6 +51,7 @@ export const games: Game[] = [
     genre: "Platformer",
     description: "Klasik platform oyunu deneyimi.",
     itchSlug: "platform",
+    coverImage: "https://img.itch.zone/aW1nLzIyOTAzMTI5LmpwZw==/315x250%23c/s90vOE.jpg",
     tags: ["platformer"],
   },
   {
@@ -54,6 +60,7 @@ export const games: Game[] = [
     genre: "Action",
     description: "Yıldızlar arasında hızlı refleks gerektiren bir oyun.",
     itchSlug: "star-swipe",
+    coverImage: "https://img.itch.zone/aW1nLzIyMjk0MjQ3LnBuZw==/315x250%23c/OXxGq1.png",
     tags: ["action"],
   },
   {
@@ -61,7 +68,8 @@ export const games: Game[] = [
     title: "Mysterious Game",
     genre: "Adventure",
     description: "Gizemlerin peşinden giden bir macera.",
-    itchSlug: "mysterious-game",
+    itchSlug: "gizemli-oyun",
+    coverImage: "https://img.itch.zone/aW1nLzIxNjI2MDczLmpwZw==/315x250%23c/BNaD2Z.jpg",
     tags: ["adventure", "mystery"],
   },
   {
@@ -70,6 +78,7 @@ export const games: Game[] = [
     genre: "Adventure",
     description: "Gerçeklik sınırında geçen gerilim dolu bir yolculuk.",
     itchSlug: "reality-threshold",
+    coverImage: "https://img.itch.zone/aW1nLzIxNTA0MTE1LmpwZw==/315x250%23c/0KRwZI.jpg",
     tags: ["adventure", "thriller"],
   },
   {
@@ -78,6 +87,7 @@ export const games: Game[] = [
     genre: "Adventure",
     description: "Gaia'nın çağrısına cevap ver. Doğanın sesi seni bekliyor.",
     itchSlug: "call-of-gaia",
+    coverImage: "https://img.itch.zone/aW1nLzIxMTU3Njg5LnBuZw==/315x250%23c/Qb2994.png",
     tags: ["adventure", "nature"],
   },
   {
@@ -86,23 +96,25 @@ export const games: Game[] = [
     genre: "Adventure",
     description: "Don't Starve Together esinli bir hayatta kalma macerası.",
     itchSlug: "unfinished-tale",
+    coverImage: "https://img.itch.zone/aW1nLzE5NTY4MTI3LmpwZw==/315x250%23c/oH84MZ.jpg",
     tags: ["adventure", "survival"],
   },
   {
     slug: "secret-underground",
     title: "Secret Underground",
     genre: "Adventure",
-    description:
-      "Kontrol altına alınmayan tehlikeli bir robot yeraltı dünyası, yüzeyi karanlığa sürükleyebilir.",
+    description: "Tehlikeli bir robot yeraltı dünyası yüzeyi karanlığa sürükleyebilir.",
     itchSlug: "secret-underground",
+    coverImage: "https://img.itch.zone/aW1nLzE4NjMzMjI2LmpwZw==/315x250%23c/HTTM2s.jpg",
     tags: ["adventure", "sci-fi"],
   },
   {
     slug: "annie-2",
     title: "Annie 2",
     genre: "RPG",
-    description: "Annie serisinin ikinci bölümü. Rol yapma oyunu.",
-    itchSlug: "annie-2",
+    description: "Annie serisinin ikinci bölümü.",
+    itchSlug: "annie-chapter-2",
+    coverImage: "https://img.itch.zone/aW1nLzE4Mjk3OTI1LnBuZw==/315x250%23c/7nk%2Fhu.png",
     tags: ["rpg", "horror"],
   },
   {
@@ -110,7 +122,8 @@ export const games: Game[] = [
     title: "The Silent Depths DLC",
     genre: "Adventure",
     description: "Sessizliğin derinliklerine inen DLC bölümü.",
-    itchSlug: "the-silent-depths-dlc-edition",
+    itchSlug: "silentdephts",
+    coverImage: "https://img.itch.zone/aW1nLzE4MDI0NDcwLmpwZw==/315x250%23c/474mZx.jpg",
     tags: ["adventure", "dlc"],
   },
   {
@@ -118,8 +131,18 @@ export const games: Game[] = [
     title: "Alone Duck",
     genre: "Adventure",
     description: "Yalnız bir ördek olarak dünyayı keşfet.",
-    itchSlug: "alone-duck",
+    itchSlug: "survivorduck",
+    coverImage: "https://img.itch.zone/aW1nLzE3NjM4MDI5LmdpZg==/315x250%23c/ZvkkkC.gif",
     tags: ["adventure", "casual"],
+  },
+  {
+    slug: "dark-fantasy-car",
+    title: "Dark Fantasy Car Simulator",
+    genre: "Simulation",
+    description: "Karanlık fantezi dünyasında araba simülatörü.",
+    itchSlug: "dark-fantasy-car-simulator",
+    coverImage: "https://img.itch.zone/aW1nLzE3MDMzOTU2LnBuZw==/315x250%23c/eE4ESe.png",
+    tags: ["simulation", "dark"],
   },
   {
     slug: "prison-duck",
@@ -127,6 +150,7 @@ export const games: Game[] = [
     genre: "Adventure",
     description: "Hapishaneden kaçmaya çalışan bir ördek.",
     itchSlug: "prison-duck",
+    coverImage: "https://img.itch.zone/aW1nLzE3MDMzOTMxLnBuZw==/315x250%23c/cVkxC%2B.png",
     tags: ["adventure", "escape"],
   },
   {
@@ -135,6 +159,7 @@ export const games: Game[] = [
     genre: "Action RPG",
     description: "Elden Ring tarzında indie bir oyun. Soulslike deneyimi.",
     itchSlug: "elden-robot",
+    coverImage: "https://img.itch.zone/aW1nLzE2Nzk0Mjg5LnBuZw==/315x250%23c/CYL4Eg.png",
     tags: ["action", "rpg", "soulslike"],
   },
   {
@@ -143,6 +168,7 @@ export const games: Game[] = [
     genre: "Puzzle",
     description: "Elmas boyutunda bulmaca çözme macerası.",
     itchSlug: "diamondsion",
+    coverImage: "https://img.itch.zone/aW1nLzE1MDg0NDA3LnBuZw==/315x250%23c/%2BXXsRm.png",
     tags: ["puzzle"],
   },
   {
@@ -150,8 +176,18 @@ export const games: Game[] = [
     title: "AntEaters Coffee Simulator",
     genre: "Simulation",
     description: "Karıncayiyen kahve simülatörü. Beklenmedik bir deneyim.",
-    itchSlug: "anteaters-coffe-simulator",
+    itchSlug: "milliyeti-karnca-yiyen-oyunu-pastaneci-oldu-xd",
+    coverImage: "https://img.itch.zone/aW1nLzE0Nzg3MTgxLnBuZw==/315x250%23c/kBaq8O.png",
     tags: ["simulation", "funny"],
+  },
+  {
+    slug: "cirque",
+    title: "Cirque",
+    genre: "Adventure",
+    description: "Sirk temalı macera oyunu.",
+    itchSlug: "cirquedenemegame",
+    coverImage: "https://img.itch.zone/aW1nLzE0MTEzNjQ1LmpwZw==/315x250%23c/jz1Pa4.jpg",
+    tags: ["adventure"],
   },
   {
     slug: "syntos",
@@ -159,6 +195,7 @@ export const games: Game[] = [
     genre: "Action",
     description: "Aksiyon dolu bir Syntos deneyimi.",
     itchSlug: "syntos",
+    coverImage: "https://img.itch.zone/aW1nLzE0MTA4ODMwLnBuZw==/315x250%23c/v98lsR.png",
     tags: ["action"],
   },
   {
@@ -167,15 +204,26 @@ export const games: Game[] = [
     genre: "Adventure",
     description: "Terk edilmiş bir kasabada terk edilmiş bir kişiyle karşılaşıyorsunuz.",
     itchSlug: "annie",
+    coverImage: "https://img.itch.zone/aW1nLzEzODAzMTEzLnBuZw==/315x250%23c/E91JoU.png",
     tags: ["adventure", "story"],
   },
   {
-    slug: "big-stick",
-    title: "Big Stick",
+    slug: "trident",
+    title: "Trident",
     genre: "Adventure",
-    description: "Büyük bir sopayla maceraya atıl.",
-    itchSlug: "big-stick",
+    description: "Trident ile epik bir maceraya atıl.",
+    itchSlug: "trident",
+    coverImage: "https://img.itch.zone/aW1nLzEzNjgwNDg3LmdpZg==/315x250%23c/zqVM11.gif",
     tags: ["adventure", "action"],
+  },
+  {
+    slug: "klik",
+    title: "Klik",
+    genre: "Adventure",
+    description: "Tek tık ile başlayan bir macera.",
+    itchSlug: "klik",
+    coverImage: "https://img.itch.zone/aW1nLzEzNTc4NTMxLnBuZw==/315x250%23c/5QBJ7b.png",
+    tags: ["adventure", "casual"],
   },
   {
     slug: "infinity-duck",
@@ -183,6 +231,7 @@ export const games: Game[] = [
     genre: "Adventure",
     description: "Sonsuz ördek macerası.",
     itchSlug: "infinity-duck",
+    coverImage: "https://img.itch.zone/aW1nLzEzNDUxMDQxLnBuZw==/315x250%23c/v1LaOk.png",
     tags: ["adventure", "casual"],
   },
   {
@@ -191,7 +240,17 @@ export const games: Game[] = [
     genre: "Platformer",
     description: "Top olarak platformlardan kaç.",
     itchSlug: "escape-ball",
+    coverImage: "https://img.itch.zone/aW1nLzEzNDUzMzcxLnBuZw==/315x250%23c/gOP013.png",
     tags: ["platformer"],
+  },
+  {
+    slug: "road-to-syntwave",
+    title: "Road To Syntwave",
+    genre: "Action",
+    description: "Syntwave dünyasına giden yolda aksiyon dolu bir yolculuk.",
+    itchSlug: "roadtosyntwawe",
+    coverImage: "https://img.itch.zone/aW1nLzEyNjMzODcyLmpwZw==/315x250%23c/rEp9Qg.jpg",
+    tags: ["action", "retro"],
   },
   {
     slug: "stuck-in-console",
@@ -199,6 +258,7 @@ export const games: Game[] = [
     genre: "Adventure",
     description: "Konsolun içinde sıkışan bir karakterin hikayesi.",
     itchSlug: "stuck-in-console",
+    coverImage: "https://img.itch.zone/aW1nLzEyMzI4NTM0LnBuZw==/315x250%23c/VUaKWp.png",
     tags: ["adventure", "meta"],
   },
   {
@@ -207,6 +267,7 @@ export const games: Game[] = [
     genre: "Adventure",
     description: "Amon Din dünyasında geçen bir macera.",
     itchSlug: "amon-din",
+    coverImage: "https://img.itch.zone/aW1nLzExNjkyMjQ1LnBuZw==/315x250%23c/yfr6qN.png",
     tags: ["adventure"],
   },
   {
@@ -215,6 +276,7 @@ export const games: Game[] = [
     genre: "Puzzle",
     description: "Ölüm mü yaşam mı? Bulmacaları çözerek karar ver.",
     itchSlug: "dead-or-live",
+    coverImage: "https://img.itch.zone/aW1nLzExMzU4NjkyLmpwZw==/315x250%23c/dZ9wQa.jpg",
     tags: ["puzzle", "thriller"],
   },
   {
@@ -223,6 +285,7 @@ export const games: Game[] = [
     genre: "Survival",
     description: "Sessiz uzaylılardan hayatta kalmaya çalış.",
     itchSlug: "silent-alien",
+    coverImage: "https://img.itch.zone/aW1nLzExMTIxOTgxLnBuZw==/315x250%23c/LPUrf1.png",
     tags: ["survival", "sci-fi"],
   },
   {
@@ -231,6 +294,7 @@ export const games: Game[] = [
     genre: "Adventure",
     description: "Küçük ama önemli bir görev.",
     itchSlug: "little-mission",
+    coverImage: "https://img.itch.zone/aW1nLzEwODY2OTM1LnBuZw==/315x250%23c/XJfOl7.png",
     tags: ["adventure"],
   },
   {
@@ -239,6 +303,7 @@ export const games: Game[] = [
     genre: "Adventure",
     description: "Lanetlenmiş ghoul olarak karanlıkta yürü.",
     itchSlug: "cursed-ghoul",
+    coverImage: "https://img.itch.zone/aW1nLzEwMjkwNzc3LmdpZg==/315x250%23c/kT0Se8.gif",
     tags: ["adventure", "horror"],
   },
   {
@@ -247,6 +312,7 @@ export const games: Game[] = [
     genre: "Adventure",
     description: "Doğanın cadısı olarak büyü ve keşfet.",
     itchSlug: "witch-of-the-nature",
+    coverImage: "https://img.itch.zone/aW1nLzEwMTE5NTI2LnBuZw==/315x250%23c/4NWpuD.png",
     tags: ["adventure", "magic"],
   },
   {
@@ -254,7 +320,8 @@ export const games: Game[] = [
     title: "Endless Deathly Hallow",
     genre: "Adventure",
     description: "Sonsuz ölüm gölgesinde hayatta kal.",
-    itchSlug: "endless-deathly-hallow",
+    itchSlug: "endlessdeathlyhallow",
+    coverImage: "https://img.itch.zone/aW1nLzk5ODUzNzAucG5n/315x250%23c/J7ikKD.png",
     tags: ["adventure", "dark"],
   },
   {
@@ -263,6 +330,7 @@ export const games: Game[] = [
     genre: "Adventure",
     description: "Hikayeli bir indie oyun. İskele büyücüsünün yolculuğu.",
     itchSlug: "pier-mage",
+    coverImage: "https://img.itch.zone/aW1nLzk3NzQ2NzMucG5n/315x250%23c/JMpwMY.png",
     tags: ["adventure", "story", "magic"],
   },
   {
@@ -271,6 +339,7 @@ export const games: Game[] = [
     genre: "Adventure",
     description: "Robot dünyasında geçen bir macera.",
     itchSlug: "robotica",
+    coverImage: "https://img.itch.zone/aW1nLzg1NDQxNDEucG5n/315x250%23c/qTSA5%2B.png",
     tags: ["adventure", "sci-fi"],
   },
   {
@@ -279,6 +348,7 @@ export const games: Game[] = [
     genre: "Adventure",
     description: "Mafya ördek dünyasının karanlık hikayeleri.",
     itchSlug: "mafia-duck",
+    coverImage: "https://img.itch.zone/aW1nLzg1MDUyMjYucG5n/315x250%23c/6%2F2vbJ.png",
     tags: ["adventure", "crime"],
   },
   {
@@ -286,7 +356,8 @@ export const games: Game[] = [
     title: "Pix İn Game",
     genre: "Adventure",
     description: "Piksel dünyasında oyun içinde oyun deneyimi.",
-    itchSlug: "pix-in-game",
+    itchSlug: "pixingame",
+    coverImage: "https://img.itch.zone/aW1nLzgyMjc0NTgucG5n/315x250%23c/Qd7MDf.png",
     tags: ["adventure", "meta", "pixel"],
   },
   {
@@ -295,6 +366,7 @@ export const games: Game[] = [
     genre: "Adventure",
     description: "Arap dünyasında geçen egzotik bir macera.",
     itchSlug: "arabventure",
+    coverImage: "https://img.itch.zone/aW1nLzgwNzg0NDAucG5n/315x250%23c/ao2ylP.png",
     tags: ["adventure"],
   },
   {
@@ -303,6 +375,7 @@ export const games: Game[] = [
     genre: "Platformer",
     description: "Back jump — platform oyununun sıradışı yorumu.",
     itchSlug: "back-jump",
+    coverImage: "https://img.itch.zone/aW1nLzc1MzM2MTUucG5n/315x250%23c/2SgGPT.png",
     tags: ["platformer"],
   },
   {
@@ -311,6 +384,7 @@ export const games: Game[] = [
     genre: "Action",
     description: "Evrensel düzeni koruyan piksel savaşçının hikayesi.",
     itchSlug: "pixelren",
+    coverImage: "https://img.itch.zone/aW1nLzY0OTQxNTMucG5n/315x250%23c/Ejc0rv.png",
     tags: ["action", "pixel"],
   },
   {
@@ -318,7 +392,8 @@ export const games: Game[] = [
     title: "Turtle Adventure",
     genre: "Adventure",
     description: "Kaplumbağanın epik macera yolculuğu.",
-    itchSlug: "turtle-advanture",
+    itchSlug: "turtleadvanture",
+    coverImage: "https://img.itch.zone/aW1nLzE4NTEwMjk5LnBuZw==/315x250%23c/olFPGM.png",
     tags: ["adventure", "casual"],
   },
 ];

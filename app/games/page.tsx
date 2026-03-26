@@ -6,12 +6,9 @@ import { games } from "@/lib/games";
 
 export default function GamesPage() {
   return (
-    <main
-      className="min-h-screen px-6 py-20"
-      style={{ background: "var(--bg)" }}
-    >
-      {/* Header */}
+    <main className="min-h-screen px-6 py-20" style={{ background: "var(--bg)" }}>
       <div className="max-w-7xl mx-auto">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -23,22 +20,17 @@ export default function GamesPage() {
             className="text-xs uppercase tracking-widest mb-6 inline-block transition-colors duration-200"
             style={{ color: "var(--text-dim)", fontFamily: "monospace" }}
             onMouseEnter={(e) =>
-              ((e.currentTarget as HTMLAnchorElement).style.color =
-                "var(--accent)")
+              ((e.currentTarget as HTMLAnchorElement).style.color = "var(--accent)")
             }
             onMouseLeave={(e) =>
-              ((e.currentTarget as HTMLAnchorElement).style.color =
-                "var(--text-dim)")
+              ((e.currentTarget as HTMLAnchorElement).style.color = "var(--text-dim)")
             }
           >
             ← Ana Sayfa
           </Link>
           <h1
             className="text-6xl md:text-8xl font-bold mb-4"
-            style={{
-              color: "var(--text)",
-              letterSpacing: "-0.02em",
-            }}
+            style={{ color: "var(--text)", letterSpacing: "-0.02em" }}
           >
             OYUNLAR
           </h1>
@@ -47,8 +39,7 @@ export default function GamesPage() {
             style={{
               width: "80px",
               height: "1px",
-              background:
-                "linear-gradient(to right, transparent, var(--accent), transparent)",
+              background: "linear-gradient(to right, transparent, var(--accent), transparent)",
             }}
           />
           <p
@@ -77,34 +68,34 @@ export default function GamesPage() {
                     transition: "border-color 0.3s, transform 0.3s",
                   }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.borderColor =
-                      "var(--accent-dim)";
-                    (e.currentTarget as HTMLDivElement).style.transform =
-                      "translateY(-4px)";
+                    (e.currentTarget as HTMLDivElement).style.borderColor = "var(--accent-dim)";
+                    (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)";
                   }}
                   onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.borderColor =
-                      "#1a1a1a";
-                    (e.currentTarget as HTMLDivElement).style.transform =
-                      "translateY(0)";
+                    (e.currentTarget as HTMLDivElement).style.borderColor = "#1a1a1a";
+                    (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
                   }}
                 >
-                  {/* itch.io thumbnail */}
+                  {/* Cover image */}
                   <div
                     className="relative overflow-hidden"
-                    style={{ aspectRatio: "16/9", background: "#111" }}
+                    style={{ aspectRatio: "315/250", background: "#111" }}
                   >
                     <img
-                      src={`https://img.itch.zone/aW1nLzE0NjA4NDEzLnBuZw==/315x250%23c/${game.itchSlug}.png`}
+                      src={game.coverImage}
                       alt={game.title}
-                      className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity duration-500 scale-100 group-hover:scale-105 transition-transform"
-                      style={{ transition: "opacity 0.5s, transform 0.5s" }}
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).style.display =
-                          "none";
+                      className="w-full h-full object-cover"
+                      style={{ transition: "opacity 0.5s, transform 0.5s", opacity: 0.75 }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.opacity = "1";
+                        (e.currentTarget as HTMLImageElement).style.transform = "scale(1.05)";
                       }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.opacity = "0.75";
+                        (e.currentTarget as HTMLImageElement).style.transform = "scale(1)";
+                      }}
+                      loading="lazy"
                     />
-                    {/* Overlay */}
                     <div
                       className="absolute inset-0"
                       style={{
@@ -112,7 +103,6 @@ export default function GamesPage() {
                           "linear-gradient(to top, rgba(5,5,5,0.9) 0%, transparent 60%)",
                       }}
                     />
-                    {/* Genre badge */}
                     <span
                       className="absolute top-3 right-3 text-xs px-2 py-1 uppercase tracking-widest"
                       style={{
@@ -140,13 +130,10 @@ export default function GamesPage() {
                     >
                       {game.description}
                     </p>
-                    <div className="mt-3 flex items-center gap-2">
+                    <div className="mt-3">
                       <span
                         className="text-xs uppercase tracking-widest"
-                        style={{
-                          color: "var(--accent)",
-                          fontFamily: "monospace",
-                        }}
+                        style={{ color: "var(--accent)", fontFamily: "monospace" }}
                       >
                         Oyna →
                       </span>
