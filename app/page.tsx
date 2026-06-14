@@ -70,6 +70,7 @@ function NavDots({ active }: { active: number }) {
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [active, setActive] = useState(0);
+  const [photoHovered, setPhotoHovered] = useState(false);
 
   /* Mouse → 3-D tilt */
   const mx = useMotionValue(0);
@@ -170,27 +171,53 @@ export default function Home() {
             Cranus Games Studio
           </motion.p>
 
-          {/* ── Photo + 3-D tilt ── */}
+          {/* ── Photo + 3-D tilt + Coin flip ── */}
           <motion.div initial={{ opacity: 0, scale: 0.35 }} animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.95, delay: 0.6, type: "spring", stiffness: 85, damping: 13 }}
             style={{ marginBottom: "2.2rem" }}>
             <div style={{ perspective: "1000px" }}>
-              <motion.div style={{ rotateX: rotX, rotateY: rotY }} className="select-none">
-                <div style={{ position: "relative", display: "inline-block" }}>
+              <motion.div style={{ rotateX: rotX, rotateY: rotY, transformStyle: "preserve-3d" }} className="select-none">
+                <div style={{ position: "relative", display: "inline-block", transformStyle: "preserve-3d" }}>
                   {/* Glow */}
-                  <div style={{ position: "absolute", inset: "-22px", borderRadius: "50%", animation: "pulse-glow 3.2s ease-in-out infinite" }} />
+                  <div style={{ position: "absolute", inset: "-22px", borderRadius: "50%", animation: "pulse-glow 3.2s ease-in-out infinite", pointerEvents: "none" }} />
                   {/* Outer dashed ring */}
-                  <div style={{ position: "absolute", inset: "-28px", borderRadius: "50%", border: "1px dashed rgba(200,169,110,0.5)", animation: "spin-slow 14s linear infinite" }} />
+                  <div style={{ position: "absolute", inset: "-28px", borderRadius: "50%", border: "1px dashed rgba(200,169,110,0.5)", animation: "spin-slow 14s linear infinite", pointerEvents: "none" }} />
                   {/* Outer glow ring */}
-                  <div style={{ position: "absolute", inset: "-40px", borderRadius: "50%", border: "1px solid rgba(255,110,200,0.22)", animation: "spin-slow 22s linear infinite reverse" }} />
+                  <div style={{ position: "absolute", inset: "-40px", borderRadius: "50%", border: "1px solid rgba(255,110,200,0.22)", animation: "spin-slow 22s linear infinite reverse", pointerEvents: "none" }} />
                   {/* Solid gradient ring */}
-                  <div style={{ position: "absolute", inset: "-6px", borderRadius: "50%", padding: "2px", background: "linear-gradient(135deg, var(--accent), #ff6ec7, #7928ca)", WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)", WebkitMaskComposite: "xor", maskComposite: "exclude" }} />
-                  {/* Photo */}
-                  <div style={{ width: 200, height: 200, borderRadius: "50%", overflow: "hidden" }}>
-                    <img src="/cranusweb/foto.jpeg" alt="Emirhan Aycibin" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                  <div style={{ position: "absolute", inset: "-6px", borderRadius: "50%", padding: "2px", background: "linear-gradient(135deg, var(--accent), #ff6ec7, #7928ca)", WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)", WebkitMaskComposite: "xor", maskComposite: "exclude", pointerEvents: "none" }} />
+                  {/* Coin flip card */}
+                  <div
+                    onMouseEnter={() => setPhotoHovered(true)}
+                    onMouseLeave={() => setPhotoHovered(false)}
+                    style={{
+                      width: 200, height: 200,
+                      position: "relative",
+                      transformStyle: "preserve-3d",
+                      transition: "transform 0.75s cubic-bezier(0.23, 1, 0.32, 1)",
+                      transform: photoHovered ? "rotateY(180deg)" : "rotateY(0deg)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {/* Front: Photo */}
+                    <div style={{
+                      position: "absolute", inset: 0, borderRadius: "50%", overflow: "hidden",
+                      backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden",
+                    }}>
+                      <img src="/cranusweb/foto.jpeg" alt="Emirhan Aycibin"
+                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                      <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "linear-gradient(135deg, rgba(255,255,255,0.13) 0%, transparent 55%)", pointerEvents: "none" }} />
+                    </div>
+                    {/* Back: Duck GIF — sürekli çalışır, hover'da görünür */}
+                    <div style={{
+                      position: "absolute", inset: 0, borderRadius: "50%", overflow: "hidden",
+                      backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden",
+                      transform: "rotateY(180deg)",
+                    }}>
+                      <img src="/cranusweb/duck.gif" alt="🦆"
+                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                    </div>
                   </div>
-                  {/* Shine */}
-                  <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "linear-gradient(135deg, rgba(255,255,255,0.13) 0%, transparent 55%)", pointerEvents: "none" }} />
                 </div>
               </motion.div>
             </div>
