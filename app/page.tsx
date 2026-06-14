@@ -202,8 +202,8 @@ export default function Home() {
           {/* Name */}
           <motion.h1 initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 1 }}
             className="font-bold mb-3"
-            style={{ fontSize: "clamp(2.4rem, 9vw, 6.5rem)", color: "var(--text)", letterSpacing: "-0.02em", textShadow: "0 0 80px rgba(200,169,110,0.28)" }}>
-            EMİRHAN AYCİB
+            style={{ fontSize: "clamp(2rem, 6vw, 5rem)", color: "var(--text)", letterSpacing: "-0.02em", textShadow: "0 0 80px rgba(200,169,110,0.28)" }}>
+            EMİRHAN AYCİBİN
           </motion.h1>
 
           {/* Typewriter */}
