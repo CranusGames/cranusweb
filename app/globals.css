@@ -6,6 +6,10 @@
   --accent-dim: #7a6340;
   --text: #e8e0d0;
   --text-dim: #6b6560;
+  --synth-purple: #7928ca;
+  --synth-pink: #ff6ec7;
+  --synth-cyan: #00d4ff;
+  --synth-magenta: #ff0080;
 }
 
 * {
@@ -15,34 +19,26 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  height: 100%;
 }
 
 body {
   background-color: var(--bg);
   color: var(--text);
   font-family: "Georgia", serif;
-  overflow-x: hidden;
+  overflow: hidden;
+  height: 100%;
 }
 
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: #0a0a0a;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--accent-dim);
-}
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-thumb { background: var(--accent-dim); }
+::selection { background: var(--accent-dim); color: var(--text); }
 
-::selection {
-  background: var(--accent-dim);
-  color: var(--text);
-}
-
+/* ── Keyframes ─────────────────────────────────── */
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 40px rgba(200,169,110,0.35), 0 0 90px rgba(200,169,110,0.12); }
-  50%       { box-shadow: 0 0 80px rgba(200,169,110,0.65), 0 0 180px rgba(200,169,110,0.28); }
+  0%, 100% { box-shadow: 0 0 40px rgba(200,169,110,0.3), 0 0 90px rgba(121,40,202,0.15); }
+  50%       { box-shadow: 0 0 80px rgba(200,169,110,0.6), 0 0 160px rgba(255,110,200,0.3); }
 }
 
 @keyframes spin-slow {
@@ -53,4 +49,9 @@ body {
 @keyframes blink-cursor {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0; }
+}
+
+@keyframes grid-move {
+  from { background-position: 0 0; }
+  to   { background-position: 0 60px; }
 }
