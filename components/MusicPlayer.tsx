@@ -43,17 +43,8 @@ export default function MusicPlayer() {
   }, []);
 
   useEffect(() => {
-    const loadApi = () => {
-      if (!document.getElementById("yt-api-script")) {
-        const script = document.createElement("script");
-        script.id = "yt-api-script";
-        script.src = "https://www.youtube.com/iframe_api";
-        document.body.appendChild(script);
-      }
-    };
-
-    window.onYouTubeIframeAPIReady = () => {
-      if (!containerRef.current) return;
+    const initPlayer = () => {
+      if (!containerRef.current || playerRef.current) return;
       playerRef.current = new window.YT.Player(containerRef.current, {
         videoId: "MEyyQh-9NW0",
         playerVars: {
@@ -74,7 +65,25 @@ export default function MusicPlayer() {
       });
     };
 
-    loadApi();
+    // API already loaded (e.g. hot reload)
+    if (window.YT && window.YT.Player) {
+      initPlayer();
+      return;
+    }
+
+    // Chain with any existing callback
+    const prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => {
+      if (prev) prev();
+      initPlayer();
+    };
+
+    if (!document.getElementById("yt-api-script")) {
+      const script = document.createElement("script");
+      script.id = "yt-api-script";
+      script.src = "https://www.youtube.com/iframe_api";
+      document.body.appendChild(script);
+    }
   }, []);
 
   const toggle = () => {
