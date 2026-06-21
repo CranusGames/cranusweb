@@ -852,7 +852,7 @@ export default function Home() {
         </div>
 
         {/* Leaderboard panel — left side */}
-        <div style={{ position: "absolute", top: "5.5rem", left: "1.5rem", zIndex: 20, fontFamily: "monospace", width: "155px", maxHeight: "calc(100vh - 10rem)", overflowY: "auto" }}>
+        <div className="leaderboard-scroll" style={{ position: "absolute", top: "5.5rem", left: "1.5rem", zIndex: 20, fontFamily: "monospace", width: "155px", maxHeight: "calc(100vh - 10rem)", overflowY: "auto" }}>
           <div style={{ fontSize: "0.48rem", letterSpacing: "0.25em", color: "#00d4ff", textTransform: "uppercase", marginBottom: "7px",
             textShadow: "0 0 10px rgba(0,212,255,0.7)", borderBottom: "1px solid rgba(0,212,255,0.25)", paddingBottom: "5px" }}>
             ⚔ Liderlik
