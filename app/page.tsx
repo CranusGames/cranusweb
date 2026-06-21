@@ -253,17 +253,11 @@ export default function Home() {
   const gbCanvasRef = useRef<HTMLCanvasElement>(null);
   const [active, setActive] = useState(0);
   const [photoHovered, setPhotoHovered] = useState(false);
-  const [arcadeScore, setArcadeScore] = useState<number>(() => {
-    if (typeof window === "undefined") return 0;
-    return Number(localStorage.getItem("arcade_score") ?? 0);
-  });
+  const [arcadeScore, setArcadeScore] = useState<number>(0);
   const [arcadePopup, setArcadePopup] = useState<{ title: string; x: number; y: number; key: number } | null>(null);
   const arcadeHitRef = useRef<(killerName: string, victimName: string, bx: number, by: number) => void>(() => {});
   const popupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [leaderboard, setLeaderboard] = useState<{ name: string; kills: number }[]>(() => {
-    if (typeof window === "undefined") return [];
-    try { return JSON.parse(localStorage.getItem("arcade_lb") ?? "[]"); } catch { return []; }
-  });
+  const [leaderboard, setLeaderboard] = useState<{ name: string; kills: number }[]>([]);
   const [lang, setLang] = useState<"tr" | "en">("tr");
   const [uptime, setUptime] = useState("");
   const [visitors, setVisitors] = useState<number | null>(null);
@@ -390,6 +384,14 @@ export default function Home() {
         .then((n: number) => { setVisitors(n); localStorage.setItem("cranus_visited", "1"); })
         .catch(() => {});
     }
+  }, []);
+
+  /* Load localStorage fallback after mount (avoids SSR hydration mismatch) */
+  useEffect(() => {
+    const sc = Number(localStorage.getItem("arcade_score") ?? 0);
+    const lb = (() => { try { return JSON.parse(localStorage.getItem("arcade_lb") ?? "[]"); } catch { return []; } })();
+    if (sc) setArcadeScore(sc);
+    if (lb.length) setLeaderboard(lb);
   }, []);
 
   /* Load global battle state from Supabase on mount */
