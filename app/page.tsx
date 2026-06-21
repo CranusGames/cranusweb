@@ -238,6 +238,7 @@ export default function Home() {
   const bioCanvasRef = useRef<HTMLCanvasElement>(null);
   const arcadeCanvasRef = useRef<HTMLCanvasElement>(null);
   const contactCanvasRef = useRef<HTMLCanvasElement>(null);
+  const gbCanvasRef = useRef<HTMLCanvasElement>(null);
   const [active, setActive] = useState(0);
   const [photoHovered, setPhotoHovered] = useState(false);
   const [arcadeScore, setArcadeScore] = useState<number>(() => {
@@ -287,6 +288,38 @@ export default function Home() {
   /* Persist battle state locally */
   useEffect(() => { localStorage.setItem("arcade_score", String(arcadeScore)); }, [arcadeScore]);
   useEffect(() => { localStorage.setItem("arcade_lb", JSON.stringify(leaderboard)); }, [leaderboard]);
+
+  /* Guestbook — golden particle canvas */
+  useEffect(() => {
+    const canvas = gbCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+    resize();
+    type GP = { x: number; y: number; r: number; vx: number; vy: number; a: number; va: number };
+    const pts: GP[] = Array.from({ length: 80 }, () => ({
+      x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+      r: Math.random() * 1.4 + 0.3,
+      vx: (Math.random() - 0.5) * 0.22, vy: -Math.random() * 0.18 - 0.06,
+      a: Math.random(), va: (Math.random() - 0.5) * 0.006,
+    }));
+    let id: number;
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      pts.forEach(p => {
+        p.x += p.vx; p.y += p.vy; p.a = Math.max(0.05, Math.min(0.7, p.a + p.va));
+        if (p.x < 0) p.x = canvas.width; if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(200,169,110,${p.a})`; ctx.fill();
+      });
+      id = requestAnimationFrame(draw);
+    };
+    draw();
+    window.addEventListener("resize", resize);
+    return () => { cancelAnimationFrame(id); window.removeEventListener("resize", resize); };
+  }, []);
 
   /* Guestbook — load entries */
   const loadGuestbook = () => {
@@ -1493,106 +1526,140 @@ setLeaderboard(prev => {
           background: "linear-gradient(160deg, #0a0800 0%, #12100a 55%, #0e0c06 100%)",
           display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
 
-        <canvas style={{ display: "none" }} />
-        <SynthGrid color="rgba(200,169,110,0.15)" />
+        <canvas ref={gbCanvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", opacity: 0.7 }} />
+        <SynthGrid color="rgba(200,169,110,0.12)" />
         <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, transparent 20%, rgba(0,0,0,0.75) 100%)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(to right, transparent, var(--accent), #ff6ec7, transparent)" }} />
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(to right, transparent, var(--accent-dim), transparent)" }} />
 
-        <div style={{ position: "relative", zIndex: 10, maxWidth: "900px", width: "100%", margin: "0 auto", padding: "0 28px", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+        <div style={{ position: "relative", zIndex: 10, maxWidth: "960px", width: "100%", margin: "0 auto", padding: "0 28px", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center" }}>
 
           {/* Title */}
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
-            style={{ marginBottom: "1.6rem", textAlign: "center" }}>
-            <p style={{ fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.55em", color: "var(--accent)", fontFamily: "monospace", marginBottom: "0.5rem", textShadow: "0 0 18px rgba(200,169,110,0.8)" }}>
+            style={{ marginBottom: "1.4rem", textAlign: "center" }}>
+            <p style={{ fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.55em", color: "var(--accent)", fontFamily: "monospace", marginBottom: "0.4rem", textShadow: "0 0 18px rgba(200,169,110,0.8)" }}>
               {isTR ? "Boyut 04" : "Level 04"}
             </p>
-            <h2 style={{ fontSize: "clamp(2rem, 5vw, 3.8rem)", fontWeight: "bold", color: "var(--text)", letterSpacing: "-0.02em",
+            <h2 style={{ fontSize: "clamp(1.8rem, 4.5vw, 3.4rem)", fontWeight: "bold", color: "var(--text)", letterSpacing: "-0.02em",
               textShadow: "0 0 40px rgba(200,169,110,0.5), 0 0 80px rgba(200,169,110,0.2)" }}>
               {isTR ? "Ziyaretçi Defteri" : "Guestbook"}
             </h2>
-            <div style={{ width: "70px", height: "2px", background: "linear-gradient(to right, var(--accent), #ff6ec7)", margin: "10px auto 0" }} />
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginTop: "8px" }}>
+              <div style={{ height: "1px", width: "50px", background: "linear-gradient(to right, transparent, var(--accent))" }} />
+              <span style={{ fontFamily: "monospace", fontSize: "0.52rem", color: "var(--accent-dim)", letterSpacing: "0.2em" }}>
+                {gbEntries.length} {isTR ? "MESAJ" : "MESSAGES"}
+              </span>
+              <div style={{ height: "1px", width: "50px", background: "linear-gradient(to left, transparent, var(--accent))" }} />
+            </div>
           </motion.div>
 
-          {/* Main layout: messages left, form right */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: "20px", flex: 1, minHeight: 0, maxHeight: "calc(100vh - 240px)" }}>
+          {/* Main layout */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: "18px", flex: 1, minHeight: 0, maxHeight: "calc(100vh - 210px)" }}>
 
             {/* Messages list */}
-            <div className="leaderboard-scroll" style={{ overflowY: "auto", display: "flex", flexDirection: "column", gap: "8px", paddingRight: "6px" }}>
+            <div className="leaderboard-scroll" style={{ overflowY: "auto", display: "flex", flexDirection: "column", gap: "8px", paddingRight: "8px" }}>
               {gbEntries.length === 0 && (
-                <div style={{ color: "var(--text-dim)", fontFamily: "monospace", fontSize: "0.65rem", textAlign: "center", marginTop: "3rem", opacity: 0.5 }}>
-                  {isTR ? "Henüz mesaj yok. İlk sen yaz!" : "No messages yet. Be the first!"}
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: "16px" }}>
+                  <div style={{ fontSize: "2.5rem", opacity: 0.18 }}>✦</div>
+                  <p style={{ color: "var(--text-dim)", fontFamily: "monospace", fontSize: "0.62rem", textAlign: "center", lineHeight: 2, opacity: 0.6 }}>
+                    {isTR ? "Henüz kimse iz bırakmamış.\nİlk sen yaz!" : "No one has left a trace yet.\nBe the first!"}
+                  </p>
+                  <div style={{ width: "40px", height: "1px", background: "var(--accent-dim)", opacity: 0.4 }} />
                 </div>
               )}
-              {gbEntries.map((e, i) => (
-                <motion.div key={e.id}
-                  initial={{ opacity: 0, x: -12 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.35, delay: i * 0.04 }}
-                  style={{ padding: "12px 16px", border: "1px solid rgba(200,169,110,0.18)", background: "rgba(200,169,110,0.04)", position: "relative" }}>
-                  <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "2px", background: `hsl(${(e.id * 47) % 360}, 70%, 65%)` }} />
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "5px" }}>
-                    <span style={{ fontFamily: "monospace", fontSize: "0.72rem", fontWeight: "bold",
-                      color: `hsl(${(e.id * 47) % 360}, 80%, 70%)`,
-                      textShadow: `0 0 10px hsl(${(e.id * 47) % 360}, 80%, 60%)` }}>
-                      {e.name}
-                    </span>
-                    <span style={{ fontFamily: "monospace", fontSize: "0.55rem", color: "var(--text-dim)", letterSpacing: "0.06em" }}>
-                      {new Date(e.created_at).toLocaleDateString(isTR ? "tr-TR" : "en-US", { day: "numeric", month: "short", year: "numeric" })}
-                    </span>
-                  </div>
-                  <p style={{ fontSize: "0.78rem", color: "rgba(220,210,190,0.8)", lineHeight: 1.6, margin: 0 }}>{e.message}</p>
-                </motion.div>
-              ))}
+              {gbEntries.map((e, i) => {
+                const hue = (e.id * 53 + 30) % 360;
+                const initials = e.name.trim().split(/\s+/).slice(0, 2).map((w: string) => w[0]?.toUpperCase() ?? "").join("");
+                return (
+                  <motion.div key={e.id}
+                    initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.3, delay: Math.min(i * 0.03, 0.3) }}
+                    style={{ padding: "11px 14px 11px 12px", border: `1px solid hsl(${hue},35%,28%)`,
+                      background: `linear-gradient(135deg, hsla(${hue},40%,12%,0.5) 0%, rgba(8,6,3,0.6) 100%)`,
+                      backdropFilter: "blur(6px)", display: "flex", gap: "11px", alignItems: "flex-start" }}>
+                    {/* Pixel avatar */}
+                    <div style={{ flexShrink: 0, width: "34px", height: "34px", borderRadius: "4px",
+                      background: `linear-gradient(135deg, hsl(${hue},60%,30%), hsl(${hue},80%,20%))`,
+                      border: `1px solid hsl(${hue},70%,45%)`,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      boxShadow: `0 0 10px hsla(${hue},70%,50%,0.35)`,
+                      fontFamily: "monospace", fontWeight: "bold", fontSize: "0.7rem",
+                      color: `hsl(${hue},90%,80%)`, letterSpacing: "0.05em", userSelect: "none" }}>
+                      {initials || "?"}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "4px" }}>
+                        <span style={{ fontFamily: "monospace", fontSize: "0.7rem", fontWeight: "bold",
+                          color: `hsl(${hue},80%,72%)`, textShadow: `0 0 8px hsla(${hue},80%,60%,0.6)`,
+                          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "55%" }}>
+                          {e.name}
+                        </span>
+                        <span style={{ fontFamily: "monospace", fontSize: "0.52rem", color: "var(--text-dim)", flexShrink: 0, marginLeft: "8px" }}>
+                          {new Date(e.created_at).toLocaleDateString(isTR ? "tr-TR" : "en-US", { day: "numeric", month: "short", year: "numeric" })}
+                        </span>
+                      </div>
+                      <p style={{ fontSize: "0.76rem", color: "rgba(220,210,190,0.82)", lineHeight: 1.65, margin: 0, wordBreak: "break-word" }}>{e.message}</p>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
 
             {/* Submit form */}
             <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.2 }}
-              style={{ display: "flex", flexDirection: "column", gap: "12px", padding: "22px", border: "1px solid rgba(200,169,110,0.25)",
-                background: "linear-gradient(135deg, rgba(200,169,110,0.06) 0%, rgba(0,0,0,0) 100%)",
-                backdropFilter: "blur(10px)", height: "fit-content" }}>
+              style={{ display: "flex", flexDirection: "column", gap: "11px", padding: "20px", border: "1px solid rgba(200,169,110,0.3)",
+                background: "linear-gradient(160deg, rgba(200,169,110,0.07) 0%, rgba(0,0,0,0) 100%)",
+                backdropFilter: "blur(12px)", height: "fit-content",
+                boxShadow: "0 0 40px rgba(200,169,110,0.06), inset 0 0 40px rgba(200,169,110,0.03)" }}>
 
-              <p style={{ fontFamily: "monospace", fontSize: "0.52rem", textTransform: "uppercase", letterSpacing: "0.22em", color: "var(--accent)", marginBottom: "4px" }}>
-                ✦ {isTR ? "Mesaj Bırak" : "Leave a Message"}
-              </p>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "2px" }}>
+                <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--accent)", boxShadow: "0 0 8px var(--accent)", animation: "pulse-glow 2s infinite" }} />
+                <p style={{ fontFamily: "monospace", fontSize: "0.5rem", textTransform: "uppercase", letterSpacing: "0.22em", color: "var(--accent)", margin: 0 }}>
+                  {isTR ? "Mesaj Bırak" : "Leave a Message"}
+                </p>
+              </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                <label style={{ fontFamily: "monospace", fontSize: "0.48rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--text-dim)" }}>
+                <label style={{ fontFamily: "monospace", fontSize: "0.46rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--text-dim)" }}>
                   {isTR ? "İsim" : "Name"}
                 </label>
                 <input value={gbName} onChange={e => setGbName(e.target.value)} maxLength={32}
                   placeholder={isTR ? "Adın…" : "Your name…"}
-                  style={{ background: "rgba(200,169,110,0.06)", border: "1px solid rgba(200,169,110,0.28)", color: "var(--text)",
-                    fontFamily: "monospace", fontSize: "0.8rem", padding: "9px 12px", outline: "none",
-                    transition: "border-color 0.2s" }}
-                  onFocus={e => (e.target.style.borderColor = "rgba(200,169,110,0.7)")}
-                  onBlur={e => (e.target.style.borderColor = "rgba(200,169,110,0.28)")} />
+                  style={{ background: "rgba(200,169,110,0.05)", border: "1px solid rgba(200,169,110,0.25)", color: "var(--text)",
+                    fontFamily: "monospace", fontSize: "0.78rem", padding: "8px 11px", outline: "none", transition: "all 0.2s" }}
+                  onFocus={e => { e.target.style.borderColor = "rgba(200,169,110,0.75)"; e.target.style.boxShadow = "0 0 12px rgba(200,169,110,0.15)"; }}
+                  onBlur={e => { e.target.style.borderColor = "rgba(200,169,110,0.25)"; e.target.style.boxShadow = "none"; }} />
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                <label style={{ fontFamily: "monospace", fontSize: "0.48rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--text-dim)" }}>
-                  {isTR ? "Mesaj" : "Message"} <span style={{ color: "var(--accent-dim)" }}>({gbMsg.length}/160)</span>
+                <label style={{ fontFamily: "monospace", fontSize: "0.46rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--text-dim)" }}>
+                  {isTR ? "Mesaj" : "Message"}
+                  <span style={{ color: gbMsg.length > 140 ? "#ff6ec7" : "var(--accent-dim)", marginLeft: "6px" }}>({gbMsg.length}/160)</span>
                 </label>
-                <textarea value={gbMsg} onChange={e => setGbMsg(e.target.value)} maxLength={160} rows={4}
-                  placeholder={isTR ? "Merhaba! Siten harika…" : "Hey! Your site is amazing…"}
-                  style={{ background: "rgba(200,169,110,0.06)", border: "1px solid rgba(200,169,110,0.28)", color: "var(--text)",
-                    fontFamily: "monospace", fontSize: "0.78rem", padding: "9px 12px", outline: "none", resize: "none",
-                    lineHeight: 1.6, transition: "border-color 0.2s" }}
-                  onFocus={e => (e.target.style.borderColor = "rgba(200,169,110,0.7)")}
-                  onBlur={e => (e.target.style.borderColor = "rgba(200,169,110,0.28)")} />
+                <textarea value={gbMsg} onChange={e => setGbMsg(e.target.value)} maxLength={160} rows={5}
+                  placeholder={isTR ? "Merhaba! Siten harika…" : "Hey! Your site looks amazing…"}
+                  style={{ background: "rgba(200,169,110,0.05)", border: "1px solid rgba(200,169,110,0.25)", color: "var(--text)",
+                    fontFamily: "monospace", fontSize: "0.75rem", padding: "8px 11px", outline: "none", resize: "none",
+                    lineHeight: 1.65, transition: "all 0.2s" }}
+                  onFocus={e => { e.target.style.borderColor = "rgba(200,169,110,0.75)"; e.target.style.boxShadow = "0 0 12px rgba(200,169,110,0.15)"; }}
+                  onBlur={e => { e.target.style.borderColor = "rgba(200,169,110,0.25)"; e.target.style.boxShadow = "none"; }} />
               </div>
 
-              {gbError && <p style={{ fontFamily: "monospace", fontSize: "0.55rem", color: "#ff4444", margin: 0 }}>{gbError}</p>}
+              {gbError && <p style={{ fontFamily: "monospace", fontSize: "0.52rem", color: "#ff6666", margin: 0 }}>{gbError}</p>}
 
-              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
                 onClick={submitGuestbook} disabled={gbSending}
-                style={{ padding: "11px 0", fontFamily: "monospace", fontSize: "0.65rem", textTransform: "uppercase",
-                  letterSpacing: "0.22em", border: "1px solid var(--accent)", color: gbSending ? "var(--accent-dim)" : "#050505",
-                  background: gbSending ? "transparent" : "var(--accent)",
+                style={{ padding: "12px 0", fontFamily: "monospace", fontSize: "0.62rem", textTransform: "uppercase",
+                  letterSpacing: "0.22em", border: "1px solid var(--accent)",
+                  color: gbSending ? "var(--accent-dim)" : "#050505",
+                  background: gbSending ? "transparent" : "linear-gradient(90deg, #c8a96e, #e8c98e)",
                   cursor: gbSending ? "not-allowed" : "pointer", transition: "all 0.25s",
-                  boxShadow: gbSending ? "none" : "0 0 24px rgba(200,169,110,0.35)" }}>
-                {gbSending ? (isTR ? "Gönderiliyor…" : "Sending…") : (isTR ? "Gönder →" : "Send →")}
+                  boxShadow: gbSending ? "none" : "0 0 28px rgba(200,169,110,0.4)" }}>
+                {gbSending ? (isTR ? "Gönderiliyor…" : "Sending…") : (isTR ? "✦ Gönder" : "✦ Send")}
               </motion.button>
 
-              <p style={{ fontFamily: "monospace", fontSize: "0.44rem", color: "var(--text-dim)", textAlign: "center", lineHeight: 1.7, margin: 0 }}>
-                {isTR ? "Lütfen saygılı ol. Spam silinir." : "Be respectful. Spam will be removed."}
+              <p style={{ fontFamily: "monospace", fontSize: "0.42rem", color: "var(--text-dim)", textAlign: "center", lineHeight: 1.8, margin: 0, opacity: 0.7 }}>
+                {isTR ? "Saygılı ol · Spam silinir" : "Be kind · Spam will be removed"}
               </p>
             </motion.div>
           </div>
