@@ -1079,42 +1079,93 @@ export default function Home() {
           </motion.div>
 
           {/* Social cards — 2×2 */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px", marginBottom: "12px" }}>
-            {[
-              { href: "https://cranus.itch.io/", label: "itch.io", handle: "cranus.itch.io", sym: "⚡", color: "#ff6ec7", tag: "OYUN", desc: `${games.length} Oyun Yayınlandı` },
-              { href: "https://www.youtube.com/@cranuss/videos", label: "YouTube", handle: "@cranuss", sym: "▶", color: "#ff4444", tag: "VİDEO", desc: "Devlog & Gameplay" },
-              { href: "https://www.instagram.com/cranusgamess/", label: "Instagram", handle: "@cranusgamess", sym: "◈", color: "#e040fb", tag: "GÖRSEL", desc: "Gelişim süreci & güncellemeler" },
-              { href: "https://play.google.com/store/apps/details?id=com.cranusgames.DenDenMushi", label: "Play Store", handle: "Cranus Games", sym: "◉", color: "#00e676", tag: "MOBİL", desc: "Android oyunlar — Ücretsiz" },
-            ].map((s, i) => (
-              <motion.a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer"
-                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                transition={{ duration: 0.45, delay: i * 0.08 }}
-                whileHover={{ y: -4 }}
-                style={{ display: "flex", flexDirection: "column", padding: "20px 22px", textDecoration: "none",
-                  border: `1px solid ${s.color}28`, background: `linear-gradient(135deg, ${s.color}0a 0%, rgba(0,0,0,0) 65%)`,
-                  backdropFilter: "blur(10px)", transition: "all 0.3s", position: "relative", overflow: "hidden" }}
-                onMouseEnter={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = s.color + "70"; el.style.background = `linear-gradient(135deg, ${s.color}18 0%, rgba(0,0,0,0) 65%)`; el.style.boxShadow = `0 0 35px ${s.color}22, inset 0 0 35px ${s.color}06`; }}
-                onMouseLeave={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = s.color + "28"; el.style.background = `linear-gradient(135deg, ${s.color}0a 0%, rgba(0,0,0,0) 65%)`; el.style.boxShadow = "none"; }}>
-                {/* Top row */}
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "14px" }}>
-                  <span style={{ fontSize: "1.9rem", lineHeight: 1, color: s.color, textShadow: `0 0 24px ${s.color}` }}>{s.sym}</span>
-                  <span style={{ fontSize: "0.48rem", letterSpacing: "0.18em", color: s.color + "90", fontFamily: "monospace",
-                    padding: "3px 8px", border: `1px solid ${s.color}35`, background: `${s.color}0d` }}>{s.tag}</span>
-                </div>
-                {/* Platform */}
-                <span style={{ fontSize: "1.05rem", fontWeight: "bold", color: "var(--text)", marginBottom: "3px" }}>{s.label}</span>
-                <span style={{ fontSize: "0.6rem", color: s.color + "aa", fontFamily: "monospace", marginBottom: "12px" }}>{s.handle}</span>
-                {/* Desc + arrow */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto" }}>
-                  <span style={{ fontSize: "0.68rem", color: "rgba(220,200,230,0.45)" }}>{s.desc}</span>
-                  <span style={{ fontSize: "0.75rem", color: s.color + "70" }}>→</span>
-                </div>
-                {/* Glow blob */}
-                <div style={{ position: "absolute", bottom: -30, right: -30, width: 90, height: 90, borderRadius: "50%",
-                  background: `radial-gradient(circle, ${s.color}14 0%, transparent 70%)`, pointerEvents: "none" }} />
-              </motion.a>
-            ))}
-          </div>
+          {(() => {
+            const SOCIALS = [
+              {
+                href: "https://cranus.itch.io/", label: "itch.io", handle: "cranus.itch.io",
+                color: "#fa5c5c", tag: "OYUN", desc: `${games.length} Oyun Yayınlandı`,
+                logo: (
+                  <svg width="42" height="38" viewBox="0 0 245 220" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M31.9,0C14.4,0,0,14.4,0,31.9v156.2C0,205.6,14.4,220,31.9,220h181.2c17.5,0,31.9-14.4,31.9-31.9V31.9C245,14.4,230.6,0,213.1,0H31.9z"/>
+                    <path fill="#0a000f" d="M207,60.7c-5.3-3.6-14.8-9.6-34.5-12.1L167.6,43.8c-12.5-12.5-32.6-14.7-46.3-4.3C107.6,29.1,87.5,31.3,75,43.8l-4.9,4.9C50.4,51.1,40.9,57.1,35.6,60.7C9.3,65.5,4.2,74.1,4.2,83.6v21.7c0,17.4,14.1,31.6,31.6,31.6h0.5c7.9,0,15.1-3.1,20.5-8c5.4,5,12.6,8,20.5,8h64.1c7.9,0,15.1-3,20.5-8c5.4,5,12.6,8,20.5,8h0.5c17.4,0,31.6-14.1,31.6-31.6V83.6C214.9,74.1,209.8,65.5,207,60.7z"/>
+                    <rect fill="#0a000f" x="73" y="148" width="99" height="56" rx="4"/>
+                    <rect fill="#0a000f" x="82" y="173" width="81" height="31" rx="3"/>
+                  </svg>
+                ),
+              },
+              {
+                href: "https://www.youtube.com/@cranuss/videos", label: "YouTube", handle: "@cranuss",
+                color: "#ff4444", tag: "VİDEO", desc: "Devlog & Gameplay",
+                logo: (
+                  <svg width="46" height="32" viewBox="0 0 46 32" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="46" height="32" rx="7" fill="#FF0000"/>
+                    <polygon points="18,8 34,16 18,24" fill="white"/>
+                  </svg>
+                ),
+              },
+              {
+                href: "https://www.instagram.com/cranusgamess/", label: "Instagram", handle: "@cranusgamess",
+                color: "#e040fb", tag: "GÖRSEL", desc: "Gelişim süreci & güncellemeler",
+                logo: (
+                  <svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                      <radialGradient id="ig_rg" cx="30%" cy="110%" r="140%">
+                        <stop offset="0%" stopColor="#fdf497"/>
+                        <stop offset="20%" stopColor="#fd5949"/>
+                        <stop offset="55%" stopColor="#d6249f"/>
+                        <stop offset="100%" stopColor="#285AEB"/>
+                      </radialGradient>
+                    </defs>
+                    <rect width="38" height="38" rx="9" fill="url(#ig_rg)"/>
+                    <rect x="4" y="4" width="30" height="30" rx="6" fill="none" stroke="white" strokeWidth="2.2"/>
+                    <circle cx="19" cy="19" r="7.5" fill="none" stroke="white" strokeWidth="2.2"/>
+                    <circle cx="28" cy="10" r="2" fill="white"/>
+                  </svg>
+                ),
+              },
+              {
+                href: "https://play.google.com/store/apps/details?id=com.cranusgames.DenDenMushi", label: "Play Store", handle: "Cranus Games",
+                color: "#00e676", tag: "MOBİL", desc: "Android oyunlar — Ücretsiz",
+                logo: (
+                  <svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5,3 L20,19 L5,35 Q3,34 3,32 L3,6 Q3,4 5,3 Z" fill="#00D2FF"/>
+                    <path d="M5,3 L26,13 L20,19 Z" fill="#FF3D00"/>
+                    <path d="M26,25 L20,19 L5,35 Z" fill="#FFD600"/>
+                    <path d="M30,16 Q33,17.5 33,19 Q33,20.5 30,22 L26,25 L20,19 L26,13 Z" fill="#00F076"/>
+                  </svg>
+                ),
+              },
+            ];
+            return (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px", marginBottom: "12px" }}>
+                {SOCIALS.map((s, i) => (
+                  <motion.a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer"
+                    initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                    transition={{ duration: 0.45, delay: i * 0.08 }}
+                    whileHover={{ y: -4 }}
+                    style={{ display: "flex", flexDirection: "column", padding: "20px 22px", textDecoration: "none",
+                      border: `1px solid ${s.color}28`, background: `linear-gradient(135deg, ${s.color}0a 0%, rgba(0,0,0,0) 65%)`,
+                      backdropFilter: "blur(10px)", transition: "all 0.3s", position: "relative", overflow: "hidden" }}
+                    onMouseEnter={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = s.color + "70"; el.style.background = `linear-gradient(135deg, ${s.color}18 0%, rgba(0,0,0,0) 65%)`; el.style.boxShadow = `0 0 35px ${s.color}22, inset 0 0 35px ${s.color}06`; }}
+                    onMouseLeave={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = s.color + "28"; el.style.background = `linear-gradient(135deg, ${s.color}0a 0%, rgba(0,0,0,0) 65%)`; el.style.boxShadow = "none"; }}>
+                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "14px" }}>
+                      <div style={{ filter: `drop-shadow(0 0 10px ${s.color}88)` }}>{s.logo}</div>
+                      <span style={{ fontSize: "0.48rem", letterSpacing: "0.18em", color: s.color + "90", fontFamily: "monospace",
+                        padding: "3px 8px", border: `1px solid ${s.color}35`, background: `${s.color}0d` }}>{s.tag}</span>
+                    </div>
+                    <span style={{ fontSize: "1.05rem", fontWeight: "bold", color: "var(--text)", marginBottom: "3px" }}>{s.label}</span>
+                    <span style={{ fontSize: "0.6rem", color: s.color + "aa", fontFamily: "monospace", marginBottom: "12px" }}>{s.handle}</span>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto" }}>
+                      <span style={{ fontSize: "0.68rem", color: "rgba(220,200,230,0.45)" }}>{s.desc}</span>
+                      <span style={{ fontSize: "0.75rem", color: s.color + "70" }}>→</span>
+                    </div>
+                    <div style={{ position: "absolute", bottom: -30, right: -30, width: 90, height: 90, borderRadius: "50%",
+                      background: `radial-gradient(circle, ${s.color}14 0%, transparent 70%)`, pointerEvents: "none" }} />
+                  </motion.a>
+                ))}
+              </div>
+            );
+          })()}
 
           {/* Bottom row: Den Den Mushi + Email */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "12px", alignItems: "stretch" }}>
