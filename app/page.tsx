@@ -904,8 +904,8 @@ setLeaderboard(prev => {
   const t = {
     heroLabel:   isTR ? "Cranus Games Studio" : "Cranus Games Studio",
     heroTyping:  isTR
-      ? ["Indie Oyun Geliştiricisi", "Unity Geliştirici", "Oyun Tasarımcısı", "Yaratıcı Geliştirici"]
-      : ["Indie Game Developer",     "Unity Developer",   "Game Designer",    "Creative Developer"],
+      ? ["Indie Oyun Geliştiricisi", "Unity Geliştirici", "Oyun Tasarımcısı", "Yaratıcı Geliştirici", "Ördek Terbiyecisi"]
+      : ["Indie Game Developer",     "Unity Developer",   "Game Designer",    "Creative Developer",   "Duck Trainer"],
     statGame:    isTR ? "Oyun"     : "Game",
     statYear:    isTR ? "Yıl"      : "Year",
     statIdea:    isTR ? "Fikir"    : "Idea",
