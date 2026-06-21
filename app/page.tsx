@@ -248,7 +248,7 @@ export default function Home() {
     return () => { cancelAnimationFrame(id); window.removeEventListener("resize", handleResize); };
   }, []);
 
-  /* Arcade pixel starfield */
+  /* Arcade pixel effect */
   useEffect(() => {
     const canvas = arcadeCanvasRef.current;
     if (!canvas) return;
@@ -256,29 +256,54 @@ export default function Home() {
     if (!ctx) return;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    type Px = { x: number; y: number; c: string; speed: number; phase: number; blinkSpeed: number };
-    const cols = ["#00d4ff", "#ff0080", "#ffff00", "#00ff88", "#ff6ec7", "#ffffff"];
-    const px: Px[] = Array.from({ length: 200 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      c: cols[Math.floor(Math.random() * cols.length)],
-      speed: Math.random() * 0.35 + 0.05,
-      phase: Math.random() * Math.PI * 2,
-      blinkSpeed: Math.random() * 1.8 + 0.4,
+
+    const palette = ["#00ffff", "#ff00ff", "#ffff00", "#00ff88", "#ff6600", "#ff69b4", "#00d4ff"];
+    type Px = { x: number; y: number; vx: number; vy: number; c: string; sz: number; phase: number; spd: number };
+
+    /* Small drifting pixels */
+    const small: Px[] = Array.from({ length: 280 }, () => {
+      const spd = Math.random() * 0.7 + 0.15;
+      return {
+        x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.3, vy: -spd,
+        c: palette[Math.floor(Math.random() * palette.length)],
+        sz: [2, 4, 4, 4, 6][Math.floor(Math.random() * 5)],
+        phase: Math.random() * Math.PI * 2, spd: Math.random() * 2 + 0.5,
+      };
+    });
+
+    /* Larger "power-up" blinking blocks */
+    type Blk = { x: number; y: number; c: string; sz: number; rate: number; phase: number };
+    const blocks: Blk[] = Array.from({ length: 18 }, () => ({
+      x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+      c: palette[Math.floor(Math.random() * palette.length)],
+      sz: 8 + Math.floor(Math.random() * 3) * 4,
+      rate: Math.random() * 1.2 + 0.4, phase: Math.random() * Math.PI * 2,
     }));
+
     let id: number;
     const draw = () => {
-      if (!ctx || !canvas) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      /* fade trail */
+      ctx.fillStyle = "rgba(0,13,26,0.18)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
       const now = Date.now() / 1000;
-      px.forEach(p => {
-        const alpha = (Math.sin(now * p.blinkSpeed + p.phase) + 1) / 2 * 0.65 + 0.1;
-        ctx.globalAlpha = alpha;
-        ctx.fillStyle = p.c;
-        ctx.fillRect(Math.floor(p.x), Math.floor(p.y), 2, 2);
-        p.y -= p.speed;
-        if (p.y < -2) { p.y = canvas.height + 2; p.x = Math.random() * canvas.width; }
+
+      small.forEach(p => {
+        const a = (Math.sin(now * p.spd + p.phase) + 1) / 2 * 0.75 + 0.15;
+        ctx.globalAlpha = a; ctx.fillStyle = p.c;
+        ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.sz, p.sz);
+        p.x += p.vx; p.y += p.vy;
+        if (p.y < -p.sz) { p.y = canvas.height; p.x = Math.random() * canvas.width; }
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
       });
+
+      blocks.forEach(b => {
+        const a = (Math.sin(now * b.rate + b.phase) + 1) / 2 * 0.55 + 0.05;
+        ctx.globalAlpha = a; ctx.fillStyle = b.c;
+        ctx.fillRect(Math.floor(b.x), Math.floor(b.y), b.sz, b.sz);
+      });
+
       ctx.globalAlpha = 1;
       id = requestAnimationFrame(draw);
     };
@@ -540,7 +565,7 @@ export default function Home() {
       <section id="section-2" data-idx="2"
         style={{ height: "100vh", scrollSnapAlign: "start", position: "relative", background: "#000d1a", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", overflow: "hidden", textAlign: "center" }}>
 
-        <canvas ref={arcadeCanvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", opacity: 0.45 }} />
+        <canvas ref={arcadeCanvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", opacity: 0.85 }} />
         {/* CRT scanlines */}
         <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.18) 2px, rgba(0,0,0,0.18) 4px)", pointerEvents: "none", zIndex: 1 }} />
         <SynthGrid color="rgba(0,180,255,0.15)" flip />
