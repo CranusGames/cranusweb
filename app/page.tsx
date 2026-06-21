@@ -143,8 +143,8 @@ function CranusLogo({ size = 90 }: { size?: number }) {
 }
 
 /* ─── Nav Dots ───────────────────────────────────────────── */
-const SECTIONS = ["Hero", "Biyografi", "Oyunlar", "Bağlantı", "Defter"];
-const COLORS   = ["var(--accent)", "#ff6ec7", "#00d4ff", "#ff0080", "#c8a96e"];
+const SECTIONS = ["Hero", "Biyografi", "Oyunlar", "Bağlantı", "Projeler", "Defter"];
+const COLORS   = ["var(--accent)", "#ff6ec7", "#00d4ff", "#ff0080", "#a855f7", "#c8a96e"];
 
 function NavDots({ active }: { active: number }) {
   return (
@@ -1531,12 +1531,163 @@ setLeaderboard(prev => {
             © 2025 Emirhan Aycibin — Cranus Games Studio
           </motion.p>
         </div>
+
+        <motion.div animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 1.8 }}
+          onClick={() => scrollTo(4)}
+          style={{ position: "absolute", bottom: "1.5rem", left: "50%", transform: "translateX(-50%)", cursor: "pointer", color: "rgba(255,110,200,0.4)", fontSize: "1.2rem", fontFamily: "monospace", userSelect: "none" }}>▼</motion.div>
       </section>
 
       {/* ════════════════════════════════════════
-          BOYUT 4 — ZİYARETÇİ DEFTERİ
+          BOYUT 4 — PROJELER
       ════════════════════════════════════════ */}
       <section id="section-4" data-idx="4"
+        style={{ height: "100vh", scrollSnapAlign: "start", position: "relative",
+          background: "linear-gradient(160deg, #0d0020 0%, #150030 55%, #0a0018 100%)",
+          display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+
+        <SynthGrid color="rgba(168,85,247,0.18)" />
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 40%, rgba(168,85,247,0.1) 0%, transparent 65%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(to right, transparent, #a855f7, #ff6ec7, transparent)" }} />
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(to right, transparent, #a855f7, transparent)" }} />
+
+        <div style={{ position: "relative", zIndex: 10, maxWidth: "980px", width: "100%", margin: "0 auto", padding: "0 28px", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", gap: "1.4rem" }}>
+
+          {/* Title */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
+            style={{ textAlign: "center" }}>
+            <p style={{ fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.55em", color: "#a855f7", fontFamily: "monospace", marginBottom: "0.4rem", textShadow: "0 0 18px rgba(168,85,247,0.8)" }}>
+              {isTR ? "Boyut 04" : "Level 04"}
+            </p>
+            <h2 style={{ fontSize: "clamp(1.8rem, 4.5vw, 3.2rem)", fontWeight: "bold", color: "var(--text)", letterSpacing: "-0.02em",
+              textShadow: "0 0 40px rgba(168,85,247,0.5), 0 0 80px rgba(168,85,247,0.2)" }}>
+              {isTR ? "Projeler" : "Projects"}
+            </h2>
+            <div style={{ width: "60px", height: "2px", background: "linear-gradient(to right, #a855f7, #ff6ec7)", margin: "8px auto 0" }} />
+          </motion.div>
+
+          {/* Grid */}
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "16px", overflowY: isMobile ? "auto" : undefined }}>
+
+            {/* ── Unity Oyunları ── */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <p style={{ fontSize: "0.52rem", textTransform: "uppercase", letterSpacing: "0.3em", color: "rgba(168,85,247,0.6)", fontFamily: "monospace", marginBottom: "2px" }}>
+                ◈ {isTR ? "Unity Oyunları" : "Unity Games"}
+              </p>
+
+              {/* Proje #1 */}
+              {[
+                {
+                  id: "1", pct: 75,
+                  genres: isTR ? ["Multiplayer", "Korku", "Bulmaca"] : ["Multiplayer", "Horror", "Puzzle"],
+                  desc: isTR
+                    ? "Sovyet nükleer araştırma tesisinde arkadaşlarınla hayatta kal, bölmeleri keşfet ve gizli sistemleri çöz."
+                    : "Survive in a Soviet nuclear research facility with friends — explore sectors and solve hidden systems.",
+                  genreColor: "#a855f7",
+                },
+                {
+                  id: "2", pct: 10,
+                  genres: isTR ? ["Multiplayer", "Party"] : ["Multiplayer", "Party"],
+                  desc: isTR
+                    ? "Arkadaşlarınla eğlenceli çok oyunculu bir parti deneyimi. Erken geliştirme aşamasında."
+                    : "A fun multiplayer party experience with friends. Currently in very early development.",
+                  genreColor: "#ff6ec7",
+                },
+              ].map(g => (
+                <motion.div key={g.id}
+                  initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: Number(g.id) * 0.1 }}
+                  style={{ padding: "14px 16px", border: "1px solid rgba(168,85,247,0.25)", background: "linear-gradient(135deg, rgba(168,85,247,0.07) 0%, rgba(0,0,0,0) 70%)", backdropFilter: "blur(8px)", position: "relative", overflow: "hidden" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                    <span style={{ fontFamily: "monospace", fontWeight: "bold", fontSize: "0.8rem", color: "var(--text)", letterSpacing: "0.05em" }}>
+                      {isTR ? `Proje #${g.id}` : `Project #${g.id}`}
+                    </span>
+                    <span style={{ fontSize: "0.46rem", letterSpacing: "0.15em", color: "#a855f7", fontFamily: "monospace", padding: "2px 7px", border: "1px solid rgba(168,85,247,0.4)", background: "rgba(168,85,247,0.08)" }}>
+                      ● {isTR ? "GELİŞTİRİLİYOR" : "IN DEV"}
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", gap: "6px", marginBottom: "7px", flexWrap: "wrap" }}>
+                    {g.genres.map(genre => (
+                      <span key={genre} style={{ fontSize: "0.48rem", padding: "2px 8px", border: `1px solid ${g.genreColor}40`, color: g.genreColor, fontFamily: "monospace", letterSpacing: "0.1em", textTransform: "uppercase", background: `${g.genreColor}0d` }}>{genre}</span>
+                    ))}
+                  </div>
+                  <p style={{ fontSize: "0.68rem", color: "rgba(220,200,230,0.5)", lineHeight: 1.6, marginBottom: "10px" }}>{g.desc}</p>
+                  {/* Progress bar */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <div style={{ flex: 1, height: "4px", background: "rgba(168,85,247,0.12)", borderRadius: "2px", overflow: "hidden" }}>
+                      <motion.div
+                        initial={{ width: 0 }} whileInView={{ width: `${g.pct}%` }} viewport={{ once: true }} transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
+                        style={{ height: "100%", background: `linear-gradient(to right, #a855f7, ${g.genreColor})`, borderRadius: "2px", boxShadow: `0 0 8px ${g.genreColor}80` }} />
+                    </div>
+                    <span style={{ fontFamily: "monospace", fontSize: "0.65rem", fontWeight: "bold", color: g.genreColor, flexShrink: 0 }}>{g.pct}%</span>
+                  </div>
+                  <div style={{ position: "absolute", bottom: -20, right: -20, width: 70, height: 70, borderRadius: "50%", background: `radial-gradient(circle, ${g.genreColor}18 0%, transparent 70%)`, pointerEvents: "none" }} />
+                </motion.div>
+              ))}
+            </div>
+
+            {/* ── Uygulamalar ── */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <p style={{ fontSize: "0.52rem", textTransform: "uppercase", letterSpacing: "0.3em", color: "rgba(168,85,247,0.6)", fontFamily: "monospace", marginBottom: "2px" }}>
+                ◈ {isTR ? "Uygulamalar" : "Applications"}
+              </p>
+
+              {[
+                {
+                  name: "İtiraf Et",
+                  tag: "SOSYAL MEDYA",
+                  color: "#f43f5e",
+                  icon: "✦",
+                  desc: isTR
+                    ? "Anonim itirafını yaz, Instagram hikayesi veya gönderisi olarak otomatik paylaş."
+                    : "Write your anonymous confession and auto-share it as an Instagram story or post.",
+                  platform: "Instagram API",
+                },
+                {
+                  name: isTR ? "Oto Video Yükleyici" : "Auto Video Uploader",
+                  tag: "OTOMASYON",
+                  color: "#f97316",
+                  icon: "▶",
+                  desc: isTR
+                    ? "Profesyonel Instagram hesaplarına her gün otomatik video içerik yükleme sistemi."
+                    : "Automated daily video content publishing system for professional Instagram accounts.",
+                  platform: "Instagram API",
+                },
+              ].map((app, i) => (
+                <motion.div key={app.name}
+                  initial={{ opacity: 0, x: 16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 + 0.15 }}
+                  style={{ padding: "14px 16px", border: `1px solid ${app.color}28`, background: `linear-gradient(135deg, ${app.color}08 0%, rgba(0,0,0,0) 70%)`, backdropFilter: "blur(8px)", position: "relative", overflow: "hidden" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "6px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <span style={{ fontSize: "1.4rem", filter: `drop-shadow(0 0 8px ${app.color}88)` }}>{app.icon}</span>
+                      <div>
+                        <div style={{ fontFamily: "monospace", fontWeight: "bold", fontSize: "0.85rem", color: "var(--text)" }}>{app.name}</div>
+                        <div style={{ fontSize: "0.46rem", color: app.color, fontFamily: "monospace", letterSpacing: "0.18em", marginTop: "1px" }}>{app.tag}</div>
+                      </div>
+                    </div>
+                    <span style={{ fontSize: "0.46rem", letterSpacing: "0.12em", color: "#00d4ff", fontFamily: "monospace", padding: "2px 7px", border: "1px solid rgba(0,212,255,0.3)", background: "rgba(0,212,255,0.06)", whiteSpace: "nowrap" }}>
+                      ✓ {isTR ? "TAMAMLANDI" : "COMPLETE"}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: "0.68rem", color: "rgba(220,200,230,0.5)", lineHeight: 1.6, marginBottom: "8px" }}>{app.desc}</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <span style={{ fontSize: "0.46rem", padding: "2px 8px", border: `1px solid ${app.color}35`, color: `${app.color}cc`, fontFamily: "monospace", letterSpacing: "0.1em", background: `${app.color}0d` }}>{app.platform}</span>
+                  </div>
+                  <div style={{ position: "absolute", bottom: -20, right: -20, width: 70, height: 70, borderRadius: "50%", background: `radial-gradient(circle, ${app.color}15 0%, transparent 70%)`, pointerEvents: "none" }} />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <motion.div animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 1.8 }}
+          onClick={() => scrollTo(5)}
+          style={{ position: "absolute", bottom: "1.5rem", left: "50%", transform: "translateX(-50%)", cursor: "pointer", color: "rgba(168,85,247,0.4)", fontSize: "1.2rem", fontFamily: "monospace", userSelect: "none" }}>▼</motion.div>
+      </section>
+
+      {/* ════════════════════════════════════════
+          BOYUT 5 — ZİYARETÇİ DEFTERİ
+      ════════════════════════════════════════ */}
+      <section id="section-5" data-idx="5"
         style={{ height: "100vh", scrollSnapAlign: "start", position: "relative",
           background: "linear-gradient(160deg, #0a0800 0%, #12100a 55%, #0e0c06 100%)",
           display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
