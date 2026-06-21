@@ -254,6 +254,7 @@ export default function Home() {
     try { return JSON.parse(localStorage.getItem("arcade_lb") ?? "[]"); } catch { return []; }
   });
   const [lang, setLang] = useState<"tr" | "en">("tr");
+  const [uptime, setUptime] = useState("");
 
   /* Mouse → 3-D tilt */
   const mx = useMotionValue(0);
@@ -275,6 +276,22 @@ export default function Home() {
   /* Persist battle state locally */
   useEffect(() => { localStorage.setItem("arcade_score", String(arcadeScore)); }, [arcadeScore]);
   useEffect(() => { localStorage.setItem("arcade_lb", JSON.stringify(leaderboard)); }, [leaderboard]);
+
+  /* Server uptime clock — counts from 2026-06-21 (Supabase launch day) */
+  useEffect(() => {
+    const START = new Date("2026-06-21T14:00:00Z").getTime();
+    const tick = () => {
+      const ms = Date.now() - START;
+      const d = Math.floor(ms / 86400000);
+      const h = Math.floor((ms % 86400000) / 3600000);
+      const m = Math.floor((ms % 3600000) / 60000);
+      const s = Math.floor((ms % 60000) / 1000);
+      setUptime(`${d}G ${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
 
   /* Load global battle state from Supabase on mount */
   useEffect(() => {
@@ -429,7 +446,7 @@ export default function Home() {
     const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
     resize();
 
-    const FW = 48; // fighter size in px
+    const FW = 36; // fighter size in px
     const HALF = FW / 2;
     const PALETTE = ["#00ffff","#ff00ff","#ffff00","#00ff88","#ff6600","#ff69b4","#aa44ff","#ff4444","#00ccff","#ffaa00","#ff8800","#00ffaa","#8800ff","#ff0066","#00ff66","#ccff00","#ff44aa","#44ffff"];
 
@@ -602,8 +619,8 @@ export default function Home() {
         if (!f.alive) {
           if (now > f.deathAt) {
             f.alive = true; f.hp = 3;
-            f.x = Math.random() * (canvas.width - 100) + 50;
-            f.y = Math.random() * (canvas.height - 100) + 50;
+            f.x = Math.random() * (canvas.width - 40) + 20;
+            f.y = Math.random() * (canvas.height - 40) + 20;
             f.tx = Math.random() * canvas.width;
             f.ty = Math.random() * canvas.height;
           }
@@ -614,8 +631,8 @@ export default function Home() {
         const dx = f.tx - f.x, dy = f.ty - f.y;
         const d = Math.sqrt(dx * dx + dy * dy);
         if (d < 20) {
-          f.tx = Math.random() * (canvas.width - 80) + 40;
-          f.ty = Math.random() * (canvas.height - 80) + 40;
+          f.tx = Math.random() * (canvas.width - 30) + 15;
+          f.ty = Math.random() * (canvas.height - 30) + 15;
         } else {
           f.x += dx / d * f.speed;
           f.y += dy / d * f.speed;
@@ -1166,7 +1183,17 @@ export default function Home() {
         </div>
 
         {/* Leaderboard panel — left side */}
-        <div className="leaderboard-scroll" style={{ position: "absolute", top: "5.5rem", left: "1.5rem", zIndex: 20, fontFamily: "monospace", width: "155px", maxHeight: "calc(100vh - 10rem)", overflowY: "auto" }}>
+        <div className="leaderboard-scroll" style={{ position: "absolute", top: "5.5rem", left: "1.5rem", zIndex: 20, fontFamily: "monospace", width: "148px", maxHeight: "calc(100vh - 10rem)", overflowY: "auto" }}>
+          {/* Server uptime */}
+          <div style={{ marginBottom: "8px", padding: "5px 7px", background: "rgba(0,212,255,0.05)", border: "1px solid rgba(0,212,255,0.18)" }}>
+            <div style={{ fontSize: "0.42rem", letterSpacing: "0.18em", color: "rgba(0,212,255,0.45)", textTransform: "uppercase", marginBottom: "2px" }}>
+              ◉ {isTR ? "Sunucu Süresi" : "Server Uptime"}
+            </div>
+            <div style={{ fontSize: "0.7rem", fontWeight: "bold", color: "#00d4ff", letterSpacing: "0.08em",
+              textShadow: "0 0 10px rgba(0,212,255,0.7)", fontVariantNumeric: "tabular-nums" }}>
+              {uptime}
+            </div>
+          </div>
           <div style={{ fontSize: "0.48rem", letterSpacing: "0.25em", color: "#00d4ff", textTransform: "uppercase", marginBottom: "7px",
             textShadow: "0 0 10px rgba(0,212,255,0.7)", borderBottom: "1px solid rgba(0,212,255,0.25)", paddingBottom: "5px" }}>
             {t.leaderTitle}
