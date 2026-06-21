@@ -48,6 +48,18 @@ function useTypewriter(words: string[], speed = 75, pauseMs = 2200) {
   return displayed;
 }
 
+/* ─── Mobile hook ─────────────────────────────────────────── */
+function useIsMobile() {
+  const [m, setM] = useState(false);
+  useEffect(() => {
+    const check = () => setM(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+  return m;
+}
+
 /* ─── Synthwave Grid ─────────────────────────────────────── */
 function SynthGrid({ color, flip = false }: { color: string; flip?: boolean }) {
   return (
@@ -885,6 +897,7 @@ setLeaderboard(prev => {
     return () => obs.disconnect();
   }, []);
 
+  const isMobile = useIsMobile();
   const isTR = lang === "tr";
   const t = {
     heroLabel:   isTR ? "Cranus Games Studio" : "Cranus Games Studio",
@@ -935,10 +948,10 @@ setLeaderboard(prev => {
 
   return (
     <div style={{ height: "100vh", overflowY: "scroll", scrollSnapType: "y mandatory" }}>
-      <NavDots active={active} />
+      {!isMobile && <NavDots active={active} />}
 
       {/* Language Switch */}
-      <div style={{ position: "fixed", top: "16px", right: "20px", zIndex: 200, display: "flex" }}>
+      <div style={{ position: "fixed", top: "14px", right: isMobile ? "10px" : "20px", zIndex: 200, display: "flex" }}>
         {(["TR", "EN"] as const).map((l, i) => (
           <button key={l} onClick={() => setLang(l.toLowerCase() as "tr" | "en")}
             style={{
@@ -982,7 +995,7 @@ setLeaderboard(prev => {
           {/* ── Photo + 3-D tilt + Coin flip ── */}
           <motion.div initial={{ opacity: 0, scale: 0.35 }} animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.95, delay: 0.6, type: "spring", stiffness: 85, damping: 13 }}
-            style={{ marginBottom: "2.2rem" }}>
+            style={{ marginBottom: isMobile ? "1.2rem" : "2.2rem" }}>
             <div style={{ perspective: "1000px" }}>
               <motion.div style={{ rotateX: rotX, rotateY: rotY, transformStyle: "preserve-3d" }} className="select-none">
                 <div
@@ -990,17 +1003,17 @@ setLeaderboard(prev => {
                   onMouseLeave={() => setPhotoHovered(false)}
                   style={{ position: "relative", display: "inline-block", transformStyle: "preserve-3d", cursor: "pointer" }}>
                   {/* Glow */}
-                  <div style={{ position: "absolute", inset: "-22px", borderRadius: "50%", animation: "pulse-glow 3.2s ease-in-out infinite", pointerEvents: "none" }} />
+                  <div style={{ position: "absolute", inset: isMobile ? "-14px" : "-22px", borderRadius: "50%", animation: "pulse-glow 3.2s ease-in-out infinite", pointerEvents: "none" }} />
                   {/* Outer dashed ring */}
-                  <div style={{ position: "absolute", inset: "-28px", borderRadius: "50%", border: "1px dashed rgba(200,169,110,0.5)", animation: "spin-slow 14s linear infinite", pointerEvents: "none" }} />
+                  <div style={{ position: "absolute", inset: isMobile ? "-18px" : "-28px", borderRadius: "50%", border: "1px dashed rgba(200,169,110,0.5)", animation: "spin-slow 14s linear infinite", pointerEvents: "none" }} />
                   {/* Outer glow ring */}
-                  <div style={{ position: "absolute", inset: "-40px", borderRadius: "50%", border: "1px solid rgba(255,110,200,0.22)", animation: "spin-slow 22s linear infinite reverse", pointerEvents: "none" }} />
+                  <div style={{ position: "absolute", inset: isMobile ? "-26px" : "-40px", borderRadius: "50%", border: "1px solid rgba(255,110,200,0.22)", animation: "spin-slow 22s linear infinite reverse", pointerEvents: "none" }} />
                   {/* Solid gradient ring */}
                   <div style={{ position: "absolute", inset: "-6px", borderRadius: "50%", padding: "2px", background: "linear-gradient(135deg, var(--accent), #ff6ec7, #7928ca)", WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)", WebkitMaskComposite: "xor", maskComposite: "exclude", pointerEvents: "none" }} />
                   {/* Coin flip card — pointer-events none, parent handles hover */}
                   <div
                     style={{
-                      width: 200, height: 200,
+                      width: isMobile ? 130 : 200, height: isMobile ? 130 : 200,
                       position: "relative",
                       transformStyle: "preserve-3d",
                       transition: "transform 0.75s cubic-bezier(0.23, 1, 0.32, 1)",
@@ -1070,8 +1083,8 @@ setLeaderboard(prev => {
 
           {/* Visitor counter */}
           <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.75, duration: 0.7 }}
-            style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "1.2rem",
-              padding: "7px 20px", border: "1px solid rgba(121,40,202,0.35)",
+            style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "1rem",
+              padding: isMobile ? "6px 12px" : "7px 20px", border: "1px solid rgba(121,40,202,0.35)",
               background: "linear-gradient(90deg, rgba(121,40,202,0.08) 0%, rgba(255,110,200,0.06) 100%)",
               backdropFilter: "blur(6px)" }}>
             {/* eye icon */}
@@ -1130,7 +1143,7 @@ setLeaderboard(prev => {
             style={{ display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center" }}>
             <Link href="/games">
               <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}
-                style={{ padding: "13px 38px", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.2em",
+                style={{ padding: isMobile ? "10px 22px" : "13px 38px", fontSize: isMobile ? "0.62rem" : "0.7rem", textTransform: "uppercase", letterSpacing: "0.2em",
                   border: "1px solid var(--accent)", color: "var(--accent)",
                   background: "linear-gradient(135deg, rgba(200,169,110,0.1) 0%, transparent 100%)",
                   fontFamily: "monospace", cursor: "pointer", transition: "all 0.3s",
@@ -1142,7 +1155,7 @@ setLeaderboard(prev => {
             </Link>
             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}
               onClick={() => scrollTo(1)}
-              style={{ padding: "13px 38px", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.2em",
+              style={{ padding: isMobile ? "10px 22px" : "13px 38px", fontSize: isMobile ? "0.62rem" : "0.7rem", textTransform: "uppercase", letterSpacing: "0.2em",
                 color: "#ff6ec7", background: "linear-gradient(135deg, rgba(255,110,200,0.08) 0%, transparent 100%)",
                 border: "1px solid rgba(255,110,200,0.35)", fontFamily: "monospace", cursor: "pointer", transition: "all 0.3s" }}
               onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = "#ff6ec7"; b.style.boxShadow = "0 0 28px rgba(255,110,200,0.3)"; b.style.background = "rgba(255,110,200,0.12)"; }}
@@ -1190,10 +1203,10 @@ setLeaderboard(prev => {
 
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.15 }}
             style={{ marginBottom: "2rem" }}>
-            <p style={{ color: "rgba(220,200,230,0.75)", fontSize: "1.05rem", lineHeight: 1.9, marginBottom: "1rem" }}>
+            <p style={{ color: "rgba(220,200,230,0.75)", fontSize: isMobile ? "0.88rem" : "1.05rem", lineHeight: 1.9, marginBottom: "1rem" }}>
               {t.bioPara1}
             </p>
-            <p style={{ color: "rgba(220,200,230,0.6)", fontSize: "0.95rem", lineHeight: 1.9 }}>
+            <p style={{ color: "rgba(220,200,230,0.6)", fontSize: isMobile ? "0.8rem" : "0.95rem", lineHeight: 1.9 }}>
               {t.bioPara2}
             </p>
           </motion.div>
@@ -1203,7 +1216,7 @@ setLeaderboard(prev => {
             {[{ num: "33", label: t.statGame }, { num: "21", label: "Game Jam" }, { num: "5+", label: t.statYear }, { num: "∞", label: t.statIdea }].map((s, i) => (
               <motion.div key={s.label}
                 initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, delay: i * 0.1 }}
-                style={{ padding: "16px 28px", textAlign: "center", border: "1px solid rgba(121,40,202,0.4)", background: "rgba(121,40,202,0.08)", backdropFilter: "blur(6px)", minWidth: "110px" }}>
+                style={{ padding: isMobile ? "10px 16px" : "16px 28px", textAlign: "center", border: "1px solid rgba(121,40,202,0.4)", background: "rgba(121,40,202,0.08)", backdropFilter: "blur(6px)", minWidth: isMobile ? "76px" : "110px" }}>
                 <div style={{ fontSize: "2rem", fontWeight: "bold", color: "#ff6ec7", textShadow: "0 0 20px rgba(255,110,200,0.6)", marginBottom: "3px" }}>{s.num}</div>
                 <div style={{ fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "rgba(220,200,230,0.5)", fontFamily: "monospace" }}>{s.label}</div>
               </motion.div>
@@ -1225,7 +1238,7 @@ setLeaderboard(prev => {
 
           {/* GitHub Contribution Calendar */}
           <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.5 }}
-            style={{ padding: "16px 20px", border: "1px solid rgba(121,40,202,0.3)", background: "rgba(12,0,24,0.5)", backdropFilter: "blur(8px)" }}>
+            style={{ padding: isMobile ? "10px 8px" : "16px 20px", border: "1px solid rgba(121,40,202,0.3)", background: "rgba(12,0,24,0.5)", backdropFilter: "blur(8px)", overflowX: "auto" }}>
             <GitHubCalendar username="CranusGames" year={2026} lang={lang} />
           </motion.div>
         </div>
@@ -1278,7 +1291,7 @@ setLeaderboard(prev => {
         </div>
 
         {/* Leaderboard panel — left side */}
-        <div className="leaderboard-scroll" style={{ position: "absolute", top: "5.5rem", left: "1.5rem", zIndex: 20, fontFamily: "monospace", width: "148px", maxHeight: "calc(100vh - 10rem)", overflowY: "auto" }}>
+        <div className="leaderboard-scroll" style={{ position: "absolute", top: "5.5rem", left: "1.5rem", zIndex: 20, fontFamily: "monospace", width: isMobile ? "120px" : "148px", maxHeight: "calc(100vh - 10rem)", overflowY: "auto", display: isMobile ? "none" : undefined }}>
           {/* Server uptime */}
           <div style={{ marginBottom: "8px", padding: "5px 7px", background: "rgba(0,212,255,0.05)", border: "1px solid rgba(0,212,255,0.18)" }}>
             <div style={{ fontSize: "0.42rem", letterSpacing: "0.18em", color: "rgba(0,212,255,0.45)", textTransform: "uppercase", marginBottom: "2px" }}>
@@ -1312,7 +1325,7 @@ setLeaderboard(prev => {
         </div>
 
         {/* Score — bottom left */}
-        <div style={{ position: "absolute", bottom: "1.5rem", left: "1.5rem", zIndex: 20, fontFamily: "monospace", lineHeight: 1.2 }}>
+        <div style={{ position: "absolute", bottom: "1.5rem", left: isMobile ? "50%" : "1.5rem", transform: isMobile ? "translateX(-50%)" : undefined, zIndex: 20, fontFamily: "monospace", lineHeight: 1.2, textAlign: isMobile ? "center" : "left" }}>
           <div style={{ fontSize: "0.48rem", letterSpacing: "0.2em", color: "rgba(0,212,255,0.45)", textTransform: "uppercase" }}>Kill Score</div>
           <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: "#00d4ff", textShadow: "0 0 14px rgba(0,212,255,0.8)" }}>
             {String(arcadeScore).padStart(6, "0")}
@@ -1356,8 +1369,8 @@ setLeaderboard(prev => {
 
           {/* Title + Logo */}
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
-            style={{ display: "flex", alignItems: "center", gap: "2.2rem", marginBottom: "1.8rem" }}>
-            <CranusLogo size={100} />
+            style={{ display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? "1rem" : "2.2rem", marginBottom: isMobile ? "1rem" : "1.8rem" }}>
+            <CranusLogo size={isMobile ? 70 : 100} />
             <div style={{ textAlign: "left" }}>
               <p style={{ fontSize: "0.55rem", textTransform: "uppercase", letterSpacing: "0.55em", color: "#ff6ec7", fontFamily: "monospace", marginBottom: "0.4rem", textShadow: "0 0 18px rgba(255,110,200,0.8)" }}>
                 {t.contactLevel}
@@ -1432,13 +1445,13 @@ setLeaderboard(prev => {
               },
             ];
             return (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px", marginBottom: "12px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(2, 1fr)", gap: isMobile ? "8px" : "12px", marginBottom: "12px" }}>
                 {SOCIALS.map((s, i) => (
                   <motion.a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer"
                     initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                     transition={{ duration: 0.45, delay: i * 0.08 }}
                     whileHover={{ y: -4 }}
-                    style={{ display: "flex", flexDirection: "column", padding: "20px 22px", textDecoration: "none",
+                    style={{ display: "flex", flexDirection: "column", padding: isMobile ? "12px 14px" : "20px 22px", textDecoration: "none",
                       border: `1px solid ${s.color}28`, background: `linear-gradient(135deg, ${s.color}0a 0%, rgba(0,0,0,0) 65%)`,
                       backdropFilter: "blur(10px)", transition: "all 0.3s", position: "relative", overflow: "hidden" }}
                     onMouseEnter={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = s.color + "70"; el.style.background = `linear-gradient(135deg, ${s.color}18 0%, rgba(0,0,0,0) 65%)`; el.style.boxShadow = `0 0 35px ${s.color}22, inset 0 0 35px ${s.color}06`; }}
@@ -1463,7 +1476,7 @@ setLeaderboard(prev => {
           })()}
 
           {/* Bottom row: Den Den Mushi + Email */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "12px", alignItems: "stretch" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr auto", gap: isMobile ? "8px" : "12px", alignItems: "stretch" }}>
 
             {/* Den Den Mushi */}
             <motion.a href="https://play.google.com/store/apps/details?id=com.cranusgames.DenDenMushi"
@@ -1496,7 +1509,7 @@ setLeaderboard(prev => {
               initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.45, delay: 0.45 }}
               whileHover={{ scale: 1.08, y: -2 }} whileTap={{ scale: 0.95 }}
               style={{ display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                width: "72px", alignSelf: "stretch",
+                width: isMobile ? "100%" : "72px", height: isMobile ? "52px" : undefined, alignSelf: "stretch",
                 border: "1px solid rgba(255,110,200,0.22)",
                 background: "linear-gradient(135deg, rgba(255,110,200,0.08) 0%, rgba(0,0,0,0) 70%)",
                 backdropFilter: "blur(10px)", textDecoration: "none", transition: "all 0.3s", position: "relative" }}
@@ -1555,10 +1568,10 @@ setLeaderboard(prev => {
           </motion.div>
 
           {/* Main layout */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: "18px", flex: 1, minHeight: 0, maxHeight: "calc(100vh - 210px)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 320px", gridTemplateRows: isMobile ? "auto 1fr" : undefined, gap: isMobile ? "12px" : "18px", flex: 1, minHeight: 0, maxHeight: "calc(100vh - 210px)" }}>
 
             {/* Messages list */}
-            <div className="leaderboard-scroll" style={{ overflowY: "auto", display: "flex", flexDirection: "column", gap: "8px", paddingRight: "8px" }}>
+            <div className="leaderboard-scroll" style={{ overflowY: "auto", display: "flex", flexDirection: "column", gap: "8px", paddingRight: "8px", order: isMobile ? 2 : 1 }}>
               {gbEntries.length === 0 && (
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: "16px" }}>
                   <div style={{ fontSize: "2.5rem", opacity: 0.18 }}>✦</div>
@@ -1607,9 +1620,9 @@ setLeaderboard(prev => {
 
             {/* Submit form */}
             <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.2 }}
-              style={{ display: "flex", flexDirection: "column", gap: "11px", padding: "20px", border: "1px solid rgba(200,169,110,0.3)",
+              style={{ display: "flex", flexDirection: "column", gap: "11px", padding: isMobile ? "14px" : "20px", border: "1px solid rgba(200,169,110,0.3)",
                 background: "linear-gradient(160deg, rgba(200,169,110,0.07) 0%, rgba(0,0,0,0) 100%)",
-                backdropFilter: "blur(12px)", height: "fit-content",
+                backdropFilter: "blur(12px)", height: "fit-content", order: isMobile ? 1 : 2,
                 boxShadow: "0 0 40px rgba(200,169,110,0.06), inset 0 0 40px rgba(200,169,110,0.03)" }}>
 
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "2px" }}>
