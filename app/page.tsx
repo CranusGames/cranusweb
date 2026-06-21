@@ -152,6 +152,7 @@ function GitHubCalendar({ username, year }: { username: string; year: number }) 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const bioCanvasRef = useRef<HTMLCanvasElement>(null);
+  const arcadeCanvasRef = useRef<HTMLCanvasElement>(null);
   const [active, setActive] = useState(0);
   const [photoHovered, setPhotoHovered] = useState(false);
 
@@ -247,6 +248,44 @@ export default function Home() {
     return () => { cancelAnimationFrame(id); window.removeEventListener("resize", handleResize); };
   }, []);
 
+  /* Arcade pixel starfield */
+  useEffect(() => {
+    const canvas = arcadeCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    type Px = { x: number; y: number; c: string; speed: number; phase: number; blinkSpeed: number };
+    const cols = ["#00d4ff", "#ff0080", "#ffff00", "#00ff88", "#ff6ec7", "#ffffff"];
+    const px: Px[] = Array.from({ length: 200 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      c: cols[Math.floor(Math.random() * cols.length)],
+      speed: Math.random() * 0.35 + 0.05,
+      phase: Math.random() * Math.PI * 2,
+      blinkSpeed: Math.random() * 1.8 + 0.4,
+    }));
+    let id: number;
+    const draw = () => {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const now = Date.now() / 1000;
+      px.forEach(p => {
+        const alpha = (Math.sin(now * p.blinkSpeed + p.phase) + 1) / 2 * 0.65 + 0.1;
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = p.c;
+        ctx.fillRect(Math.floor(p.x), Math.floor(p.y), 2, 2);
+        p.y -= p.speed;
+        if (p.y < -2) { p.y = canvas.height + 2; p.x = Math.random() * canvas.width; }
+      });
+      ctx.globalAlpha = 1;
+      id = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   /* Intersection → active dot */
   useEffect(() => {
     const obs = new IntersectionObserver(entries => {
@@ -262,7 +301,7 @@ export default function Home() {
   }, []);
 
   const title = useTypewriter(["Indie Game Developer", "Unity Developer", "Game Designer", "Creative Developer"]);
-  const featured = games.slice(0, 6);
+  const featured = games.slice(0, 12);
   const skills = ["Unity", "C#", "Blender", "Game Design", "Pixel Art", "Level Design", "Narrative", "UI/UX"];
 
   const scrollTo = (i: number) => document.getElementById(`section-${i}`)?.scrollIntoView({ behavior: "smooth" });
@@ -459,7 +498,7 @@ export default function Home() {
 
           {/* Stats */}
           <div style={{ display: "flex", justifyContent: "center", gap: "16px", marginBottom: "2.2rem", flexWrap: "wrap" }}>
-            {[{ num: "33", label: "Oyun" }, { num: "21", label: "Game Jam" }, { num: "3+", label: "Yıl" }, { num: "∞", label: "Fikir" }].map((s, i) => (
+            {[{ num: "33", label: "Oyun" }, { num: "21", label: "Game Jam" }, { num: "5+", label: "Yıl" }, { num: "∞", label: "Fikir" }].map((s, i) => (
               <motion.div key={s.label}
                 initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, delay: i * 0.1 }}
                 style={{ padding: "16px 28px", textAlign: "center", border: "1px solid rgba(121,40,202,0.4)", background: "rgba(121,40,202,0.08)", backdropFilter: "blur(6px)", minWidth: "110px" }}>
@@ -501,8 +540,11 @@ export default function Home() {
       <section id="section-2" data-idx="2"
         style={{ height: "100vh", scrollSnapAlign: "start", position: "relative", background: "#000d1a", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", overflow: "hidden", textAlign: "center" }}>
 
-        <SynthGrid color="rgba(0,180,255,0.22)" flip />
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "35%", background: "linear-gradient(to top, #000d1a, transparent)", pointerEvents: "none" }} />
+        <canvas ref={arcadeCanvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", opacity: 0.45 }} />
+        {/* CRT scanlines */}
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.18) 2px, rgba(0,0,0,0.18) 4px)", pointerEvents: "none", zIndex: 1 }} />
+        <SynthGrid color="rgba(0,180,255,0.15)" flip />
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "25%", background: "linear-gradient(to top, #000d1a, transparent)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(to right, transparent, #00d4ff, transparent)" }} />
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(to right, transparent, #7928ca, #00d4ff, transparent)" }} />
 
@@ -520,29 +562,27 @@ export default function Home() {
             <div style={{ width: "80px", height: "2px", background: "linear-gradient(to right, #00d4ff, #7928ca)", margin: "0 auto" }} />
           </motion.div>
 
-          {/* Game grid — 3×2 */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", marginBottom: "1.4rem" }}>
+          {/* Game grid — 4×3 */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "7px", marginBottom: "1.2rem" }}>
             {featured.map((game, i) => (
               <motion.div key={game.slug}
-                initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.45, delay: i * 0.07 }}>
+                initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.35, delay: i * 0.04 }}>
                 <Link href={`/games/${game.slug}`}>
-                  <motion.div whileHover={{ y: -5, scale: 1.02 }} transition={{ type: "spring", stiffness: 280, damping: 22 }}
-                    className="group" style={{ border: "1px solid rgba(0,180,255,0.2)", background: "#010f1e", overflow: "hidden", cursor: "pointer", position: "relative", transition: "border-color 0.3s" }}
-                    onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "rgba(0,212,255,0.7)"; el.style.boxShadow = "0 0 20px rgba(0,212,255,0.15)"; }}
+                  <motion.div whileHover={{ y: -4, scale: 1.03 }} transition={{ type: "spring", stiffness: 300, damping: 22 }}
+                    style={{ border: "1px solid rgba(0,180,255,0.2)", background: "rgba(1,15,30,0.85)", overflow: "hidden", cursor: "pointer", position: "relative", transition: "border-color 0.25s" }}
+                    onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "#00d4ff"; el.style.boxShadow = "0 0 14px rgba(0,212,255,0.25)"; }}
                     onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "rgba(0,180,255,0.2)"; el.style.boxShadow = "none"; }}>
                     <div style={{ aspectRatio: "16/9", overflow: "hidden", position: "relative" }}>
                       <img src={game.coverImage} alt={game.title}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.72, transition: "opacity 0.4s, transform 0.5s", display: "block" }}
-                        onMouseEnter={e => { const el = e.currentTarget as HTMLImageElement; el.style.opacity = "1"; el.style.transform = "scale(1.08)"; }}
-                        onMouseLeave={e => { const el = e.currentTarget as HTMLImageElement; el.style.opacity = "0.72"; el.style.transform = "scale(1)"; }} />
-                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(1,15,30,0.88) 0%, transparent 60%)" }} />
+                        style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.75, transition: "opacity 0.35s, transform 0.4s", display: "block" }}
+                        onMouseEnter={e => { const el = e.currentTarget as HTMLImageElement; el.style.opacity = "1"; el.style.transform = "scale(1.1)"; }}
+                        onMouseLeave={e => { const el = e.currentTarget as HTMLImageElement; el.style.opacity = "0.75"; el.style.transform = "scale(1)"; }} />
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(1,15,30,0.85) 0%, transparent 55%)" }} />
                     </div>
-                    <div style={{ padding: "8px 10px" }}>
-                      <p style={{ fontSize: "0.75rem", fontWeight: "bold", color: "var(--text)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{game.title}</p>
-                      <p style={{ fontSize: "0.58rem", textTransform: "uppercase", color: "#00d4ff", fontFamily: "monospace", marginTop: "2px", textShadow: "0 0 8px rgba(0,212,255,0.5)" }}>{game.genre}</p>
+                    <div style={{ padding: "5px 8px" }}>
+                      <p style={{ fontSize: "0.65rem", fontWeight: "bold", color: "var(--text)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{game.title}</p>
+                      <p style={{ fontSize: "0.5rem", textTransform: "uppercase", color: "#00d4ff", fontFamily: "monospace", marginTop: "1px" }}>{game.genre}</p>
                     </div>
-                    <div className="absolute top-0 left-0 w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" style={{ borderTop: "1px solid #00d4ff", borderLeft: "1px solid #00d4ff" }} />
-                    <div className="absolute bottom-0 right-0 w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" style={{ borderBottom: "1px solid #00d4ff", borderRight: "1px solid #00d4ff" }} />
                   </motion.div>
                 </Link>
               </motion.div>
@@ -550,14 +590,14 @@ export default function Home() {
           </div>
 
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <Link href="/games">
+            <a href="https://cranus.itch.io/" target="_blank" rel="noopener noreferrer">
               <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}
                 style={{ padding: "11px 34px", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.2em", border: "1px solid rgba(0,212,255,0.4)", color: "#00d4ff", background: "transparent", fontFamily: "monospace", cursor: "pointer", transition: "all 0.3s" }}
                 onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "rgba(0,212,255,0.1)"; b.style.borderColor = "#00d4ff"; b.style.boxShadow = "0 0 20px rgba(0,212,255,0.25)"; }}
                 onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "transparent"; b.style.borderColor = "rgba(0,212,255,0.4)"; b.style.boxShadow = "none"; }}>
-                Tüm {games.length} Oyunu Gör →
+                Tüm {games.length} Oyunu itch.io&apos;da Gör →
               </motion.button>
-            </Link>
+            </a>
           </motion.div>
         </div>
 
