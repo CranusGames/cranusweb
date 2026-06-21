@@ -657,7 +657,7 @@ export default function Home() {
             {featured.map((game, i) => (
               <motion.div key={game.slug}
                 initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.35, delay: i * 0.04 }}>
-                <Link href={`/games/${game.slug}`}>
+                <a href={`https://cranus.itch.io/${game.itchSlug}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
                   <motion.div whileHover={{ y: -4, scale: 1.03 }} transition={{ type: "spring", stiffness: 300, damping: 22 }}
                     style={{ border: "1px solid rgba(0,180,255,0.2)", background: "rgba(1,15,30,0.85)", overflow: "hidden", cursor: "pointer", position: "relative", transition: "border-color 0.25s" }}
                     onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "#00d4ff"; el.style.boxShadow = "0 0 14px rgba(0,212,255,0.25)"; }}
@@ -674,7 +674,7 @@ export default function Home() {
                       <p style={{ fontSize: "0.5rem", textTransform: "uppercase", color: "#00d4ff", fontFamily: "monospace", marginTop: "1px" }}>{game.genre}</p>
                     </div>
                   </motion.div>
-                </Link>
+                </a>
               </motion.div>
             ))}
           </div>
