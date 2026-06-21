@@ -248,7 +248,7 @@ export default function Home() {
     return () => { cancelAnimationFrame(id); window.removeEventListener("resize", handleResize); };
   }, []);
 
-  /* Arcade pixel effect */
+  /* Arcade — Space Invader sprites + bullets + sparks */
   useEffect(() => {
     const canvas = arcadeCanvasRef.current;
     if (!canvas) return;
@@ -257,52 +257,117 @@ export default function Home() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const palette = ["#00ffff", "#ff00ff", "#ffff00", "#00ff88", "#ff6600", "#ff69b4", "#00d4ff"];
-    type Px = { x: number; y: number; vx: number; vy: number; c: string; sz: number; phase: number; spd: number };
+    const SP_A = [
+      [0,0,1,0,0,0,1,0,0],
+      [1,0,0,1,0,1,0,0,1],
+      [1,0,1,1,1,1,1,0,1],
+      [1,1,1,0,1,0,1,1,1],
+      [1,1,1,1,1,1,1,1,1],
+      [0,1,1,1,1,1,1,1,0],
+      [0,0,1,0,0,0,1,0,0],
+      [0,1,0,0,0,0,0,1,0],
+    ];
+    const SP_B = [
+      [0,0,0,1,1,1,0,0,0],
+      [0,1,1,1,1,1,1,1,0],
+      [1,1,0,1,1,1,0,1,1],
+      [1,1,1,1,1,1,1,1,1],
+      [0,0,1,0,1,0,1,0,0],
+      [0,1,0,1,0,1,0,1,0],
+      [1,0,0,0,0,0,0,0,1],
+      [0,0,0,0,0,0,0,0,0],
+    ];
+    const SP_C = [
+      [0,1,0,0,1,0,0,1,0],
+      [0,0,1,0,1,0,1,0,0],
+      [0,0,1,1,1,1,1,0,0],
+      [0,1,1,0,1,0,1,1,0],
+      [1,1,1,1,1,1,1,1,1],
+      [1,0,1,1,1,1,1,0,1],
+      [0,0,1,0,0,0,1,0,0],
+      [0,1,0,1,0,1,0,1,0],
+    ];
 
-    /* Small drifting pixels */
-    const small: Px[] = Array.from({ length: 280 }, () => {
-      const spd = Math.random() * 0.7 + 0.15;
-      return {
-        x: Math.random() * canvas.width, y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.3, vy: -spd,
-        c: palette[Math.floor(Math.random() * palette.length)],
-        sz: [2, 4, 4, 4, 6][Math.floor(Math.random() * 5)],
-        phase: Math.random() * Math.PI * 2, spd: Math.random() * 2 + 0.5,
-      };
-    });
+    const palette = ["#00ffff","#ff00ff","#ffff00","#00ff88","#ff6ec7"];
+    const spritePool = [SP_A, SP_B, SP_C];
 
-    /* Larger "power-up" blinking blocks */
-    type Blk = { x: number; y: number; c: string; sz: number; rate: number; phase: number };
-    const blocks: Blk[] = Array.from({ length: 18 }, () => ({
-      x: Math.random() * canvas.width, y: Math.random() * canvas.height,
-      c: palette[Math.floor(Math.random() * palette.length)],
-      sz: 8 + Math.floor(Math.random() * 3) * 4,
-      rate: Math.random() * 1.2 + 0.4, phase: Math.random() * Math.PI * 2,
-    }));
+    type Inv = { x:number; y:number; vx:number; sprite:number[][]; color:string; sc:number };
+    const invaders: Inv[] = [];
+    const ROWS = 4, PER = 7;
+
+    for (let r = 0; r < ROWS; r++) {
+      const sc = r < 2 ? 4 : 3;
+      const spr = spritePool[r % spritePool.length];
+      const sw = spr[0].length * sc;
+      const gap = (canvas.width - PER * sw) / (PER + 1);
+      const vx = (r % 2 === 0 ? 0.5 : -0.5);
+      for (let c = 0; c < PER; c++) {
+        invaders.push({
+          x: gap + c * (sw + gap),
+          y: (r + 1) * (canvas.height / (ROWS + 2)),
+          vx, sprite: spr, color: palette[r % palette.length], sc,
+        });
+      }
+    }
+
+    type Bullet = { x:number; y:number };
+    type Spark  = { x:number; y:number; vx:number; vy:number; life:number; c:string };
+    const bullets: Bullet[] = [];
+    const sparks:  Spark[]  = [];
+    let lastShot = 0;
 
     let id: number;
     const draw = () => {
-      /* fade trail */
-      ctx.fillStyle = "rgba(0,13,26,0.18)";
+      ctx.fillStyle = "rgba(0,13,26,0.2)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      const now = Date.now() / 1000;
 
-      small.forEach(p => {
-        const a = (Math.sin(now * p.spd + p.phase) + 1) / 2 * 0.75 + 0.15;
-        ctx.globalAlpha = a; ctx.fillStyle = p.c;
-        ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.sz, p.sz);
-        p.x += p.vx; p.y += p.vy;
-        if (p.y < -p.sz) { p.y = canvas.height; p.x = Math.random() * canvas.width; }
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
+      invaders.forEach(inv => {
+        inv.x += inv.vx;
+        const sw = inv.sprite[0].length * inv.sc;
+        if (inv.x > canvas.width + 20) inv.x = -sw;
+        if (inv.x < -sw - 20)          inv.x = canvas.width + 20;
+        ctx.globalAlpha = 0.7;
+        ctx.fillStyle = inv.color;
+        inv.sprite.forEach((row, ry) =>
+          row.forEach((px, rx) => {
+            if (px) ctx.fillRect(
+              Math.floor(inv.x + rx * inv.sc),
+              Math.floor(inv.y + ry * inv.sc),
+              inv.sc, inv.sc);
+          })
+        );
       });
 
-      blocks.forEach(b => {
-        const a = (Math.sin(now * b.rate + b.phase) + 1) / 2 * 0.55 + 0.05;
-        ctx.globalAlpha = a; ctx.fillStyle = b.c;
-        ctx.fillRect(Math.floor(b.x), Math.floor(b.y), b.sz, b.sz);
-      });
+      const now = Date.now();
+      if (now - lastShot > 400 && invaders.length) {
+        const s = invaders[Math.floor(Math.random() * invaders.length)];
+        bullets.push({ x: s.x + (s.sprite[0].length * s.sc) / 2, y: s.y + s.sprite.length * s.sc });
+        lastShot = now;
+      }
+
+      ctx.fillStyle = "#ffff44";
+      for (let i = bullets.length - 1; i >= 0; i--) {
+        const b = bullets[i];
+        b.y += 5;
+        ctx.globalAlpha = 0.9;
+        ctx.fillRect(Math.floor(b.x - 1), Math.floor(b.y), 3, 10);
+        if (b.y > canvas.height) {
+          for (let s = 0; s < 8; s++)
+            sparks.push({ x: b.x, y: canvas.height - 8,
+              vx: (Math.random() - 0.5) * 5, vy: -Math.random() * 4 - 1,
+              life: 1, c: palette[Math.floor(Math.random() * palette.length)] });
+          bullets.splice(i, 1);
+        }
+      }
+
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const s = sparks[i];
+        s.x += s.vx; s.y += s.vy; s.vy += 0.12; s.life -= 0.035;
+        ctx.globalAlpha = Math.max(0, s.life * 0.85);
+        ctx.fillStyle = s.c;
+        ctx.fillRect(Math.floor(s.x), Math.floor(s.y), 4, 4);
+        if (s.life <= 0) sparks.splice(i, 1);
+      }
 
       ctx.globalAlpha = 1;
       id = requestAnimationFrame(draw);
