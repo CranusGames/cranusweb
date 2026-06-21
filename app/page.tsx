@@ -298,12 +298,13 @@ export default function Home() {
     sbFetch("/battle_state?select=score,leaderboard&id=eq.1")
       .then(r => r.json())
       .then((data: { score: number; leaderboard: { name: string; kills: number }[] }[]) => {
+        console.log("[battle] supabase load:", data);
         if (data?.[0]) {
           setArcadeScore(data[0].score ?? 0);
           setLeaderboard(data[0].leaderboard ?? []);
         }
       })
-      .catch(() => {});
+      .catch((e) => console.error("[battle] supabase error:", e));
   }, []);
 
   /* Sync pending kills to Supabase every 20s and on unload */
