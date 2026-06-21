@@ -308,7 +308,6 @@ export default function Home() {
 
     const fighters: Fighter[] = games.map((g, i) => {
       const img = new Image();
-      img.crossOrigin = "anonymous";
       const f: Fighter = {
         id: i, name: g.title, itchSlug: (g as {itchSlug?: string}).itchSlug ?? g.slug,
         img, imgReady: false, imgFailed: false,
