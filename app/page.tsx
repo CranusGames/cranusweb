@@ -157,8 +157,9 @@ export default function Home() {
   const [photoHovered, setPhotoHovered] = useState(false);
   const [arcadeScore, setArcadeScore] = useState(0);
   const [arcadePopup, setArcadePopup] = useState<{ title: string; x: number; y: number; key: number } | null>(null);
-  const arcadeHitRef = useRef<(gameIdx: number, bx: number, by: number) => void>(() => {});
+  const arcadeHitRef = useRef<(killerName: string, victimName: string, bx: number, by: number) => void>(() => {});
   const popupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [leaderboard, setLeaderboard] = useState<{ name: string; kills: number }[]>([]);
 
   /* Mouse → 3-D tilt */
   const mx = useMotionValue(0);
@@ -252,17 +253,26 @@ export default function Home() {
     return () => { cancelAnimationFrame(id); window.removeEventListener("resize", handleResize); };
   }, []);
 
-  /* Arcade hit callback */
+  /* Arcade hit callback — fighter kill event */
   useEffect(() => {
-    arcadeHitRef.current = (gameIdx: number, bx: number, by: number) => {
+    arcadeHitRef.current = (killerName: string, victimName: string, bx: number, by: number) => {
       if (popupTimer.current) clearTimeout(popupTimer.current);
       setArcadeScore(s => s + 100);
-      setArcadePopup({ title: games.slice(0, 12)[gameIdx]?.title ?? "???", x: bx, y: by, key: Date.now() });
-      popupTimer.current = setTimeout(() => setArcadePopup(null), 2200);
+      setArcadePopup({ title: `☠ ${victimName}`, x: bx, y: by, key: Date.now() });
+      popupTimer.current = setTimeout(() => setArcadePopup(null), 2500);
+      setLeaderboard(prev => {
+        const idx = prev.findIndex(l => l.name === killerName);
+        if (idx >= 0) {
+          const next = [...prev];
+          next[idx] = { ...next[idx], kills: next[idx].kills + 1 };
+          return next.sort((a, b) => b.kills - a.kills);
+        }
+        return [...prev, { name: killerName, kills: 1 }].sort((a, b) => b.kills - a.kills);
+      });
     };
   }, []);
 
-  /* Arcade — Space Invader sprites + bullets + sparks */
+  /* Arcade — Fighter Battle: games fight each other */
   useEffect(() => {
     const canvas = arcadeCanvasRef.current;
     if (!canvas) return;
@@ -271,147 +281,215 @@ export default function Home() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const SP_A = [
-      [0,0,1,0,0,0,1,0,0],
-      [1,0,0,1,0,1,0,0,1],
-      [1,0,1,1,1,1,1,0,1],
-      [1,1,1,0,1,0,1,1,1],
-      [1,1,1,1,1,1,1,1,1],
-      [0,1,1,1,1,1,1,1,0],
-      [0,0,1,0,0,0,1,0,0],
-      [0,1,0,0,0,0,0,1,0],
+    const SP = [
+      [ // A
+        [0,0,1,0,0,0,1,0,0],
+        [1,0,0,1,0,1,0,0,1],
+        [1,0,1,1,1,1,1,0,1],
+        [1,1,1,0,1,0,1,1,1],
+        [1,1,1,1,1,1,1,1,1],
+        [0,1,1,1,1,1,1,1,0],
+        [0,0,1,0,0,0,1,0,0],
+        [0,1,0,0,0,0,0,1,0],
+      ],
+      [ // B
+        [0,0,0,1,1,1,0,0,0],
+        [0,1,1,1,1,1,1,1,0],
+        [1,1,0,1,1,1,0,1,1],
+        [1,1,1,1,1,1,1,1,1],
+        [0,0,1,0,1,0,1,0,0],
+        [0,1,0,1,0,1,0,1,0],
+        [1,0,0,0,0,0,0,0,1],
+        [0,0,0,0,0,0,0,0,0],
+      ],
+      [ // C
+        [0,1,0,0,1,0,0,1,0],
+        [0,0,1,0,1,0,1,0,0],
+        [0,0,1,1,1,1,1,0,0],
+        [0,1,1,0,1,0,1,1,0],
+        [1,1,1,1,1,1,1,1,1],
+        [1,0,1,1,1,1,1,0,1],
+        [0,0,1,0,0,0,1,0,0],
+        [0,1,0,1,0,1,0,1,0],
+      ],
     ];
-    const SP_B = [
-      [0,0,0,1,1,1,0,0,0],
-      [0,1,1,1,1,1,1,1,0],
-      [1,1,0,1,1,1,0,1,1],
-      [1,1,1,1,1,1,1,1,1],
-      [0,0,1,0,1,0,1,0,0],
-      [0,1,0,1,0,1,0,1,0],
-      [1,0,0,0,0,0,0,0,1],
-      [0,0,0,0,0,0,0,0,0],
-    ];
-    const SP_C = [
-      [0,1,0,0,1,0,0,1,0],
-      [0,0,1,0,1,0,1,0,0],
-      [0,0,1,1,1,1,1,0,0],
-      [0,1,1,0,1,0,1,1,0],
-      [1,1,1,1,1,1,1,1,1],
-      [1,0,1,1,1,1,1,0,1],
-      [0,0,1,0,0,0,1,0,0],
-      [0,1,0,1,0,1,0,1,0],
-    ];
 
-    const palette = ["#00ffff","#ff00ff","#ffff00","#00ff88","#ff6ec7"];
-    const spritePool = [SP_A, SP_B, SP_C];
+    const PALETTE = ["#00ffff","#ff00ff","#ffff00","#00ff88","#ff6600","#ff69b4","#aa44ff","#ff4444","#00ccff","#ffaa00"];
+    const FGAMES = games.slice(0, 10);
 
-    type Inv = { x:number; y:number; vx:number; sprite:number[][]; color:string; sc:number };
-    const invaders: Inv[] = [];
-    const ROWS = 4, PER = 7;
+    type Fighter = {
+      id: number; name: string; sprite: number[][];
+      x: number; y: number; tx: number; ty: number;
+      speed: number; hp: number; kills: number;
+      lastShot: number; alive: boolean; deathAt: number;
+      flash: number; color: string; sc: number;
+    };
 
-    for (let r = 0; r < ROWS; r++) {
-      const sc = r < 2 ? 4 : 3;
-      const spr = spritePool[r % spritePool.length];
-      const sw = spr[0].length * sc;
-      const gap = (canvas.width - PER * sw) / (PER + 1);
-      const vx = (r % 2 === 0 ? 0.5 : -0.5);
-      for (let c = 0; c < PER; c++) {
-        invaders.push({
-          x: gap + c * (sw + gap),
-          y: (r + 1) * (canvas.height / (ROWS + 2)),
-          vx, sprite: spr, color: palette[r % palette.length], sc,
-        });
-      }
-    }
+    const fighters: Fighter[] = FGAMES.map((g, i) => ({
+      id: i, name: g.title,
+      sprite: SP[i % SP.length], color: PALETTE[i % PALETTE.length],
+      x: (i % 5) * (canvas.width / 5) + 80,
+      y: Math.floor(i / 5) * (canvas.height / 2) + 120,
+      tx: Math.random() * canvas.width, ty: Math.random() * canvas.height,
+      speed: Math.random() * 0.55 + 0.4,
+      hp: 3, kills: 0,
+      lastShot: Date.now() + i * 400,
+      alive: true, deathAt: 0, flash: 0, sc: 3,
+    }));
 
-    type Bullet = { x:number; y:number };
-    type Spark  = { x:number; y:number; vx:number; vy:number; life:number; c:string };
-    const bullets: Bullet[] = [];
-    const sparks:  Spark[]  = [];
-    let lastShot = 0;
+    type FBullet = { x: number; y: number; vx: number; vy: number; shooterId: number; color: string };
+    type Spark   = { x: number; y: number; vx: number; vy: number; life: number; c: string };
+    type FPopup  = { x: number; y: number; text: string; color: string; life: number };
 
-    let id: number;
+    const bullets: FBullet[] = [];
+    const sparks:  Spark[]   = [];
+    const fpopups: FPopup[]  = [];
+
+    let animId: number;
     const draw = () => {
-      ctx.fillStyle = "rgba(0,13,26,0.2)";
+      ctx.fillStyle = "rgba(0,13,26,0.22)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const now = Date.now();
 
-      invaders.forEach(inv => {
-        inv.x += inv.vx;
-        const sw = inv.sprite[0].length * inv.sc;
-        if (inv.x > canvas.width + 20) inv.x = -sw;
-        if (inv.x < -sw - 20)          inv.x = canvas.width + 20;
-        ctx.globalAlpha = 0.7;
-        ctx.fillStyle = inv.color;
-        inv.sprite.forEach((row, ry) =>
+      /* ── fighters ── */
+      fighters.forEach(f => {
+        if (!f.alive) {
+          if (now > f.deathAt) {
+            f.alive = true; f.hp = 3;
+            f.x = Math.random() * (canvas.width - 100) + 50;
+            f.y = Math.random() * (canvas.height - 100) + 50;
+            f.tx = Math.random() * canvas.width;
+            f.ty = Math.random() * canvas.height;
+          }
+          return;
+        }
+
+        // wander
+        const dx = f.tx - f.x, dy = f.ty - f.y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < 15) {
+          f.tx = Math.random() * (canvas.width - 80) + 40;
+          f.ty = Math.random() * (canvas.height - 80) + 40;
+        } else {
+          f.x += dx / d * f.speed;
+          f.y += dy / d * f.speed;
+        }
+        f.x = Math.max(25, Math.min(canvas.width  - 25, f.x));
+        f.y = Math.max(25, Math.min(canvas.height - 25, f.y));
+
+        // shoot nearest alive enemy
+        if (now - f.lastShot > 1300 + Math.random() * 700) {
+          let best: Fighter | null = null, bestD = Infinity;
+          fighters.forEach(t => {
+            if (t.id === f.id || !t.alive) return;
+            const dd = (t.x - f.x) ** 2 + (t.y - f.y) ** 2;
+            if (dd < bestD) { bestD = dd; best = t; }
+          });
+          if (best) {
+            const tx = (best as Fighter).x - f.x, ty = (best as Fighter).y - f.y;
+            const len = Math.sqrt(tx * tx + ty * ty);
+            const wobble = (Math.random() - 0.5) * 0.25;
+            bullets.push({ x: f.x, y: f.y, vx: tx / len * 5 + wobble, vy: ty / len * 5 + wobble, shooterId: f.id, color: f.color });
+          }
+          f.lastShot = now;
+        }
+
+        // draw sprite
+        const alpha = f.flash > 0 ? (f.flash % 4 < 2 ? 0.25 : 0.9) : 0.85;
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = f.color;
+        if (f.flash > 0) f.flash--;
+
+        const sw = f.sprite[0].length * f.sc;
+        const sh = f.sprite.length * f.sc;
+        const ox = f.x - sw / 2, oy = f.y - sh / 2;
+        f.sprite.forEach((row, ry) =>
           row.forEach((px, rx) => {
-            if (px) ctx.fillRect(
-              Math.floor(inv.x + rx * inv.sc),
-              Math.floor(inv.y + ry * inv.sc),
-              inv.sc, inv.sc);
+            if (px) ctx.fillRect(Math.floor(ox + rx * f.sc), Math.floor(oy + ry * f.sc), f.sc, f.sc);
           })
         );
+
+        // name label
+        ctx.globalAlpha = 0.75;
+        ctx.fillStyle = f.color;
+        ctx.font = "bold 9px monospace";
+        const label = f.name.length > 11 ? f.name.slice(0, 11) + "…" : f.name;
+        ctx.fillText(label, Math.floor(f.x - ctx.measureText(label).width / 2), Math.floor(oy + sh + 12));
+
+        // HP bar
+        const bx = ox, by = oy + sh + 15;
+        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = "#111";
+        ctx.fillRect(Math.floor(bx), Math.floor(by), sw, 3);
+        ctx.fillStyle = f.hp === 3 ? "#00ff88" : f.hp === 2 ? "#ffff00" : "#ff4444";
+        ctx.fillRect(Math.floor(bx), Math.floor(by), Math.floor(sw * f.hp / 3), 3);
+        ctx.globalAlpha = 1;
       });
 
-      const now = Date.now();
-      if (now - lastShot > 400 && invaders.length) {
-        const s = invaders[Math.floor(Math.random() * invaders.length)];
-        bullets.push({ x: s.x + (s.sprite[0].length * s.sc) / 2, y: s.y + s.sprite.length * s.sc });
-        lastShot = now;
-      }
-
-      ctx.fillStyle = "#ffff44";
-      const section2 = document.getElementById("section-2");
-      const secRect = section2?.getBoundingClientRect();
-      const cards = section2?.querySelectorAll(".game-card");
-
+      /* ── bullets ── */
       for (let i = bullets.length - 1; i >= 0; i--) {
         const b = bullets[i];
-        b.y += 5;
-        ctx.globalAlpha = 0.9;
-        ctx.fillRect(Math.floor(b.x - 1), Math.floor(b.y), 3, 10);
+        b.x += b.vx; b.y += b.vy;
+        if (b.x < -10 || b.x > canvas.width + 10 || b.y < -10 || b.y > canvas.height + 10) {
+          bullets.splice(i, 1); continue;
+        }
 
-        let hitCard = false;
-        if (secRect && cards) {
-          cards.forEach((card, idx) => {
-            if (hitCard) return;
-            const r = card.getBoundingClientRect();
-            const top  = r.top  - secRect.top;
-            const left = r.left - secRect.left;
-            if (b.x >= left && b.x <= left + r.width && b.y >= top && b.y <= top + r.height) {
-              hitCard = true;
-              arcadeHitRef.current(idx, b.x, b.y);
-              for (let s = 0; s < 12; s++)
-                sparks.push({ x: b.x, y: b.y,
-                  vx: (Math.random() - 0.5) * 7, vy: (Math.random() - 0.5) * 7,
-                  life: 1, c: palette[Math.floor(Math.random() * palette.length)] });
-              bullets.splice(i, 1);
+        let hit = false;
+        for (const f of fighters) {
+          if (f.id === b.shooterId || !f.alive) continue;
+          const hitR = (f.sprite[0].length * f.sc) / 2 + 2;
+          if (Math.sqrt((f.x - b.x) ** 2 + (f.y - b.y) ** 2) < hitR) {
+            f.hp--; f.flash = 14; hit = true;
+            for (let s = 0; s < 10; s++)
+              sparks.push({ x: b.x, y: b.y, vx: (Math.random() - 0.5) * 7, vy: (Math.random() - 0.5) * 7, life: 1, c: b.color });
+
+            if (f.hp <= 0) {
+              f.alive = false; f.deathAt = now + 3500;
+              const killer = fighters.find(fi => fi.id === b.shooterId);
+              if (killer) {
+                killer.kills++;
+                fpopups.push({ x: b.x, y: b.y - 14, text: `☠ ${f.name.length > 10 ? f.name.slice(0,10)+"…" : f.name}`, color: b.color, life: 1.3 });
+                arcadeHitRef.current(killer.name, f.name, b.x, b.y);
+              }
+            } else {
+              fpopups.push({ x: b.x, y: b.y, text: `-1 HP`, color: b.color, life: 0.8 });
             }
-          });
+            bullets.splice(i, 1); break;
+          }
         }
+        if (hit) continue;
 
-        if (!hitCard && b.y > canvas.height) {
-          for (let s = 0; s < 8; s++)
-            sparks.push({ x: b.x, y: canvas.height - 8,
-              vx: (Math.random() - 0.5) * 5, vy: -Math.random() * 4 - 1,
-              life: 1, c: palette[Math.floor(Math.random() * palette.length)] });
-          bullets.splice(i, 1);
-        }
+        ctx.globalAlpha = 0.95;
+        ctx.fillStyle = b.color;
+        ctx.beginPath(); ctx.arc(b.x, b.y, 3, 0, Math.PI * 2); ctx.fill();
       }
 
+      /* ── sparks ── */
       for (let i = sparks.length - 1; i >= 0; i--) {
         const s = sparks[i];
-        s.x += s.vx; s.y += s.vy; s.vy += 0.12; s.life -= 0.035;
-        ctx.globalAlpha = Math.max(0, s.life * 0.85);
+        s.x += s.vx; s.y += s.vy; s.life -= 0.04;
+        ctx.globalAlpha = Math.max(0, s.life);
         ctx.fillStyle = s.c;
-        ctx.fillRect(Math.floor(s.x), Math.floor(s.y), 4, 4);
+        ctx.fillRect(s.x - 2, s.y - 2, 4, 4);
         if (s.life <= 0) sparks.splice(i, 1);
       }
 
+      /* ── in-canvas kill popups ── */
+      ctx.font = "bold 11px monospace";
+      for (let i = fpopups.length - 1; i >= 0; i--) {
+        const p = fpopups[i];
+        p.y -= 0.55; p.life -= 0.014;
+        ctx.globalAlpha = Math.max(0, Math.min(1, p.life));
+        ctx.fillStyle = p.color;
+        ctx.fillText(p.text, p.x - ctx.measureText(p.text).width / 2, p.y);
+        if (p.life <= 0) fpopups.splice(i, 1);
+      }
+
       ctx.globalAlpha = 1;
-      id = requestAnimationFrame(draw);
+      animId = requestAnimationFrame(draw);
     };
     draw();
-    return () => cancelAnimationFrame(id);
+    return () => cancelAnimationFrame(animId);
   }, []);
 
   /* Intersection → active dot */
@@ -729,23 +807,49 @@ export default function Home() {
           </motion.div>
         </div>
 
-        {/* Score */}
-        <div style={{ position: "absolute", bottom: "1.5rem", left: "2rem", zIndex: 20, fontFamily: "monospace", lineHeight: 1.2 }}>
-          <div style={{ fontSize: "0.5rem", letterSpacing: "0.2em", color: "rgba(0,212,255,0.5)", textTransform: "uppercase" }}>Score</div>
+        {/* Leaderboard panel — left side */}
+        <div style={{ position: "absolute", top: "5.5rem", left: "1.5rem", zIndex: 20, fontFamily: "monospace", width: "155px" }}>
+          <div style={{ fontSize: "0.48rem", letterSpacing: "0.25em", color: "#00d4ff", textTransform: "uppercase", marginBottom: "7px",
+            textShadow: "0 0 10px rgba(0,212,255,0.7)", borderBottom: "1px solid rgba(0,212,255,0.25)", paddingBottom: "5px" }}>
+            ⚔ Liderlik
+          </div>
+          {leaderboard.length === 0 && (
+            <div style={{ fontSize: "0.52rem", color: "rgba(0,212,255,0.3)", lineHeight: 2 }}>savaş başlıyor…</div>
+          )}
+          {leaderboard.slice(0, 8).map((l, i) => (
+            <div key={l.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center",
+              padding: "3px 0", borderBottom: "1px solid rgba(0,212,255,0.08)" }}>
+              <span style={{ fontSize: "0.58rem", color: i === 0 ? "#ffff44" : i === 1 ? "#aaaaaa" : i === 2 ? "#cd7f32" : "rgba(180,220,255,0.55)",
+                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "115px",
+                textShadow: i === 0 ? "0 0 10px #ffff44" : "none" }}>
+                {i === 0 ? "👑 " : `${i + 1}. `}{l.name}
+              </span>
+              <span style={{ fontSize: "0.6rem", fontWeight: "bold", color: i === 0 ? "#ffff44" : "#00d4ff", flexShrink: 0 }}>
+                {l.kills}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Score — bottom left */}
+        <div style={{ position: "absolute", bottom: "1.5rem", left: "1.5rem", zIndex: 20, fontFamily: "monospace", lineHeight: 1.2 }}>
+          <div style={{ fontSize: "0.48rem", letterSpacing: "0.2em", color: "rgba(0,212,255,0.45)", textTransform: "uppercase" }}>Kill Score</div>
           <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: "#00d4ff", textShadow: "0 0 14px rgba(0,212,255,0.8)" }}>
             {String(arcadeScore).padStart(6, "0")}
           </div>
         </div>
 
-        {/* Hit popup */}
+        {/* Kill popup */}
         {arcadePopup && (
           <div key={arcadePopup.key} style={{
-            position: "absolute", left: Math.min(arcadePopup.x - 60, window.innerWidth - 160), top: Math.max(arcadePopup.y - 80, 10),
-            zIndex: 30, pointerEvents: "none", textAlign: "center", animation: "popupFade 2.2s ease forwards",
+            position: "absolute",
+            left: Math.min(Math.max(arcadePopup.x - 70, 10), (typeof window !== "undefined" ? window.innerWidth : 800) - 160),
+            top: Math.max(arcadePopup.y - 80, 60),
+            zIndex: 30, pointerEvents: "none", textAlign: "center", animation: "popupFade 2.5s ease forwards",
           }}>
-            <div style={{ fontSize: "1.2rem", fontWeight: "bold", color: "#ffff44", fontFamily: "monospace", textShadow: "0 0 12px #ffff44" }}>+100</div>
-            <div style={{ fontSize: "0.65rem", color: "#00d4ff", fontFamily: "monospace", letterSpacing: "0.1em", marginTop: "2px",
-              background: "rgba(0,13,26,0.85)", padding: "4px 10px", border: "1px solid rgba(0,212,255,0.5)" }}>
+            <div style={{ fontSize: "1.15rem", fontWeight: "bold", color: "#ffff44", fontFamily: "monospace", textShadow: "0 0 12px #ffff44" }}>+100</div>
+            <div style={{ fontSize: "0.62rem", color: "#00d4ff", fontFamily: "monospace", letterSpacing: "0.08em", marginTop: "2px",
+              background: "rgba(0,13,26,0.9)", padding: "4px 10px", border: "1px solid rgba(0,212,255,0.5)" }}>
               {arcadePopup.title}
             </div>
           </div>
