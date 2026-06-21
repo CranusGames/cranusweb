@@ -914,11 +914,11 @@ setLeaderboard(prev => {
     bioLevel:    isTR ? "Boyut 01" : "Level 01",
     bioTitle:    "About Me",
     bioPara1:    isTR
-      ? "Cranus Games çatısı altında 30’dan fazla oyun yayınlamış bağımsız bir oyun geliştiricisiyim. Unity ile horror, adventure, survival ve puzzle dahil pek çok türde oyun geliştirdim. Blender ve Substance Painter kullanarak 3D modelleme, doku boyama ve optimizasyon alanlarında deneyim kazandım."
-      : "I’m an indie game developer who has published over 30 games under the Cranus Games label. I’ve built games in Unity across many genres — horror, adventure, survival, puzzle and more. I specialize in 3D modeling, texturing, and optimization using Blender and Substance Painter.",
+      ? "Cranus Games çatısı altında 30’dan fazla oyun yayınlamış bağımsız bir oyun geliştiricisiyim. Unity’de Animator state machine ve blend tree kurulumundan çok oyunculu ağ mimarisine, özel shader geliştirmeden yapay zeka davranış sistemlerine kadar geniş bir teknik yelpazede çalıştım."
+      : "I’m an indie game developer with over 30 published games under the Cranus Games label. In Unity, I’ve worked across a wide technical range — from Animator state machines and blend trees to multiplayer networking, custom shader development, and AI behavior systems.",
     bioPara2:    isTR
-      ? "Teknik becerilerimi yaratıcı hikaye anlatımıyla birleştirerek her projede özgün deneyimler oluşturmaya çalışıyorum. Android uygulama geliştirme konusunda da yeni adımlar atıyorum."
-      : "I combine technical skills with creative storytelling to craft unique experiences in every project. I’m also taking my first steps into Android app development.",
+      ? "Prosedürel üretim, fizik tabanlı mekanikler ve performans optimizasyonu üzerine çalışmak en çok keyif aldığım alanlar arasında. Blender ve Substance Painter ile 3D modelleme ve doku süreçlerini de oyun pipeline’ıma entegre ediyorum."
+      : "Procedural generation, physics-based mechanics, and performance optimization are areas I genuinely enjoy pushing. I also integrate 3D modeling and texturing workflows into my pipeline using Blender and Substance Painter.",
     calLess:     isTR ? "az"  : "less",
     calMore:     isTR ? "çok" : "more",
     gamesLevel:  isTR ? "Boyut 02" : "Level 02",
