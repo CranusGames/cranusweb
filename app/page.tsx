@@ -247,14 +247,18 @@ export default function Home() {
   const [arcadePopup, setArcadePopup] = useState<{ title: string; x: number; y: number; key: number } | null>(null);
   const arcadeHitRef = useRef<(killerName: string, victimName: string, bx: number, by: number) => void>(() => {});
   const popupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pendingKillsRef = useRef<Record<string, number>>({});
-  const pendingScoreRef = useRef<number>(0);
   const [leaderboard, setLeaderboard] = useState<{ name: string; kills: number }[]>(() => {
     if (typeof window === "undefined") return [];
     try { return JSON.parse(localStorage.getItem("arcade_lb") ?? "[]"); } catch { return []; }
   });
   const [lang, setLang] = useState<"tr" | "en">("tr");
   const [uptime, setUptime] = useState("");
+
+  /* Refs that always point to latest state (needed inside intervals) */
+  const lbRef   = useRef(leaderboard);
+  const scRef   = useRef(arcadeScore);
+  useEffect(() => { lbRef.current = leaderboard; },  [leaderboard]);
+  useEffect(() => { scRef.current  = arcadeScore; }, [arcadeScore]);
 
   /* Mouse → 3-D tilt */
   const mx = useMotionValue(0);
@@ -307,38 +311,23 @@ export default function Home() {
       .catch((e) => console.error("[battle] supabase error:", e));
   }, []);
 
-  /* Sync pending kills to Supabase every 20s and on unload */
+  /* Sync state to Supabase every 8s — simple write, no merge complexity */
   useEffect(() => {
-    const sync = async () => {
-      const pending = pendingKillsRef.current;
-      const pendingScore = pendingScoreRef.current;
-      if (Object.keys(pending).length === 0) return;
-      pendingKillsRef.current = {};
-      pendingScoreRef.current = 0;
-      try {
-        const res = await sbFetch("/battle_state?select=score,leaderboard&id=eq.1");
-        const data: { score: number; leaderboard: { name: string; kills: number }[] }[] = await res.json();
-        if (!data?.[0]) return;
-        const merged = [...(data[0].leaderboard ?? [])];
-        for (const [name, kills] of Object.entries(pending)) {
-          const i = merged.findIndex(e => e.name === name);
-          if (i >= 0) merged[i] = { ...merged[i], kills: merged[i].kills + kills };
-          else merged.push({ name, kills });
-        }
-        merged.sort((a, b) => b.kills - a.kills);
-        const newScore = (data[0].score ?? 0) + pendingScore;
-        await sbFetch("/battle_state?id=eq.1", {
-          method: "PATCH",
-          headers: { Prefer: "return=minimal" } as Record<string, string>,
-          body: JSON.stringify({ score: newScore, leaderboard: merged }),
-        });
-        setLeaderboard(merged);
-        setArcadeScore(newScore);
-      } catch { /* offline – data stays in localStorage */ }
+    const sync = () => {
+      const lb = lbRef.current;
+      const sc = scRef.current;
+      if (lb.length === 0) return;
+      sbFetch("/battle_state?id=eq.1", {
+        method: "PATCH",
+        headers: { Prefer: "return=minimal" } as Record<string, string>,
+        body: JSON.stringify({ score: sc, leaderboard: lb }),
+      })
+        .then(r => { if (!r.ok) r.text().then(t => console.error("[battle] sync fail:", r.status, t)); })
+        .catch(e => console.error("[battle] sync error:", e));
     };
-    const id = setInterval(sync, 20000);
+    const id = setInterval(sync, 8000);
     window.addEventListener("beforeunload", sync);
-    return () => { clearInterval(id); window.removeEventListener("beforeunload", sync); sync(); };
+    return () => { clearInterval(id); window.removeEventListener("beforeunload", sync); };
   }, []);
 
   /* Particles */
@@ -423,9 +412,7 @@ export default function Home() {
       setArcadeScore(s => s + 100);
       setArcadePopup({ title: `☠ ${victimName}`, x: bx, y: by, key: Date.now() });
       popupTimer.current = setTimeout(() => setArcadePopup(null), 2500);
-      pendingKillsRef.current[killerName] = (pendingKillsRef.current[killerName] ?? 0) + 1;
-      pendingScoreRef.current += 100;
-      setLeaderboard(prev => {
+setLeaderboard(prev => {
         const idx = prev.findIndex(l => l.name === killerName);
         if (idx >= 0) {
           const next = [...prev];
