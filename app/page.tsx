@@ -298,12 +298,20 @@ export default function Home() {
     return () => clearInterval(id);
   }, []);
 
-  /* Increment visitor count on mount */
+  /* Increment visitor count only on first visit per browser */
   useEffect(() => {
-    sbFetch("/rpc/increment_visitors", { method: "POST", body: "{}" })
-      .then(r => r.json())
-      .then((n: number) => setVisitors(n))
-      .catch(() => {});
+    const already = localStorage.getItem("cranus_visited");
+    if (already) {
+      sbFetch("/battle_state?select=visitors&id=eq.1")
+        .then(r => r.json())
+        .then((d: { visitors: number }[]) => { if (d?.[0]) setVisitors(d[0].visitors); })
+        .catch(() => {});
+    } else {
+      sbFetch("/rpc/increment_visitors", { method: "POST", body: "{}" })
+        .then(r => r.json())
+        .then((n: number) => { setVisitors(n); localStorage.setItem("cranus_visited", "1"); })
+        .catch(() => {});
+    }
   }, []);
 
   /* Load global battle state from Supabase on mount */
