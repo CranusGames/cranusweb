@@ -253,6 +253,7 @@ export default function Home() {
   });
   const [lang, setLang] = useState<"tr" | "en">("tr");
   const [uptime, setUptime] = useState("");
+  const [visitors, setVisitors] = useState<number | null>(null);
 
   /* Refs that always point to latest state (needed inside intervals) */
   const lbRef   = useRef(leaderboard);
@@ -295,6 +296,14 @@ export default function Home() {
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
+  }, []);
+
+  /* Increment visitor count on mount */
+  useEffect(() => {
+    sbFetch("/rpc/increment_visitors", { method: "POST", body: "{}" })
+      .then(r => r.json())
+      .then((n: number) => setVisitors(n))
+      .catch(() => {});
   }, []);
 
   /* Load global battle state from Supabase on mount */
@@ -985,8 +994,32 @@ setLeaderboard(prev => {
             ))}
           </motion.div>
 
+          {/* Visitor counter */}
+          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.75, duration: 0.7 }}
+            style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "1.2rem",
+              padding: "7px 20px", border: "1px solid rgba(121,40,202,0.35)",
+              background: "linear-gradient(90deg, rgba(121,40,202,0.08) 0%, rgba(255,110,200,0.06) 100%)",
+              backdropFilter: "blur(6px)" }}>
+            {/* eye icon */}
+            <svg width="16" height="11" viewBox="0 0 16 11" fill="none" style={{ flexShrink: 0, filter: "drop-shadow(0 0 5px rgba(255,110,200,0.7))" }}>
+              <path d="M8 0.5C4.5 0.5 1.5 3 0 5.5C1.5 8 4.5 10.5 8 10.5C11.5 10.5 14.5 8 16 5.5C14.5 3 11.5 0.5 8 0.5Z" stroke="#ff6ec7" strokeWidth="1" fill="none"/>
+              <circle cx="8" cy="5.5" r="2.5" fill="#ff6ec7" style={{ filter: "blur(0.3px)" }}/>
+            </svg>
+            <span style={{ fontFamily: "monospace", fontSize: "0.58rem", color: "rgba(220,180,255,0.55)",
+              textTransform: "uppercase", letterSpacing: "0.18em" }}>
+              {isTR ? "Toplam Ziyaretçi" : "Total Visitors"}
+            </span>
+            <span style={{ fontFamily: "monospace", fontWeight: "bold", fontSize: "1.05rem",
+              background: "linear-gradient(90deg, #ff6ec7, #7928ca)",
+              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
+              filter: "drop-shadow(0 0 8px rgba(255,110,200,0.5))",
+              minWidth: "48px", textAlign: "right", letterSpacing: "0.04em" }}>
+              {visitors === null ? "···" : visitors.toLocaleString()}
+            </span>
+          </motion.div>
+
           {/* Gradient line */}
-          <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.9, delay: 1.8 }}
+          <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.9, delay: 1.9 }}
             style={{ width: "100px", height: "1px", background: "linear-gradient(to right, transparent, var(--accent), #ff6ec7, transparent)", marginBottom: "1.6rem" }} />
 
           {/* Social icons — SVG logos */}
