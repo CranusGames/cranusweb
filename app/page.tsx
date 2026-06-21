@@ -9,7 +9,10 @@ import { games } from "@/lib/games";
 function useTypewriter(words: string[], speed = 75, pauseMs = 2200) {
   const [displayed, setDisplayed] = useState("");
   const s = useRef({ word: 0, char: 0, del: false, paused: false });
+  const wordsKey = words.join("|");
   useEffect(() => {
+    s.current = { word: 0, char: 0, del: false, paused: false };
+    setDisplayed("");
     let id: ReturnType<typeof setTimeout>;
     const tick = () => {
       const st = s.current;
@@ -27,7 +30,7 @@ function useTypewriter(words: string[], speed = 75, pauseMs = 2200) {
     };
     id = setTimeout(tick, 1400);
     return () => clearTimeout(id);
-  }, []); // eslint-disable-line
+  }, [wordsKey]); // eslint-disable-line
   return displayed;
 }
 
@@ -136,7 +139,7 @@ function NavDots({ active }: { active: number }) {
 /* ─── GitHub Calendar ───────────────────────────────────── */
 type ContribDay = { date: string; count: number; level: number };
 
-function GitHubCalendar({ username, year }: { username: string; year: number }) {
+function GitHubCalendar({ username, year, lang = "tr" }: { username: string; year: number; lang?: "tr" | "en" }) {
   const [weeks, setWeeks] = useState<ContribDay[][]>([]);
   const [total, setTotal] = useState(0);
 
@@ -207,9 +210,9 @@ function GitHubCalendar({ username, year }: { username: string; year: number }) 
         </div>
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: "4px", alignItems: "center", marginTop: "8px" }}>
-        <span style={{ fontSize: "0.52rem", color: "rgba(220,200,230,0.35)", fontFamily: "monospace" }}>az</span>
+        <span style={{ fontSize: "0.52rem", color: "rgba(220,200,230,0.35)", fontFamily: "monospace" }}>{lang === "tr" ? "az" : "less"}</span>
         {COLORS.map((c, i) => <div key={i} style={{ width: "8px", height: "8px", background: c, borderRadius: "2px" }} />)}
-        <span style={{ fontSize: "0.52rem", color: "rgba(220,200,230,0.35)", fontFamily: "monospace" }}>çok</span>
+        <span style={{ fontSize: "0.52rem", color: "rgba(220,200,230,0.35)", fontFamily: "monospace" }}>{lang === "tr" ? "çok" : "more"}</span>
       </div>
     </div>
   );
@@ -228,6 +231,7 @@ export default function Home() {
   const arcadeHitRef = useRef<(killerName: string, victimName: string, bx: number, by: number) => void>(() => {});
   const popupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [leaderboard, setLeaderboard] = useState<{ name: string; kills: number }[]>([]);
+  const [lang, setLang] = useState<"tr" | "en">("tr");
 
   /* Mouse → 3-D tilt */
   const mx = useMotionValue(0);
@@ -718,7 +722,50 @@ export default function Home() {
     return () => obs.disconnect();
   }, []);
 
-  const title = useTypewriter(["Indie Game Developer", "Unity Developer", "Game Designer", "Creative Developer"]);
+  const isTR = lang === "tr";
+  const t = {
+    heroLabel:   isTR ? "Cranus Games Studio" : "Cranus Games Studio",
+    heroTyping:  isTR
+      ? ["Indie Oyun Geliştiricisi", "Unity Geliştirici", "Oyun Tasarımcısı", "Yaratıcı Geliştirici"]
+      : ["Indie Game Developer",     "Unity Developer",   "Game Designer",    "Creative Developer"],
+    statGame:    isTR ? "Oyun"     : "Game",
+    statYear:    isTR ? "Yıl"      : "Year",
+    statIdea:    isTR ? "Fikir"    : "Idea",
+    ctaGames:    isTR ? "⚡ Oyunları Keşfet" : "⚡ Explore Games",
+    ctaAbout:    isTR ? "Hakkımda →"         : "About Me →",
+    bioLevel:    isTR ? "Boyut 01" : "Level 01",
+    bioTitle:    isTR ? "Biyografi" : "Biography",
+    bioPara1:    isTR
+      ? "Karanlık atmosferler, derin hikayeler ve yaratıcı oyun mekanikleri üzerine çalışan bağımsız bir oyun geliştiriciyim. Cranus Games çatısı altında 30’u aşkın oyun yayınladım."
+      : "I'm an indie game developer working on dark atmospheres, deep stories, and creative game mechanics. I've published over 30 games under the Cranus Games label.",
+    bioPara2:    isTR
+      ? "Horror, adventure ve survival türlerine özel bir tutkum var. Her proje, farklı bir evrenin kapısını aralıyor."
+      : "I have a special passion for horror, adventure, and survival genres. Each project opens a door to a different universe.",
+    calLess:     isTR ? "az"  : "less",
+    calMore:     isTR ? "çok" : "more",
+    gamesLevel:  isTR ? "Boyut 02" : "Level 02",
+    gamesTitle:  isTR ? "Oyunlar"  : "Games",
+    gamesSub:    isTR ? `${games.length} OYUN · SAVAŞA KATIL · TIKLAYARAK OYNA` : `${games.length} GAMES · JOIN THE BATTLE · CLICK TO PLAY`,
+    gamesBtn:    isTR ? `Tüm ${games.length} Oyunu itch.io’da Gör →` : `See All ${games.length} Games on itch.io →`,
+    leaderTitle: isTR ? "⚔ Liderlik"    : "⚔ Leaderboard",
+    battleStart: isTR ? "savaş başlıyor…" : "battle starting…",
+    contactLevel: isTR ? "Boyut 03"  : "Level 03",
+    contactTitle: isTR ? "Bağlantı"  : "Connect",
+    contactSub:   isTR ? "Bağımsız oyun geliştirici" : "Indie game developer",
+    itchTag:      isTR ? "OYUN"   : "GAME",
+    itchDesc:     isTR ? `${games.length} Oyun Yayınlandı` : `${games.length} Games Published`,
+    ytTag:        isTR ? "VİDEO"  : "VIDEO",
+    igTag:        isTR ? "GÖRSEL" : "VISUAL",
+    igDesc:       isTR ? "Gelişim süreci & güncellemeler"  : "Dev progress & updates",
+    mobileTag:    isTR ? "MOBİL"  : "MOBILE",
+    mobileDesc:   isTR ? "Android oyunlar — Ücretsiz" : "Android games — Free",
+    dendenDesc:   isTR
+      ? "Ana odada sadece bir buton var. Basarsan rastgele birisi seni arayacak…"
+      : "In the main room, there’s only one button. Press it and a random stranger will call you…",
+    downloadBtn:  isTR ? "İNDİR →" : "GET →",
+  };
+
+  const title = useTypewriter(t.heroTyping);
   const skills = ["Unity", "C#", "Blender", "Game Design", "Pixel Art", "Level Design", "Narrative", "UI/UX"];
 
   const scrollTo = (i: number) => document.getElementById(`section-${i}`)?.scrollIntoView({ behavior: "smooth" });
@@ -726,6 +773,24 @@ export default function Home() {
   return (
     <div style={{ height: "100vh", overflowY: "scroll", scrollSnapType: "y mandatory" }}>
       <NavDots active={active} />
+
+      {/* Language Switch */}
+      <div style={{ position: "fixed", top: "16px", right: "20px", zIndex: 200, display: "flex" }}>
+        {(["TR", "EN"] as const).map((l, i) => (
+          <button key={l} onClick={() => setLang(l.toLowerCase() as "tr" | "en")}
+            style={{
+              padding: "5px 13px", fontSize: "0.58rem", letterSpacing: "0.22em", fontFamily: "monospace",
+              background: lang === l.toLowerCase() ? "rgba(200,169,110,0.15)" : "rgba(0,0,0,0.5)",
+              color: lang === l.toLowerCase() ? "var(--accent)" : "var(--text-dim)",
+              border: `1px solid ${lang === l.toLowerCase() ? "rgba(200,169,110,0.55)" : "rgba(255,255,255,0.1)"}`,
+              borderRadius: i === 0 ? "3px 0 0 3px" : "0 3px 3px 0",
+              marginLeft: i === 1 ? "-1px" : 0,
+              cursor: "pointer", transition: "all 0.2s", backdropFilter: "blur(8px)",
+            }}>
+            {l}
+          </button>
+        ))}
+      </div>
 
       {/* ════════════════════════════════════════
           BOYUT 0 — HERO
@@ -748,7 +813,7 @@ export default function Home() {
 
           <motion.p initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 1 }}
             style={{ fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.55em", color: "var(--accent)", fontFamily: "monospace", marginBottom: "2.5rem" }}>
-            Cranus Games Studio
+            {t.heroLabel}
           </motion.p>
 
           {/* ── Photo + 3-D tilt + Coin flip ── */}
@@ -825,10 +890,10 @@ export default function Home() {
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.6, duration: 0.7 }}
             style={{ display: "flex", gap: "8px", marginBottom: "1.4rem", flexWrap: "wrap", justifyContent: "center" }}>
             {[
-              { v: "33", l: "Oyun", c: "#c8a96e" },
-              { v: "21", l: "Game Jam", c: "#ff6ec7" },
-              { v: "5+", l: "Yıl", c: "#00d4ff" },
-              { v: "∞",  l: "Fikir", c: "#7928ca" },
+              { v: "33", l: t.statGame,  c: "#c8a96e" },
+              { v: "21", l: "Game Jam",  c: "#ff6ec7" },
+              { v: "5+", l: t.statYear,  c: "#00d4ff" },
+              { v: "∞",  l: t.statIdea,  c: "#7928ca" },
             ].map(s => (
               <div key={s.l} style={{ display: "flex", flexDirection: "column", alignItems: "center",
                 padding: "7px 16px", border: `1px solid ${s.c}38`, background: `${s.c}0c` }}>
@@ -885,7 +950,7 @@ export default function Home() {
                   boxShadow: "0 0 24px rgba(200,169,110,0.1)" }}
                 onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "var(--accent)"; b.style.color = "#050505"; b.style.boxShadow = "0 0 36px rgba(200,169,110,0.4)"; }}
                 onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "linear-gradient(135deg, rgba(200,169,110,0.1) 0%, transparent 100%)"; b.style.color = "var(--accent)"; b.style.boxShadow = "0 0 24px rgba(200,169,110,0.1)"; }}>
-                ⚡ Oyunları Keşfet
+                {t.ctaGames}
               </motion.button>
             </Link>
             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}
@@ -895,7 +960,7 @@ export default function Home() {
                 border: "1px solid rgba(255,110,200,0.35)", fontFamily: "monospace", cursor: "pointer", transition: "all 0.3s" }}
               onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = "#ff6ec7"; b.style.boxShadow = "0 0 28px rgba(255,110,200,0.3)"; b.style.background = "rgba(255,110,200,0.12)"; }}
               onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = "rgba(255,110,200,0.35)"; b.style.boxShadow = "none"; b.style.background = "linear-gradient(135deg, rgba(255,110,200,0.08) 0%, transparent 100%)"; }}>
-              Hakkımda →
+              {t.ctaAbout}
             </motion.button>
           </motion.div>
         </div>
@@ -927,11 +992,11 @@ export default function Home() {
           <motion.div initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
             style={{ marginBottom: "2.8rem" }}>
             <p style={{ fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.55em", color: "#ff6ec7", fontFamily: "monospace", marginBottom: "0.8rem", textShadow: "0 0 18px rgba(255,110,200,0.8)" }}>
-              Boyut 01
+              {t.bioLevel}
             </p>
             <h2 style={{ fontSize: "clamp(2.4rem, 6vw, 5rem)", fontWeight: "bold", color: "var(--text)", letterSpacing: "-0.02em", marginBottom: "0.6rem",
               textShadow: "0 0 40px rgba(121,40,202,0.6), 0 0 80px rgba(255,110,200,0.25)" }}>
-              Biyografi
+              {t.bioTitle}
             </h2>
             <div style={{ width: "80px", height: "2px", background: "linear-gradient(to right, #7928ca, #ff6ec7)", margin: "0 auto" }} />
           </motion.div>
@@ -939,17 +1004,16 @@ export default function Home() {
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.15 }}
             style={{ marginBottom: "2rem" }}>
             <p style={{ color: "rgba(220,200,230,0.75)", fontSize: "1.05rem", lineHeight: 1.9, marginBottom: "1rem" }}>
-              Karanlık atmosferler, derin hikayeler ve yaratıcı oyun mekanikleri üzerine çalışan bağımsız bir oyun geliştiriciyim.
-              Cranus Games çatısı altında 30&apos;u aşkın oyun yayınladım.
+              {t.bioPara1}
             </p>
             <p style={{ color: "rgba(220,200,230,0.6)", fontSize: "0.95rem", lineHeight: 1.9 }}>
-              Horror, adventure ve survival türlerine özel bir tutkum var. Her proje, farklı bir evrenin kapısını aralıyor.
+              {t.bioPara2}
             </p>
           </motion.div>
 
           {/* Stats */}
           <div style={{ display: "flex", justifyContent: "center", gap: "16px", marginBottom: "2.2rem", flexWrap: "wrap" }}>
-            {[{ num: "33", label: "Oyun" }, { num: "21", label: "Game Jam" }, { num: "5+", label: "Yıl" }, { num: "∞", label: "Fikir" }].map((s, i) => (
+            {[{ num: "33", label: t.statGame }, { num: "21", label: "Game Jam" }, { num: "5+", label: t.statYear }, { num: "∞", label: t.statIdea }].map((s, i) => (
               <motion.div key={s.label}
                 initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, delay: i * 0.1 }}
                 style={{ padding: "16px 28px", textAlign: "center", border: "1px solid rgba(121,40,202,0.4)", background: "rgba(121,40,202,0.08)", backdropFilter: "blur(6px)", minWidth: "110px" }}>
@@ -975,7 +1039,7 @@ export default function Home() {
           {/* GitHub Contribution Calendar */}
           <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.5 }}
             style={{ padding: "16px 20px", border: "1px solid rgba(121,40,202,0.3)", background: "rgba(12,0,24,0.5)", backdropFilter: "blur(8px)" }}>
-            <GitHubCalendar username="CranusGames" year={2026} />
+            <GitHubCalendar username="CranusGames" year={2026} lang={lang} />
           </motion.div>
         </div>
 
@@ -1002,15 +1066,15 @@ export default function Home() {
         {/* Title — pointer-events none so canvas clicks pass through */}
         <div style={{ position: "absolute", top: "1.8rem", left: 0, right: 0, zIndex: 10, textAlign: "center", pointerEvents: "none" }}>
           <p style={{ fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.55em", color: "#00d4ff", fontFamily: "monospace", marginBottom: "0.5rem", textShadow: "0 0 18px rgba(0,212,255,0.8)" }}>
-            Boyut 02
+            {t.gamesLevel}
           </p>
           <h2 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: "bold", color: "var(--text)", letterSpacing: "-0.02em",
             textShadow: "0 0 40px rgba(0,180,255,0.5), 0 0 80px rgba(0,100,200,0.3)" }}>
-            Oyunlar
+            {t.gamesTitle}
           </h2>
           <div style={{ width: "60px", height: "2px", background: "linear-gradient(to right, #00d4ff, #7928ca)", margin: "8px auto 0" }} />
           <p style={{ marginTop: "8px", fontSize: "0.55rem", color: "rgba(0,212,255,0.5)", fontFamily: "monospace", letterSpacing: "0.15em" }}>
-            {games.length} OYUN · SAVAŞA KATIL · TIKLAYARAK OYNA
+            {t.gamesSub}
           </p>
         </div>
 
@@ -1021,7 +1085,7 @@ export default function Home() {
               style={{ padding: "10px 30px", fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.2em", border: "1px solid rgba(0,212,255,0.4)", color: "#00d4ff", background: "rgba(0,13,26,0.75)", fontFamily: "monospace", cursor: "pointer", backdropFilter: "blur(6px)", transition: "all 0.3s" }}
               onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "rgba(0,212,255,0.12)"; b.style.borderColor = "#00d4ff"; b.style.boxShadow = "0 0 20px rgba(0,212,255,0.3)"; }}
               onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "rgba(0,13,26,0.75)"; b.style.borderColor = "rgba(0,212,255,0.4)"; b.style.boxShadow = "none"; }}>
-              Tüm {games.length} Oyunu itch.io&apos;da Gör →
+              {t.gamesBtn}
             </motion.button>
           </a>
         </div>
@@ -1030,10 +1094,10 @@ export default function Home() {
         <div className="leaderboard-scroll" style={{ position: "absolute", top: "5.5rem", left: "1.5rem", zIndex: 20, fontFamily: "monospace", width: "155px", maxHeight: "calc(100vh - 10rem)", overflowY: "auto" }}>
           <div style={{ fontSize: "0.48rem", letterSpacing: "0.25em", color: "#00d4ff", textTransform: "uppercase", marginBottom: "7px",
             textShadow: "0 0 10px rgba(0,212,255,0.7)", borderBottom: "1px solid rgba(0,212,255,0.25)", paddingBottom: "5px" }}>
-            ⚔ Liderlik
+            {t.leaderTitle}
           </div>
           {leaderboard.length === 0 && (
-            <div style={{ fontSize: "0.52rem", color: "rgba(0,212,255,0.3)", lineHeight: 2 }}>savaş başlıyor…</div>
+            <div style={{ fontSize: "0.52rem", color: "rgba(0,212,255,0.3)", lineHeight: 2 }}>{t.battleStart}</div>
           )}
           {leaderboard.map((l, i) => (
             <div key={l.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -1099,15 +1163,15 @@ export default function Home() {
             <CranusLogo size={100} />
             <div style={{ textAlign: "left" }}>
               <p style={{ fontSize: "0.55rem", textTransform: "uppercase", letterSpacing: "0.55em", color: "#ff6ec7", fontFamily: "monospace", marginBottom: "0.4rem", textShadow: "0 0 18px rgba(255,110,200,0.8)" }}>
-                Boyut 03
+                {t.contactLevel}
               </p>
               <h2 style={{ fontSize: "clamp(2rem, 5vw, 3.8rem)", fontWeight: "bold", color: "var(--text)", letterSpacing: "-0.02em", marginBottom: "0.5rem",
                 textShadow: "0 0 40px rgba(255,0,128,0.5), 0 0 80px rgba(255,110,200,0.25)" }}>
-                Bağlantı
+                {t.contactTitle}
               </h2>
               <div style={{ width: "70px", height: "2px", background: "linear-gradient(to right, #ff0080, #ff6ec7)" }} />
               <p style={{ marginTop: "0.5rem", fontSize: "0.6rem", color: "rgba(220,180,255,0.4)", fontFamily: "monospace", lineHeight: 1.7 }}>
-                Bağımsız oyun geliştirici<br />Cranus Games Studio
+                {t.contactSub}<br />Cranus Games Studio
               </p>
             </div>
           </motion.div>
@@ -1117,7 +1181,7 @@ export default function Home() {
             const SOCIALS = [
               {
                 href: "https://cranus.itch.io/", label: "itch.io", handle: "cranus.itch.io",
-                color: "#fa5c5c", tag: "OYUN", desc: `${games.length} Oyun Yayınlandı`,
+                color: "#fa5c5c", tag: t.itchTag, desc: t.itchDesc,
                 logo: (
                   <svg width="42" height="38" viewBox="0 0 245 220" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path d="M31.9,0C14.4,0,0,14.4,0,31.9v156.2C0,205.6,14.4,220,31.9,220h181.2c17.5,0,31.9-14.4,31.9-31.9V31.9C245,14.4,230.6,0,213.1,0H31.9z"/>
@@ -1129,7 +1193,7 @@ export default function Home() {
               },
               {
                 href: "https://www.youtube.com/@cranuss/videos", label: "YouTube", handle: "@cranuss",
-                color: "#ff4444", tag: "VİDEO", desc: "Devlog & Gameplay",
+                color: "#ff4444", tag: t.ytTag, desc: "Devlog & Gameplay",
                 logo: (
                   <svg width="46" height="32" viewBox="0 0 46 32" xmlns="http://www.w3.org/2000/svg">
                     <rect width="46" height="32" rx="7" fill="#FF0000"/>
@@ -1139,7 +1203,7 @@ export default function Home() {
               },
               {
                 href: "https://www.instagram.com/cranusgamess/", label: "Instagram", handle: "@cranusgamess",
-                color: "#e040fb", tag: "GÖRSEL", desc: "Gelişim süreci & güncellemeler",
+                color: "#e040fb", tag: t.igTag, desc: t.igDesc,
                 logo: (
                   <svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
                     <defs>
@@ -1159,7 +1223,7 @@ export default function Home() {
               },
               {
                 href: "https://play.google.com/store/apps/details?id=com.cranusgames.DenDenMushi", label: "Play Store", handle: "Cranus Games",
-                color: "#00e676", tag: "MOBİL", desc: "Android oyunlar — Ücretsiz",
+                color: "#00e676", tag: t.mobileTag, desc: t.mobileDesc,
                 logo: (
                   <svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
                     <path d="M5,3 L20,19 L5,35 Q3,34 3,32 L3,6 Q3,4 5,3 Z" fill="#00D2FF"/>
@@ -1223,10 +1287,10 @@ export default function Home() {
                 </p>
                 <h3 style={{ fontSize: "1.1rem", fontWeight: "bold", color: "var(--text)", marginBottom: "3px" }}>Den Den Mushi</h3>
                 <p style={{ fontSize: "0.68rem", color: "rgba(220,200,230,0.45)", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                  Ana odada sadece bir buton var. Basarsan rastgele birisi seni arayacak…
+                  {t.dendenDesc}
                 </p>
               </div>
-              <span style={{ fontSize: "0.65rem", color: "#ff6ec7", fontFamily: "monospace", flexShrink: 0, opacity: 0.7 }}>İNDİR →</span>
+              <span style={{ fontSize: "0.65rem", color: "#ff6ec7", fontFamily: "monospace", flexShrink: 0, opacity: 0.7 }}>{t.downloadBtn}</span>
             </motion.a>
 
             {/* Email icon button */}
