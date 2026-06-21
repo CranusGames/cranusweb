@@ -69,6 +69,7 @@ function NavDots({ active }: { active: number }) {
 /* ─── Main ───────────────────────────────────────────────── */
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const bioCanvasRef = useRef<HTMLCanvasElement>(null);
   const [active, setActive] = useState(0);
   const [photoHovered, setPhotoHovered] = useState(false);
 
@@ -121,6 +122,47 @@ export default function Home() {
     draw();
     window.addEventListener("resize", resize);
     return () => { cancelAnimationFrame(id); window.removeEventListener("resize", resize); };
+  }, []);
+
+  /* Bio code rain */
+  useEffect(() => {
+    const canvas = bioCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+    resize();
+    const chars = "01アイウエオカキ!@#%^&*<>{}[]ΨΩ∞";
+    const fontSize = 13;
+    const drops: number[] = [];
+    const initDrops = () => {
+      const cols = Math.floor(window.innerWidth / fontSize);
+      drops.length = 0;
+      for (let i = 0; i < cols; i++) drops.push(Math.floor(Math.random() * window.innerHeight / fontSize));
+    };
+    initDrops();
+    let id: number;
+    const draw = () => {
+      if (!ctx || !canvas) return;
+      ctx.fillStyle = "rgba(12,0,24,0.13)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const cols = Math.floor(canvas.width / fontSize);
+      for (let i = 0; i < cols; i++) {
+        if (drops[i] === undefined) drops[i] = 0;
+        const ch = chars[Math.floor(Math.random() * chars.length)];
+        const isHead = Math.random() > 0.85;
+        ctx.font = `${isHead ? "bold " : ""}${fontSize}px monospace`;
+        ctx.fillStyle = isHead ? "#ff6ec7" : "rgba(121,40,202,0.6)";
+        ctx.fillText(ch, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.97) drops[i] = 0;
+        else drops[i]++;
+      }
+      id = requestAnimationFrame(draw);
+    };
+    draw();
+    const handleResize = () => { resize(); initDrops(); };
+    window.addEventListener("resize", handleResize);
+    return () => { cancelAnimationFrame(id); window.removeEventListener("resize", handleResize); };
   }, []);
 
   /* Intersection → active dot */
@@ -302,6 +344,7 @@ export default function Home() {
       <section id="section-1" data-idx="1"
         style={{ height: "100vh", scrollSnapAlign: "start", position: "relative", background: "linear-gradient(160deg, #0c0018 0%, #18002e 55%, #080012 100%)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", textAlign: "center" }}>
 
+        <canvas ref={bioCanvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", opacity: 0.38 }} />
         <SynthGrid color="rgba(121,40,202,0.35)" />
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "35%", background: "linear-gradient(to bottom, #0c0018, transparent)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(to right, transparent, #7928ca, #ff6ec7, transparent)" }} />
