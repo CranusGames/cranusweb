@@ -177,7 +177,10 @@ export default function Home() {
             style={{ marginBottom: "2.2rem" }}>
             <div style={{ perspective: "1000px" }}>
               <motion.div style={{ rotateX: rotX, rotateY: rotY, transformStyle: "preserve-3d" }} className="select-none">
-                <div style={{ position: "relative", display: "inline-block", transformStyle: "preserve-3d" }}>
+                <div
+                  onMouseEnter={() => setPhotoHovered(true)}
+                  onMouseLeave={() => setPhotoHovered(false)}
+                  style={{ position: "relative", display: "inline-block", transformStyle: "preserve-3d", cursor: "pointer" }}>
                   {/* Glow */}
                   <div style={{ position: "absolute", inset: "-22px", borderRadius: "50%", animation: "pulse-glow 3.2s ease-in-out infinite", pointerEvents: "none" }} />
                   {/* Outer dashed ring */}
@@ -186,17 +189,15 @@ export default function Home() {
                   <div style={{ position: "absolute", inset: "-40px", borderRadius: "50%", border: "1px solid rgba(255,110,200,0.22)", animation: "spin-slow 22s linear infinite reverse", pointerEvents: "none" }} />
                   {/* Solid gradient ring */}
                   <div style={{ position: "absolute", inset: "-6px", borderRadius: "50%", padding: "2px", background: "linear-gradient(135deg, var(--accent), #ff6ec7, #7928ca)", WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)", WebkitMaskComposite: "xor", maskComposite: "exclude", pointerEvents: "none" }} />
-                  {/* Coin flip card */}
+                  {/* Coin flip card — pointer-events none, parent handles hover */}
                   <div
-                    onMouseEnter={() => setPhotoHovered(true)}
-                    onMouseLeave={() => setPhotoHovered(false)}
                     style={{
                       width: 200, height: 200,
                       position: "relative",
                       transformStyle: "preserve-3d",
                       transition: "transform 0.75s cubic-bezier(0.23, 1, 0.32, 1)",
                       transform: photoHovered ? "rotateY(180deg)" : "rotateY(0deg)",
-                      cursor: "pointer",
+                      pointerEvents: "none",
                     }}
                   >
                     {/* Front: Photo */}
