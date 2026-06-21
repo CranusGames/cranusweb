@@ -852,7 +852,7 @@ export default function Home() {
         </div>
 
         {/* Leaderboard panel — left side */}
-        <div style={{ position: "absolute", top: "5.5rem", left: "1.5rem", zIndex: 20, fontFamily: "monospace", width: "155px" }}>
+        <div style={{ position: "absolute", top: "5.5rem", left: "1.5rem", zIndex: 20, fontFamily: "monospace", width: "155px", maxHeight: "calc(100vh - 10rem)", overflowY: "auto" }}>
           <div style={{ fontSize: "0.48rem", letterSpacing: "0.25em", color: "#00d4ff", textTransform: "uppercase", marginBottom: "7px",
             textShadow: "0 0 10px rgba(0,212,255,0.7)", borderBottom: "1px solid rgba(0,212,255,0.25)", paddingBottom: "5px" }}>
             ⚔ Liderlik
@@ -860,7 +860,7 @@ export default function Home() {
           {leaderboard.length === 0 && (
             <div style={{ fontSize: "0.52rem", color: "rgba(0,212,255,0.3)", lineHeight: 2 }}>savaş başlıyor…</div>
           )}
-          {leaderboard.slice(0, 8).map((l, i) => (
+          {leaderboard.map((l, i) => (
             <div key={l.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center",
               padding: "3px 0", borderBottom: "1px solid rgba(0,212,255,0.08)" }}>
               <span style={{ fontSize: "0.58rem", color: i === 0 ? "#ffff44" : i === 1 ? "#aaaaaa" : i === 2 ? "#cd7f32" : "rgba(180,220,255,0.55)",
