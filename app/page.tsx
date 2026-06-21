@@ -5,6 +5,20 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import Link from "next/link";
 import { games } from "@/lib/games";
 
+/* ─── Supabase ───────────────────────────────────────────── */
+const SB_URL = "https://nqvchcmsixrouidbvqsg.supabase.co";
+const SB_KEY = "sb_publishable_rOawnH56NXFr_T7NAZE55Q_n0F_bZGS";
+const sbFetch = (path: string, opts?: RequestInit) =>
+  fetch(`${SB_URL}/rest/v1${path}`, {
+    ...opts,
+    headers: {
+      apikey: SB_KEY,
+      Authorization: `Bearer ${SB_KEY}`,
+      "Content-Type": "application/json",
+      ...((opts?.headers ?? {}) as Record<string, string>),
+    },
+  });
+
 /* ─── Typewriter ─────────────────────────────────────────── */
 function useTypewriter(words: string[], speed = 75, pauseMs = 2200) {
   const [displayed, setDisplayed] = useState("");
@@ -233,6 +247,8 @@ export default function Home() {
   const [arcadePopup, setArcadePopup] = useState<{ title: string; x: number; y: number; key: number } | null>(null);
   const arcadeHitRef = useRef<(killerName: string, victimName: string, bx: number, by: number) => void>(() => {});
   const popupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingKillsRef = useRef<Record<string, number>>({});
+  const pendingScoreRef = useRef<number>(0);
   const [leaderboard, setLeaderboard] = useState<{ name: string; kills: number }[]>(() => {
     if (typeof window === "undefined") return [];
     try { return JSON.parse(localStorage.getItem("arcade_lb") ?? "[]"); } catch { return []; }
@@ -256,9 +272,56 @@ export default function Home() {
     return () => window.removeEventListener("mousemove", move);
   }, [mx, my]);
 
-  /* Persist battle state */
+  /* Persist battle state locally */
   useEffect(() => { localStorage.setItem("arcade_score", String(arcadeScore)); }, [arcadeScore]);
   useEffect(() => { localStorage.setItem("arcade_lb", JSON.stringify(leaderboard)); }, [leaderboard]);
+
+  /* Load global battle state from Supabase on mount */
+  useEffect(() => {
+    sbFetch("/battle_state?select=score,leaderboard&id=eq.1")
+      .then(r => r.json())
+      .then((data: { score: number; leaderboard: { name: string; kills: number }[] }[]) => {
+        if (data?.[0]) {
+          setArcadeScore(data[0].score ?? 0);
+          setLeaderboard(data[0].leaderboard ?? []);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  /* Sync pending kills to Supabase every 20s and on unload */
+  useEffect(() => {
+    const sync = async () => {
+      const pending = pendingKillsRef.current;
+      const pendingScore = pendingScoreRef.current;
+      if (Object.keys(pending).length === 0) return;
+      pendingKillsRef.current = {};
+      pendingScoreRef.current = 0;
+      try {
+        const res = await sbFetch("/battle_state?select=score,leaderboard&id=eq.1");
+        const data: { score: number; leaderboard: { name: string; kills: number }[] }[] = await res.json();
+        if (!data?.[0]) return;
+        const merged = [...(data[0].leaderboard ?? [])];
+        for (const [name, kills] of Object.entries(pending)) {
+          const i = merged.findIndex(e => e.name === name);
+          if (i >= 0) merged[i] = { ...merged[i], kills: merged[i].kills + kills };
+          else merged.push({ name, kills });
+        }
+        merged.sort((a, b) => b.kills - a.kills);
+        const newScore = (data[0].score ?? 0) + pendingScore;
+        await sbFetch("/battle_state?id=eq.1", {
+          method: "PATCH",
+          headers: { Prefer: "return=minimal" } as Record<string, string>,
+          body: JSON.stringify({ score: newScore, leaderboard: merged }),
+        });
+        setLeaderboard(merged);
+        setArcadeScore(newScore);
+      } catch { /* offline – data stays in localStorage */ }
+    };
+    const id = setInterval(sync, 20000);
+    window.addEventListener("beforeunload", sync);
+    return () => { clearInterval(id); window.removeEventListener("beforeunload", sync); sync(); };
+  }, []);
 
   /* Particles */
   useEffect(() => {
@@ -342,6 +405,8 @@ export default function Home() {
       setArcadeScore(s => s + 100);
       setArcadePopup({ title: `☠ ${victimName}`, x: bx, y: by, key: Date.now() });
       popupTimer.current = setTimeout(() => setArcadePopup(null), 2500);
+      pendingKillsRef.current[killerName] = (pendingKillsRef.current[killerName] ?? 0) + 1;
+      pendingScoreRef.current += 100;
       setLeaderboard(prev => {
         const idx = prev.findIndex(l => l.name === killerName);
         if (idx >= 0) {
