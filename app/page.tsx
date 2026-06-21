@@ -153,6 +153,7 @@ export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const bioCanvasRef = useRef<HTMLCanvasElement>(null);
   const arcadeCanvasRef = useRef<HTMLCanvasElement>(null);
+  const contactCanvasRef = useRef<HTMLCanvasElement>(null);
   const [active, setActive] = useState(0);
   const [photoHovered, setPhotoHovered] = useState(false);
   const [arcadeScore, setArcadeScore] = useState(0);
@@ -563,6 +564,79 @@ export default function Home() {
     };
   }, []);
 
+  /* Contact — network node graph */
+  useEffect(() => {
+    const canvas = contactCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+    resize();
+
+    type Node = { x: number; y: number; vx: number; vy: number; r: number };
+    type Pulse = { ai: number; bi: number; t: number; speed: number };
+    const nodes: Node[] = Array.from({ length: 38 }, () => ({
+      x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.35, vy: (Math.random() - 0.5) * 0.35,
+      r: Math.random() * 1.8 + 0.6,
+    }));
+    const pulses: Pulse[] = [];
+    let lastPulse = 0;
+    const MAX_D = 160;
+
+    let id: number;
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const now = Date.now();
+
+      nodes.forEach(n => {
+        n.x += n.vx; n.y += n.vy;
+        if (n.x < 0) n.x = canvas.width; if (n.x > canvas.width) n.x = 0;
+        if (n.y < 0) n.y = canvas.height; if (n.y > canvas.height) n.y = 0;
+        ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255,0,128,0.55)"; ctx.fill();
+      });
+
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[j].x - nodes[i].x, dy = nodes[j].y - nodes[i].y;
+          const d = Math.sqrt(dx * dx + dy * dy);
+          if (d < MAX_D) {
+            const a = (1 - d / MAX_D) * 0.22;
+            ctx.beginPath(); ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.strokeStyle = `rgba(255,110,200,${a})`; ctx.lineWidth = 0.6; ctx.stroke();
+          }
+        }
+      }
+
+      if (now - lastPulse > 1800) {
+        const ai = Math.floor(Math.random() * nodes.length);
+        let bi = ai;
+        while (bi === ai) bi = Math.floor(Math.random() * nodes.length);
+        pulses.push({ ai, bi, t: 0, speed: 0.018 + Math.random() * 0.012 });
+        lastPulse = now;
+      }
+
+      for (let i = pulses.length - 1; i >= 0; i--) {
+        const p = pulses[i];
+        p.t += p.speed;
+        const a = nodes[p.ai], b = nodes[p.bi];
+        const px = a.x + (b.x - a.x) * p.t, py = a.y + (b.y - a.y) * p.t;
+        const fade = Math.sin(p.t * Math.PI);
+        ctx.beginPath(); ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,110,200,${fade * 0.9})`; ctx.fill();
+        ctx.beginPath(); ctx.arc(px, py, 7, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,0,128,${fade * 0.2})`; ctx.fill();
+        if (p.t >= 1) pulses.splice(i, 1);
+      }
+
+      id = requestAnimationFrame(draw);
+    };
+    draw();
+    window.addEventListener("resize", resize);
+    return () => { cancelAnimationFrame(id); window.removeEventListener("resize", resize); };
+  }, []);
+
   /* Intersection → active dot */
   useEffect(() => {
     const obs = new IntersectionObserver(entries => {
@@ -908,71 +982,119 @@ export default function Home() {
           BOYUT 3 — BAĞLANTI
       ════════════════════════════════════════ */}
       <section id="section-3" data-idx="3"
-        style={{ height: "100vh", scrollSnapAlign: "start", position: "relative", background: "linear-gradient(160deg, #1a0020 0%, #0d0015 55%, #1e0010 100%)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", textAlign: "center" }}>
+        style={{ height: "100vh", scrollSnapAlign: "start", position: "relative", background: "linear-gradient(160deg, #130018 0%, #0a0013 50%, #180010 100%)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
 
-        <SynthGrid color="rgba(255,0,128,0.28)" />
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "35%", background: "linear-gradient(to bottom, #1a0020, transparent)", pointerEvents: "none" }} />
+        <canvas ref={contactCanvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", opacity: 0.55 }} />
+        <SynthGrid color="rgba(255,0,128,0.22)" />
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "40%", background: "linear-gradient(to bottom, #130018, transparent)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "30%", background: "linear-gradient(to top, #180010, transparent)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(to right, transparent, #ff0080, #ff6ec7, transparent)" }} />
 
-        <div style={{ position: "relative", zIndex: 10, maxWidth: "860px", margin: "0 auto", padding: "0 24px", width: "100%" }}>
+        <div style={{ position: "relative", zIndex: 10, maxWidth: "880px", margin: "0 auto", padding: "0 28px", width: "100%" }}>
 
-          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
-            style={{ marginBottom: "2.8rem" }}>
-            <p style={{ fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.55em", color: "#ff6ec7", fontFamily: "monospace", marginBottom: "0.8rem", textShadow: "0 0 18px rgba(255,110,200,0.8)" }}>
+          {/* Title */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
+            style={{ textAlign: "center", marginBottom: "2rem" }}>
+            <p style={{ fontSize: "0.58rem", textTransform: "uppercase", letterSpacing: "0.55em", color: "#ff6ec7", fontFamily: "monospace", marginBottom: "0.55rem", textShadow: "0 0 18px rgba(255,110,200,0.8)" }}>
               Boyut 03
             </p>
-            <h2 style={{ fontSize: "clamp(2.4rem, 6vw, 5rem)", fontWeight: "bold", color: "var(--text)", letterSpacing: "-0.02em", marginBottom: "0.5rem",
-              textShadow: "0 0 40px rgba(255,0,128,0.5), 0 0 80px rgba(255,110,200,0.3)" }}>
+            <h2 style={{ fontSize: "clamp(2.2rem, 5.5vw, 4.2rem)", fontWeight: "bold", color: "var(--text)", letterSpacing: "-0.02em", marginBottom: "0.5rem",
+              textShadow: "0 0 40px rgba(255,0,128,0.5), 0 0 80px rgba(255,110,200,0.25)" }}>
               Bağlantı
             </h2>
-            <div style={{ width: "80px", height: "2px", background: "linear-gradient(to right, #ff0080, #ff6ec7)", margin: "0 auto" }} />
+            <div style={{ width: "70px", height: "2px", background: "linear-gradient(to right, #ff0080, #ff6ec7)", margin: "0 auto" }} />
           </motion.div>
 
-          {/* Social grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "14px", marginBottom: "1.8rem" }}>
+          {/* Social cards — 2×2 */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px", marginBottom: "12px" }}>
             {[
-              { href: "https://cranus.itch.io/", label: "itch.io", sym: "⚡", color: "#ff6ec7", desc: "Tüm oyunlar" },
-              { href: "https://www.youtube.com/@cranuss/videos", label: "YouTube", sym: "▶", color: "#ff3333", desc: "Devlog & video" },
-              { href: "https://www.instagram.com/cranusgamess/", label: "Instagram", sym: "◈", color: "#e1306c", desc: "Güncellemeler" },
-              { href: "https://play.google.com/store/apps/details?id=com.cranusgames.DenDenMushi", label: "Play Store", sym: "◉", color: "#00c853", desc: "Den Den Mushi" },
+              { href: "https://cranus.itch.io/", label: "itch.io", handle: "cranus.itch.io", sym: "⚡", color: "#ff6ec7", tag: "OYUN", desc: `${games.length} Oyun Yayınlandı` },
+              { href: "https://www.youtube.com/@cranuss/videos", label: "YouTube", handle: "@cranuss", sym: "▶", color: "#ff4444", tag: "VİDEO", desc: "Devlog & Gameplay" },
+              { href: "https://www.instagram.com/cranusgamess/", label: "Instagram", handle: "@cranusgamess", sym: "◈", color: "#e040fb", tag: "GÖRSEL", desc: "Gelişim süreci & güncellemeler" },
+              { href: "https://play.google.com/store/apps/details?id=com.cranusgames.DenDenMushi", label: "Play Store", handle: "Cranus Games", sym: "◉", color: "#00e676", tag: "MOBİL", desc: "Android oyunlar — Ücretsiz" },
             ].map((s, i) => (
               <motion.a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer"
-                initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.09 }}
-                whileHover={{ y: -7 }}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "22px 14px", border: "1px solid rgba(255,0,128,0.2)", background: "rgba(255,0,128,0.04)", textDecoration: "none", backdropFilter: "blur(6px)", transition: "all 0.3s" }}
-                onMouseEnter={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = s.color; el.style.background = `${s.color}18`; el.style.boxShadow = `0 0 28px ${s.color}50`; }}
-                onMouseLeave={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = "rgba(255,0,128,0.2)"; el.style.background = "rgba(255,0,128,0.04)"; el.style.boxShadow = "none"; }}>
-                <span style={{ fontSize: "1.8rem", marginBottom: "10px" }}>{s.sym}</span>
-                <span style={{ fontSize: "0.78rem", fontWeight: "bold", color: "var(--text)", marginBottom: "5px" }}>{s.label}</span>
-                <span style={{ fontSize: "0.6rem", color: "var(--text-dim)", fontFamily: "monospace" }}>{s.desc}</span>
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                transition={{ duration: 0.45, delay: i * 0.08 }}
+                whileHover={{ y: -4 }}
+                style={{ display: "flex", flexDirection: "column", padding: "20px 22px", textDecoration: "none",
+                  border: `1px solid ${s.color}28`, background: `linear-gradient(135deg, ${s.color}0a 0%, rgba(0,0,0,0) 65%)`,
+                  backdropFilter: "blur(10px)", transition: "all 0.3s", position: "relative", overflow: "hidden" }}
+                onMouseEnter={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = s.color + "70"; el.style.background = `linear-gradient(135deg, ${s.color}18 0%, rgba(0,0,0,0) 65%)`; el.style.boxShadow = `0 0 35px ${s.color}22, inset 0 0 35px ${s.color}06`; }}
+                onMouseLeave={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = s.color + "28"; el.style.background = `linear-gradient(135deg, ${s.color}0a 0%, rgba(0,0,0,0) 65%)`; el.style.boxShadow = "none"; }}>
+                {/* Top row */}
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "14px" }}>
+                  <span style={{ fontSize: "1.9rem", lineHeight: 1, color: s.color, textShadow: `0 0 24px ${s.color}` }}>{s.sym}</span>
+                  <span style={{ fontSize: "0.48rem", letterSpacing: "0.18em", color: s.color + "90", fontFamily: "monospace",
+                    padding: "3px 8px", border: `1px solid ${s.color}35`, background: `${s.color}0d` }}>{s.tag}</span>
+                </div>
+                {/* Platform */}
+                <span style={{ fontSize: "1.05rem", fontWeight: "bold", color: "var(--text)", marginBottom: "3px" }}>{s.label}</span>
+                <span style={{ fontSize: "0.6rem", color: s.color + "aa", fontFamily: "monospace", marginBottom: "12px" }}>{s.handle}</span>
+                {/* Desc + arrow */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto" }}>
+                  <span style={{ fontSize: "0.68rem", color: "rgba(220,200,230,0.45)" }}>{s.desc}</span>
+                  <span style={{ fontSize: "0.75rem", color: s.color + "70" }}>→</span>
+                </div>
+                {/* Glow blob */}
+                <div style={{ position: "absolute", bottom: -30, right: -30, width: 90, height: 90, borderRadius: "50%",
+                  background: `radial-gradient(circle, ${s.color}14 0%, transparent 70%)`, pointerEvents: "none" }} />
               </motion.a>
             ))}
           </div>
 
-          {/* Den Den Mushi card */}
-          <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.4 }}
-            style={{ border: "1px solid rgba(255,0,128,0.22)", background: "rgba(255,0,128,0.06)", padding: "20px 24px", display: "flex", alignItems: "center", gap: "20px", backdropFilter: "blur(6px)" }}>
-            <img src="https://play-lh.googleusercontent.com/tS8rp0bZ9S4SNaryOpRr3XC92ta3osaxhPWzLTFZXFwOo2shIkpp__tUX7QWPoNy_a0MG0C8uCmNc4e831BG=w240-h480-rw"
-              alt="Den Den Mushi" style={{ width: "68px", height: "68px", objectFit: "cover", border: "1px solid rgba(255,0,128,0.3)", flexShrink: 0 }} />
-            <div style={{ textAlign: "left", flex: 1, minWidth: 0 }}>
-              <p style={{ fontSize: "0.56rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "#ff6ec7", fontFamily: "monospace", marginBottom: "4px" }}>Android Oyunu</p>
-              <h3 style={{ fontSize: "1.3rem", fontWeight: "bold", color: "var(--text)", marginBottom: "4px" }}>Den Den Mushi</h3>
-              <p style={{ fontSize: "0.78rem", color: "var(--text-dim)", lineHeight: 1.5 }}>Ana odada sadece bir buton var. Basarsanız rastgele birisi sizi arayacak...</p>
-            </div>
-            <a href="https://play.google.com/store/apps/details?id=com.cranusgames.DenDenMushi" target="_blank" rel="noopener noreferrer" style={{ flexShrink: 0 }}>
-              <motion.button whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.95 }}
-                style={{ padding: "11px 22px", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.15em", border: "1px solid #ff6ec7", color: "#ff6ec7", background: "transparent", fontFamily: "monospace", cursor: "pointer", whiteSpace: "nowrap", transition: "all 0.3s" }}
-                onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "#ff6ec7"; b.style.color = "#050505"; }}
-                onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "transparent"; b.style.color = "#ff6ec7"; }}>
-                İndir
-              </motion.button>
-            </a>
-          </motion.div>
+          {/* Bottom row: Den Den Mushi + Email */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "12px", alignItems: "stretch" }}>
+
+            {/* Den Den Mushi */}
+            <motion.a href="https://play.google.com/store/apps/details?id=com.cranusgames.DenDenMushi"
+              target="_blank" rel="noopener noreferrer"
+              initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, delay: 0.35 }}
+              whileHover={{ y: -3 }}
+              style={{ display: "flex", alignItems: "center", gap: "18px", padding: "16px 20px",
+                border: "1px solid rgba(255,0,128,0.2)", background: "linear-gradient(135deg, rgba(255,0,128,0.07) 0%, rgba(0,0,0,0) 70%)",
+                backdropFilter: "blur(10px)", textDecoration: "none", transition: "all 0.3s", position: "relative", overflow: "hidden" }}
+              onMouseEnter={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = "rgba(255,110,200,0.5)"; el.style.boxShadow = "0 0 30px rgba(255,0,128,0.18)"; }}
+              onMouseLeave={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = "rgba(255,0,128,0.2)"; el.style.boxShadow = "none"; }}>
+              <img src="https://play-lh.googleusercontent.com/tS8rp0bZ9S4SNaryOpRr3XC92ta3osaxhPWzLTFZXFwOo2shIkpp__tUX7QWPoNy_a0MG0C8uCmNc4e831BG=w240-h480-rw"
+                alt="Den Den Mushi" style={{ width: "62px", height: "62px", objectFit: "cover",
+                  border: "1px solid rgba(255,110,200,0.35)", flexShrink: 0, borderRadius: "8px" }} />
+              <div style={{ textAlign: "left", flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: "0.5rem", textTransform: "uppercase", letterSpacing: "0.18em", color: "#ff6ec7", fontFamily: "monospace", marginBottom: "3px" }}>
+                  ◉ Android · Play Store
+                </p>
+                <h3 style={{ fontSize: "1.1rem", fontWeight: "bold", color: "var(--text)", marginBottom: "3px" }}>Den Den Mushi</h3>
+                <p style={{ fontSize: "0.68rem", color: "rgba(220,200,230,0.45)", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  Ana odada sadece bir buton var. Basarsan rastgele birisi seni arayacak…
+                </p>
+              </div>
+              <span style={{ fontSize: "0.65rem", color: "#ff6ec7", fontFamily: "monospace", flexShrink: 0, opacity: 0.7 }}>İNDİR →</span>
+            </motion.a>
+
+            {/* Email */}
+            <motion.a href="mailto:aycibinemirhan5353@gmail.com"
+              initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, delay: 0.45 }}
+              whileHover={{ y: -3 }}
+              style={{ display: "flex", flexDirection: "column", justifyContent: "center", padding: "16px 22px", minWidth: "230px",
+                border: "1px solid rgba(255,110,200,0.18)", background: "linear-gradient(135deg, rgba(255,110,200,0.07) 0%, rgba(0,0,0,0) 70%)",
+                backdropFilter: "blur(10px)", textDecoration: "none", transition: "all 0.3s" }}
+              onMouseEnter={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = "rgba(255,110,200,0.5)"; el.style.boxShadow = "0 0 30px rgba(255,110,200,0.15)"; }}
+              onMouseLeave={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = "rgba(255,110,200,0.18)"; el.style.boxShadow = "none"; }}>
+              <p style={{ fontSize: "0.5rem", textTransform: "uppercase", letterSpacing: "0.18em", color: "rgba(255,110,200,0.5)", fontFamily: "monospace", marginBottom: "8px" }}>
+                ✉ İletişim
+              </p>
+              <p style={{ fontSize: "0.72rem", color: "#ff6ec7", fontFamily: "monospace", letterSpacing: "0.04em", marginBottom: "6px",
+                textShadow: "0 0 14px rgba(255,110,200,0.4)" }}>
+                aycibinemirhan<br />5353@gmail.com
+              </p>
+              <p style={{ fontSize: "0.52rem", color: "rgba(220,200,230,0.3)", fontFamily: "monospace" }}>E-posta gönder →</p>
+            </motion.a>
+          </div>
 
           {/* Footer */}
-          <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.8 }}
-            style={{ marginTop: "2rem", fontSize: "0.58rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "rgba(255,110,200,0.3)", fontFamily: "monospace" }}>
-            © 2025 Emirhan Aycibin — Cranus Games
+          <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.7 }}
+            style={{ marginTop: "1.5rem", textAlign: "center", fontSize: "0.54rem", textTransform: "uppercase", letterSpacing: "0.18em", color: "rgba(255,110,200,0.25)", fontFamily: "monospace" }}>
+            © 2025 Emirhan Aycibin — Cranus Games Studio
           </motion.p>
         </div>
       </section>
