@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const VIDEO_ID = "ME7zewc9N9U";
+const PLAYLIST_ID = "PLkJm5dDUos8QEIRseUEmc6IejTOvXRlNn";
 
 declare global {
   interface Window {
@@ -55,12 +55,13 @@ export default function MusicPlayer() {
     window.onYouTubeIframeAPIReady = () => {
       if (!containerRef.current) return;
       playerRef.current = new window.YT.Player(containerRef.current, {
-        videoId: VIDEO_ID,
+        videoId: "",
         playerVars: {
           autoplay: 0,
           controls: 0,
           loop: 1,
-          playlist: VIDEO_ID,
+          listType: "playlist",
+          list: PLAYLIST_ID,
           modestbranding: 1,
           rel: 0,
         },
