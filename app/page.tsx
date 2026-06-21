@@ -272,70 +272,60 @@ export default function Home() {
     };
   }, []);
 
-  /* Arcade — Fighter Battle: games fight each other */
+  /* Arcade — All games as image fighters, click to open itch.io */
   useEffect(() => {
     const canvas = arcadeCanvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
 
-    const SP = [
-      [ // A
-        [0,0,1,0,0,0,1,0,0],
-        [1,0,0,1,0,1,0,0,1],
-        [1,0,1,1,1,1,1,0,1],
-        [1,1,1,0,1,0,1,1,1],
-        [1,1,1,1,1,1,1,1,1],
-        [0,1,1,1,1,1,1,1,0],
-        [0,0,1,0,0,0,1,0,0],
-        [0,1,0,0,0,0,0,1,0],
-      ],
-      [ // B
-        [0,0,0,1,1,1,0,0,0],
-        [0,1,1,1,1,1,1,1,0],
-        [1,1,0,1,1,1,0,1,1],
-        [1,1,1,1,1,1,1,1,1],
-        [0,0,1,0,1,0,1,0,0],
-        [0,1,0,1,0,1,0,1,0],
-        [1,0,0,0,0,0,0,0,1],
-        [0,0,0,0,0,0,0,0,0],
-      ],
-      [ // C
-        [0,1,0,0,1,0,0,1,0],
-        [0,0,1,0,1,0,1,0,0],
-        [0,0,1,1,1,1,1,0,0],
-        [0,1,1,0,1,0,1,1,0],
-        [1,1,1,1,1,1,1,1,1],
-        [1,0,1,1,1,1,1,0,1],
-        [0,0,1,0,0,0,1,0,0],
-        [0,1,0,1,0,1,0,1,0],
-      ],
+    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+    resize();
+
+    const FW = 48; // fighter size in px
+    const HALF = FW / 2;
+    const PALETTE = ["#00ffff","#ff00ff","#ffff00","#00ff88","#ff6600","#ff69b4","#aa44ff","#ff4444","#00ccff","#ffaa00","#ff8800","#00ffaa","#8800ff","#ff0066","#00ff66","#ccff00","#ff44aa","#44ffff"];
+
+    const SP_FALLBACK = [
+      [0,0,1,0,0,0,1,0,0],
+      [1,0,0,1,0,1,0,0,1],
+      [1,0,1,1,1,1,1,0,1],
+      [1,1,1,0,1,0,1,1,1],
+      [1,1,1,1,1,1,1,1,1],
+      [0,1,1,1,1,1,1,1,0],
+      [0,0,1,0,0,0,1,0,0],
+      [0,1,0,0,0,0,0,1,0],
     ];
 
-    const PALETTE = ["#00ffff","#ff00ff","#ffff00","#00ff88","#ff6600","#ff69b4","#aa44ff","#ff4444","#00ccff","#ffaa00"];
-    const FGAMES = games.slice(0, 10);
-
     type Fighter = {
-      id: number; name: string; sprite: number[][];
-      x: number; y: number; tx: number; ty: number;
+      id: number; name: string; itchSlug: string;
+      img: HTMLImageElement; imgReady: boolean; imgFailed: boolean;
+      color: string; x: number; y: number; tx: number; ty: number;
       speed: number; hp: number; kills: number;
       lastShot: number; alive: boolean; deathAt: number;
-      flash: number; color: string; sc: number;
+      flash: number; nextGlitch: number;
     };
 
-    const fighters: Fighter[] = FGAMES.map((g, i) => ({
-      id: i, name: g.title,
-      sprite: SP[i % SP.length], color: PALETTE[i % PALETTE.length],
-      x: (i % 5) * (canvas.width / 5) + 80,
-      y: Math.floor(i / 5) * (canvas.height / 2) + 120,
-      tx: Math.random() * canvas.width, ty: Math.random() * canvas.height,
-      speed: Math.random() * 0.55 + 0.4,
-      hp: 3, kills: 0,
-      lastShot: Date.now() + i * 400,
-      alive: true, deathAt: 0, flash: 0, sc: 3,
-    }));
+    const fighters: Fighter[] = games.map((g, i) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      const f: Fighter = {
+        id: i, name: g.title, itchSlug: (g as {itchSlug?: string}).itchSlug ?? g.slug,
+        img, imgReady: false, imgFailed: false,
+        color: PALETTE[i % PALETTE.length],
+        x: 60 + (i % 8) * ((window.innerWidth - 120) / 8),
+        y: 60 + Math.floor(i / 8) * 120,
+        tx: Math.random() * window.innerWidth, ty: Math.random() * window.innerHeight,
+        speed: Math.random() * 0.5 + 0.35,
+        hp: 3, kills: 0,
+        lastShot: Date.now() + i * 250,
+        alive: true, deathAt: 0, flash: 0, nextGlitch: 15,
+      };
+      img.onload  = () => { f.imgReady  = true; };
+      img.onerror = () => { f.imgFailed = true; };
+      img.src = g.coverImage;
+      return f;
+    });
 
     type FBullet = { x: number; y: number; vx: number; vy: number; shooterId: number; color: string };
     type Spark   = { x: number; y: number; vx: number; vy: number; life: number; c: string };
@@ -345,13 +335,123 @@ export default function Home() {
     const sparks:  Spark[]   = [];
     const fpopups: FPopup[]  = [];
 
+    /* ── click / hover ── */
+    const getHovered = (ex: number, ey: number) => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = ex - rect.left, my = ey - rect.top;
+      return fighters.find(f => f.alive && mx >= f.x - HALF && mx <= f.x + HALF && my >= f.y - HALF && my <= f.y + HALF) ?? null;
+    };
+    const handleClick = (e: MouseEvent) => {
+      const f = getHovered(e.clientX, e.clientY);
+      if (f) window.open(`https://cranus.itch.io/${f.itchSlug}`, "_blank");
+    };
+    const handleMove = (e: MouseEvent) => {
+      canvas.style.cursor = getHovered(e.clientX, e.clientY) ? "pointer" : "default";
+    };
+    canvas.addEventListener("click", handleClick);
+    canvas.addEventListener("mousemove", handleMove);
+
+    /* ── draw one fighter ── */
+    const drawFighter = (f: Fighter) => {
+      const ox = Math.floor(f.x - HALF), oy = Math.floor(f.y - HALF);
+      const flashOn = f.flash > 0 && f.flash % 4 < 2;
+      ctx.save();
+      ctx.globalAlpha = flashOn ? 0.2 : 0.92;
+
+      // image or pixel-art fallback
+      if (f.imgReady && !f.imgFailed) {
+        // clip to square
+        ctx.beginPath(); ctx.rect(ox, oy, FW, FW); ctx.clip();
+        try { ctx.drawImage(f.img, ox, oy, FW, FW); } catch { f.imgFailed = true; }
+
+        // glitch slice effect
+        f.nextGlitch--;
+        if (f.nextGlitch <= 0 && !f.imgFailed) {
+          f.nextGlitch = Math.floor(Math.random() * 45) + 12;
+          const slices = Math.floor(Math.random() * 3) + 1;
+          for (let s = 0; s < slices; s++) {
+            const slY = oy + Math.floor(Math.random() * FW);
+            const slH = Math.floor(Math.random() * 7) + 2;
+            const off = (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 12) + 3);
+            const srcY = Math.max(0, Math.min((slY - oy) / FW * (f.img.naturalHeight || FW), (f.img.naturalHeight || FW) - 1));
+            const srcH = Math.max(1, slH / FW * (f.img.naturalHeight || FW));
+            try {
+              ctx.globalAlpha = 0.75;
+              ctx.drawImage(f.img, 0, srcY, f.img.naturalWidth || FW, srcH, ox + off, slY, FW, slH);
+              ctx.globalAlpha = 0.2;
+              ctx.fillStyle = f.color;
+              ctx.fillRect(ox + off, slY, FW, slH);
+            } catch { /* tainted */ }
+          }
+        }
+
+        // scanlines
+        ctx.globalAlpha = 0.1;
+        ctx.fillStyle = "#000";
+        for (let ly = oy; ly < oy + FW; ly += 2) ctx.fillRect(ox, ly, FW, 1);
+      } else {
+        // pixel-art fallback
+        ctx.globalAlpha = 0.92;
+        ctx.fillStyle = f.color + "22";
+        ctx.fillRect(ox, oy, FW, FW);
+        ctx.fillStyle = f.color;
+        const sc = Math.floor(FW / SP_FALLBACK[0].length);
+        const sW = SP_FALLBACK[0].length * sc, sH = SP_FALLBACK.length * sc;
+        SP_FALLBACK.forEach((row, ry) =>
+          row.forEach((px, rx) => {
+            if (px) ctx.fillRect(ox + (FW - sW) / 2 + rx * sc, oy + (FW - sH) / 2 + ry * sc, sc, sc);
+          })
+        );
+      }
+
+      ctx.restore();
+
+      // glitchy border frame
+      const bc = flashOn ? "#ffffff" : f.color;
+      ctx.globalAlpha = 0.88;
+      ctx.strokeStyle = bc; ctx.lineWidth = 2;
+      ctx.strokeRect(ox + 1, oy + 1, FW - 2, FW - 2);
+
+      // pixel corner accents
+      ctx.fillStyle = bc; ctx.globalAlpha = 0.95;
+      const cs = 5;
+      [[ox - 2, oy - 2, cs + 2, 2], [ox - 2, oy - 2, 2, cs + 2],
+       [ox + FW - cs, oy - 2, cs + 2, 2], [ox + FW, oy - 2, 2, cs + 2],
+       [ox - 2, oy + FW, cs + 2, 2], [ox - 2, oy + FW - cs, 2, cs + 2],
+       [ox + FW - cs, oy + FW, cs + 2, 2], [ox + FW, oy + FW - cs, 2, cs + 2],
+      ].forEach(([rx, ry, rw, rh]) => ctx.fillRect(rx, ry, rw, rh));
+
+      // occasional stray pixel on border (glitch artifact)
+      if (Math.random() < 0.04) {
+        ctx.fillStyle = f.color;
+        ctx.globalAlpha = 0.8;
+        ctx.fillRect(ox + Math.floor(Math.random() * FW), oy - 3 + Math.floor(Math.random() * (FW + 6)), 2, 2);
+      }
+
+      // HP bar
+      ctx.globalAlpha = 0.55;
+      ctx.fillStyle = "#111";
+      ctx.fillRect(ox, oy + FW + 2, FW, 3);
+      ctx.fillStyle = f.hp === 3 ? "#00ff88" : f.hp === 2 ? "#ffff00" : "#ff4444";
+      ctx.fillRect(ox, oy + FW + 2, Math.floor(FW * f.hp / 3), 3);
+
+      // name label
+      ctx.globalAlpha = 0.8;
+      ctx.fillStyle = f.color;
+      ctx.font = "bold 8px monospace";
+      const label = f.name.length > 12 ? f.name.slice(0, 12) + "…" : f.name;
+      ctx.fillText(label, Math.floor(f.x - ctx.measureText(label).width / 2), oy + FW + 14);
+
+      ctx.globalAlpha = 1;
+      if (f.flash > 0) f.flash--;
+    };
+
     let animId: number;
     const draw = () => {
       ctx.fillStyle = "rgba(0,13,26,0.22)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       const now = Date.now();
 
-      /* ── fighters ── */
       fighters.forEach(f => {
         if (!f.alive) {
           if (now > f.deathAt) {
@@ -367,18 +467,18 @@ export default function Home() {
         // wander
         const dx = f.tx - f.x, dy = f.ty - f.y;
         const d = Math.sqrt(dx * dx + dy * dy);
-        if (d < 15) {
+        if (d < 20) {
           f.tx = Math.random() * (canvas.width - 80) + 40;
           f.ty = Math.random() * (canvas.height - 80) + 40;
         } else {
           f.x += dx / d * f.speed;
           f.y += dy / d * f.speed;
         }
-        f.x = Math.max(25, Math.min(canvas.width  - 25, f.x));
-        f.y = Math.max(25, Math.min(canvas.height - 25, f.y));
+        f.x = Math.max(HALF + 5, Math.min(canvas.width  - HALF - 5, f.x));
+        f.y = Math.max(HALF + 5, Math.min(canvas.height - HALF - 5, f.y));
 
-        // shoot nearest alive enemy
-        if (now - f.lastShot > 1300 + Math.random() * 700) {
+        // shoot nearest
+        if (now - f.lastShot > 1200 + Math.random() * 800) {
           let best: Fighter | null = null, bestD = Infinity;
           fighters.forEach(t => {
             if (t.id === f.id || !t.alive) return;
@@ -388,99 +488,65 @@ export default function Home() {
           if (best) {
             const tx = (best as Fighter).x - f.x, ty = (best as Fighter).y - f.y;
             const len = Math.sqrt(tx * tx + ty * ty);
-            const wobble = (Math.random() - 0.5) * 0.25;
-            bullets.push({ x: f.x, y: f.y, vx: tx / len * 5 + wobble, vy: ty / len * 5 + wobble, shooterId: f.id, color: f.color });
+            const w = (Math.random() - 0.5) * 0.22;
+            if (bullets.length < 90)
+              bullets.push({ x: f.x, y: f.y, vx: tx / len * 5 + w, vy: ty / len * 5 + w, shooterId: f.id, color: f.color });
           }
           f.lastShot = now;
         }
 
-        // draw sprite
-        const alpha = f.flash > 0 ? (f.flash % 4 < 2 ? 0.25 : 0.9) : 0.85;
-        ctx.globalAlpha = alpha;
-        ctx.fillStyle = f.color;
-        if (f.flash > 0) f.flash--;
-
-        const sw = f.sprite[0].length * f.sc;
-        const sh = f.sprite.length * f.sc;
-        const ox = f.x - sw / 2, oy = f.y - sh / 2;
-        f.sprite.forEach((row, ry) =>
-          row.forEach((px, rx) => {
-            if (px) ctx.fillRect(Math.floor(ox + rx * f.sc), Math.floor(oy + ry * f.sc), f.sc, f.sc);
-          })
-        );
-
-        // name label
-        ctx.globalAlpha = 0.75;
-        ctx.fillStyle = f.color;
-        ctx.font = "bold 9px monospace";
-        const label = f.name.length > 11 ? f.name.slice(0, 11) + "…" : f.name;
-        ctx.fillText(label, Math.floor(f.x - ctx.measureText(label).width / 2), Math.floor(oy + sh + 12));
-
-        // HP bar
-        const bx = ox, by = oy + sh + 15;
-        ctx.globalAlpha = 0.5;
-        ctx.fillStyle = "#111";
-        ctx.fillRect(Math.floor(bx), Math.floor(by), sw, 3);
-        ctx.fillStyle = f.hp === 3 ? "#00ff88" : f.hp === 2 ? "#ffff00" : "#ff4444";
-        ctx.fillRect(Math.floor(bx), Math.floor(by), Math.floor(sw * f.hp / 3), 3);
-        ctx.globalAlpha = 1;
+        drawFighter(f);
       });
 
-      /* ── bullets ── */
+      // bullets
       for (let i = bullets.length - 1; i >= 0; i--) {
         const b = bullets[i];
         b.x += b.vx; b.y += b.vy;
         if (b.x < -10 || b.x > canvas.width + 10 || b.y < -10 || b.y > canvas.height + 10) {
           bullets.splice(i, 1); continue;
         }
-
         let hit = false;
         for (const f of fighters) {
           if (f.id === b.shooterId || !f.alive) continue;
-          const hitR = (f.sprite[0].length * f.sc) / 2 + 2;
-          if (Math.sqrt((f.x - b.x) ** 2 + (f.y - b.y) ** 2) < hitR) {
+          if (Math.sqrt((f.x - b.x) ** 2 + (f.y - b.y) ** 2) < HALF + 3) {
             f.hp--; f.flash = 14; hit = true;
-            for (let s = 0; s < 10; s++)
-              sparks.push({ x: b.x, y: b.y, vx: (Math.random() - 0.5) * 7, vy: (Math.random() - 0.5) * 7, life: 1, c: b.color });
-
+            if (sparks.length < 120)
+              for (let s = 0; s < 10; s++)
+                sparks.push({ x: b.x, y: b.y, vx: (Math.random() - 0.5) * 7, vy: (Math.random() - 0.5) * 7, life: 1, c: b.color });
             if (f.hp <= 0) {
               f.alive = false; f.deathAt = now + 3500;
               const killer = fighters.find(fi => fi.id === b.shooterId);
               if (killer) {
                 killer.kills++;
-                fpopups.push({ x: b.x, y: b.y - 14, text: `☠ ${f.name.length > 10 ? f.name.slice(0,10)+"…" : f.name}`, color: b.color, life: 1.3 });
+                fpopups.push({ x: b.x, y: b.y - 14, text: `☠ ${f.name.length > 10 ? f.name.slice(0, 10) + "…" : f.name}`, color: b.color, life: 1.3 });
                 arcadeHitRef.current(killer.name, f.name, b.x, b.y);
               }
             } else {
-              fpopups.push({ x: b.x, y: b.y, text: `-1 HP`, color: b.color, life: 0.8 });
+              fpopups.push({ x: b.x, y: b.y, text: `-1 HP`, color: b.color, life: 0.75 });
             }
             bullets.splice(i, 1); break;
           }
         }
         if (hit) continue;
-
-        ctx.globalAlpha = 0.95;
-        ctx.fillStyle = b.color;
+        ctx.globalAlpha = 0.95; ctx.fillStyle = b.color;
         ctx.beginPath(); ctx.arc(b.x, b.y, 3, 0, Math.PI * 2); ctx.fill();
       }
 
-      /* ── sparks ── */
+      // sparks
       for (let i = sparks.length - 1; i >= 0; i--) {
         const s = sparks[i];
         s.x += s.vx; s.y += s.vy; s.life -= 0.04;
-        ctx.globalAlpha = Math.max(0, s.life);
-        ctx.fillStyle = s.c;
+        ctx.globalAlpha = Math.max(0, s.life); ctx.fillStyle = s.c;
         ctx.fillRect(s.x - 2, s.y - 2, 4, 4);
         if (s.life <= 0) sparks.splice(i, 1);
       }
 
-      /* ── in-canvas kill popups ── */
+      // canvas popups
       ctx.font = "bold 11px monospace";
       for (let i = fpopups.length - 1; i >= 0; i--) {
         const p = fpopups[i];
         p.y -= 0.55; p.life -= 0.014;
-        ctx.globalAlpha = Math.max(0, Math.min(1, p.life));
-        ctx.fillStyle = p.color;
+        ctx.globalAlpha = Math.max(0, Math.min(1, p.life)); ctx.fillStyle = p.color;
         ctx.fillText(p.text, p.x - ctx.measureText(p.text).width / 2, p.y);
         if (p.life <= 0) fpopups.splice(i, 1);
       }
@@ -489,7 +555,13 @@ export default function Home() {
       animId = requestAnimationFrame(draw);
     };
     draw();
-    return () => cancelAnimationFrame(animId);
+    window.addEventListener("resize", resize);
+    return () => {
+      cancelAnimationFrame(animId);
+      canvas.removeEventListener("click", handleClick);
+      canvas.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("resize", resize);
+    };
   }, []);
 
   /* Intersection → active dot */
@@ -507,7 +579,6 @@ export default function Home() {
   }, []);
 
   const title = useTypewriter(["Indie Game Developer", "Unity Developer", "Game Designer", "Creative Developer"]);
-  const featured = games.slice(0, 12);
   const skills = ["Unity", "C#", "Blender", "Game Design", "Pixel Art", "Level Design", "Narrative", "UI/UX"];
 
   const scrollTo = (i: number) => document.getElementById(`section-${i}`)?.scrollIntoView({ behavior: "smooth" });
@@ -746,7 +817,7 @@ export default function Home() {
       <section id="section-2" data-idx="2"
         style={{ height: "100vh", scrollSnapAlign: "start", position: "relative", background: "#000d1a", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", overflow: "hidden", textAlign: "center" }}>
 
-        <canvas ref={arcadeCanvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", opacity: 0.85 }} />
+        <canvas ref={arcadeCanvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0.9 }} />
         {/* CRT scanlines */}
         <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.18) 2px, rgba(0,0,0,0.18) 4px)", pointerEvents: "none", zIndex: 1 }} />
         <SynthGrid color="rgba(0,180,255,0.15)" flip />
@@ -754,57 +825,31 @@ export default function Home() {
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(to right, transparent, #00d4ff, transparent)" }} />
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(to right, transparent, #7928ca, #00d4ff, transparent)" }} />
 
-        <div style={{ position: "relative", zIndex: 10, maxWidth: "1080px", margin: "0 auto", padding: "0 24px", width: "100%" }}>
+        {/* Title — pointer-events none so canvas clicks pass through */}
+        <div style={{ position: "absolute", top: "1.8rem", left: 0, right: 0, zIndex: 10, textAlign: "center", pointerEvents: "none" }}>
+          <p style={{ fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.55em", color: "#00d4ff", fontFamily: "monospace", marginBottom: "0.5rem", textShadow: "0 0 18px rgba(0,212,255,0.8)" }}>
+            Boyut 02
+          </p>
+          <h2 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: "bold", color: "var(--text)", letterSpacing: "-0.02em",
+            textShadow: "0 0 40px rgba(0,180,255,0.5), 0 0 80px rgba(0,100,200,0.3)" }}>
+            Oyunlar
+          </h2>
+          <div style={{ width: "60px", height: "2px", background: "linear-gradient(to right, #00d4ff, #7928ca)", margin: "8px auto 0" }} />
+          <p style={{ marginTop: "8px", fontSize: "0.55rem", color: "rgba(0,212,255,0.5)", fontFamily: "monospace", letterSpacing: "0.15em" }}>
+            {games.length} OYUN · SAVAŞA KATIL · TIKLAYARAK OYNA
+          </p>
+        </div>
 
-          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
-            style={{ marginBottom: "2rem" }}>
-            <p style={{ fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.55em", color: "#00d4ff", fontFamily: "monospace", marginBottom: "0.8rem", textShadow: "0 0 18px rgba(0,212,255,0.8)" }}>
-              Boyut 02
-            </p>
-            <h2 style={{ fontSize: "clamp(2.4rem, 6vw, 4.5rem)", fontWeight: "bold", color: "var(--text)", letterSpacing: "-0.02em", marginBottom: "0.5rem",
-              textShadow: "0 0 40px rgba(0,180,255,0.5), 0 0 80px rgba(0,100,200,0.3)" }}>
-              Oyunlar
-            </h2>
-            <div style={{ width: "80px", height: "2px", background: "linear-gradient(to right, #00d4ff, #7928ca)", margin: "0 auto" }} />
-          </motion.div>
-
-          {/* Game grid — 4×3 */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "7px", marginBottom: "1.2rem" }}>
-            {featured.map((game, i) => (
-              <motion.div key={game.slug}
-                initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.35, delay: i * 0.04 }}>
-                <a href={`https://cranus.itch.io/${game.itchSlug}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
-                  <motion.div className="game-card" whileHover={{ y: -4, scale: 1.03 }} transition={{ type: "spring", stiffness: 300, damping: 22 }}
-                    style={{ border: "1px solid rgba(0,180,255,0.2)", background: "rgba(1,15,30,0.85)", overflow: "hidden", cursor: "pointer", position: "relative", transition: "border-color 0.25s" }}
-                    onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "#00d4ff"; el.style.boxShadow = "0 0 14px rgba(0,212,255,0.25)"; }}
-                    onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "rgba(0,180,255,0.2)"; el.style.boxShadow = "none"; }}>
-                    <div style={{ aspectRatio: "16/9", overflow: "hidden", position: "relative" }}>
-                      <img src={game.coverImage} alt={game.title}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.75, transition: "opacity 0.35s, transform 0.4s", display: "block" }}
-                        onMouseEnter={e => { const el = e.currentTarget as HTMLImageElement; el.style.opacity = "1"; el.style.transform = "scale(1.1)"; }}
-                        onMouseLeave={e => { const el = e.currentTarget as HTMLImageElement; el.style.opacity = "0.75"; el.style.transform = "scale(1)"; }} />
-                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(1,15,30,0.85) 0%, transparent 55%)" }} />
-                    </div>
-                    <div style={{ padding: "5px 8px" }}>
-                      <p style={{ fontSize: "0.65rem", fontWeight: "bold", color: "var(--text)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{game.title}</p>
-                      <p style={{ fontSize: "0.5rem", textTransform: "uppercase", color: "#00d4ff", fontFamily: "monospace", marginTop: "1px" }}>{game.genre}</p>
-                    </div>
-                  </motion.div>
-                </a>
-              </motion.div>
-            ))}
-          </div>
-
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <a href="https://cranus.itch.io/" target="_blank" rel="noopener noreferrer">
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}
-                style={{ padding: "11px 34px", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.2em", border: "1px solid rgba(0,212,255,0.4)", color: "#00d4ff", background: "transparent", fontFamily: "monospace", cursor: "pointer", transition: "all 0.3s" }}
-                onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "rgba(0,212,255,0.1)"; b.style.borderColor = "#00d4ff"; b.style.boxShadow = "0 0 20px rgba(0,212,255,0.25)"; }}
-                onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "transparent"; b.style.borderColor = "rgba(0,212,255,0.4)"; b.style.boxShadow = "none"; }}>
-                Tüm {games.length} Oyunu itch.io&apos;da Gör →
-              </motion.button>
-            </a>
-          </motion.div>
+        {/* itch.io button — bottom center, stays clickable */}
+        <div style={{ position: "absolute", bottom: "3.5rem", left: 0, right: 0, zIndex: 20, textAlign: "center", pointerEvents: "none" }}>
+          <a href="https://cranus.itch.io/" target="_blank" rel="noopener noreferrer" style={{ pointerEvents: "auto" }}>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}
+              style={{ padding: "10px 30px", fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.2em", border: "1px solid rgba(0,212,255,0.4)", color: "#00d4ff", background: "rgba(0,13,26,0.75)", fontFamily: "monospace", cursor: "pointer", backdropFilter: "blur(6px)", transition: "all 0.3s" }}
+              onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "rgba(0,212,255,0.12)"; b.style.borderColor = "#00d4ff"; b.style.boxShadow = "0 0 20px rgba(0,212,255,0.3)"; }}
+              onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "rgba(0,13,26,0.75)"; b.style.borderColor = "rgba(0,212,255,0.4)"; b.style.boxShadow = "none"; }}>
+              Tüm {games.length} Oyunu itch.io&apos;da Gör →
+            </motion.button>
+          </a>
         </div>
 
         {/* Leaderboard panel — left side */}
