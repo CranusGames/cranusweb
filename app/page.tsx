@@ -46,6 +46,73 @@ function SynthGrid({ color, flip = false }: { color: string; flip?: boolean }) {
   );
 }
 
+/* ─── Cranus Logo ───────────────────────────────────────── */
+const LOGO_PIX = [
+  [0,1,1,1,1,0],
+  [1,1,0,0,0,0],
+  [1,0,0,0,0,0],
+  [1,0,0,0,0,0],
+  [1,1,0,0,0,0],
+  [0,1,1,1,1,0],
+];
+
+function CranusLogo({ size = 90 }: { size?: number }) {
+  const sc = Math.round(size * 0.3 / LOGO_PIX[0].length);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
+      <div style={{ position: "relative", width: size, height: size }}>
+        {/* Rotating dashed ring */}
+        <div style={{ position: "absolute", inset: 0, borderRadius: "50%",
+          border: "1px dashed rgba(255,110,200,0.38)", animation: "spin-slow 16s linear infinite" }} />
+        {/* Counter-rotating glow ring */}
+        <div style={{ position: "absolute", inset: "7px", borderRadius: "50%",
+          border: "1px solid rgba(121,40,202,0.3)", animation: "spin-slow 22s linear infinite reverse" }} />
+        {/* Gradient border ring */}
+        <div style={{ position: "absolute", inset: "14px", borderRadius: "50%", padding: "1.5px",
+          background: "linear-gradient(135deg, #ff6ec7, #7928ca, #ff0080)",
+          WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+          WebkitMaskComposite: "xor", maskComposite: "exclude" }} />
+        {/* Dark inner circle */}
+        <div style={{ position: "absolute", inset: "16px", borderRadius: "50%",
+          background: "radial-gradient(circle at 38% 35%, rgba(255,0,128,0.14), rgba(8,0,18,0.97))",
+          boxShadow: "0 0 28px rgba(255,0,128,0.2) inset",
+          display: "flex", alignItems: "center", justifyContent: "center" }}>
+          {/* Pixel C */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+            {LOGO_PIX.map((row, ri) => (
+              <div key={ri} style={{ display: "flex" }}>
+                {row.map((px, ci) => (
+                  <div key={ci} style={{
+                    width: sc, height: sc,
+                    background: px ? "#ff6ec7" : "transparent",
+                    boxShadow: px ? `0 0 ${sc}px rgba(255,110,200,0.7)` : "none",
+                  }} />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Outer pulse glow */}
+        <div style={{ position: "absolute", inset: "-6px", borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(255,0,128,0.06) 0%, transparent 70%)",
+          animation: "pulse-glow 3.5s ease-in-out infinite", pointerEvents: "none" }} />
+      </div>
+      {/* Wordmark */}
+      <div style={{ textAlign: "center", lineHeight: 1.2 }}>
+        <div style={{ fontSize: `${size * 0.115}px`, fontWeight: "bold", letterSpacing: "0.42em",
+          color: "var(--text)", fontFamily: "monospace", textTransform: "uppercase",
+          textShadow: "0 0 20px rgba(255,110,200,0.35)" }}>
+          CRANUS
+        </div>
+        <div style={{ fontSize: `${size * 0.065}px`, letterSpacing: "0.5em",
+          color: "rgba(255,110,200,0.45)", fontFamily: "monospace", textTransform: "uppercase" }}>
+          GAMES
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Nav Dots ───────────────────────────────────────────── */
 const SECTIONS = ["Hero", "Biyografi", "Oyunlar", "Bağlantı"];
 const COLORS   = ["var(--accent)", "#ff6ec7", "#00d4ff", "#ff0080"];
@@ -992,17 +1059,23 @@ export default function Home() {
 
         <div style={{ position: "relative", zIndex: 10, maxWidth: "880px", margin: "0 auto", padding: "0 28px", width: "100%" }}>
 
-          {/* Title */}
+          {/* Title + Logo */}
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
-            style={{ textAlign: "center", marginBottom: "2rem" }}>
-            <p style={{ fontSize: "0.58rem", textTransform: "uppercase", letterSpacing: "0.55em", color: "#ff6ec7", fontFamily: "monospace", marginBottom: "0.55rem", textShadow: "0 0 18px rgba(255,110,200,0.8)" }}>
-              Boyut 03
-            </p>
-            <h2 style={{ fontSize: "clamp(2.2rem, 5.5vw, 4.2rem)", fontWeight: "bold", color: "var(--text)", letterSpacing: "-0.02em", marginBottom: "0.5rem",
-              textShadow: "0 0 40px rgba(255,0,128,0.5), 0 0 80px rgba(255,110,200,0.25)" }}>
-              Bağlantı
-            </h2>
-            <div style={{ width: "70px", height: "2px", background: "linear-gradient(to right, #ff0080, #ff6ec7)", margin: "0 auto" }} />
+            style={{ display: "flex", alignItems: "center", gap: "2.2rem", marginBottom: "1.8rem" }}>
+            <CranusLogo size={100} />
+            <div style={{ textAlign: "left" }}>
+              <p style={{ fontSize: "0.55rem", textTransform: "uppercase", letterSpacing: "0.55em", color: "#ff6ec7", fontFamily: "monospace", marginBottom: "0.4rem", textShadow: "0 0 18px rgba(255,110,200,0.8)" }}>
+                Boyut 03
+              </p>
+              <h2 style={{ fontSize: "clamp(2rem, 5vw, 3.8rem)", fontWeight: "bold", color: "var(--text)", letterSpacing: "-0.02em", marginBottom: "0.5rem",
+                textShadow: "0 0 40px rgba(255,0,128,0.5), 0 0 80px rgba(255,110,200,0.25)" }}>
+                Bağlantı
+              </h2>
+              <div style={{ width: "70px", height: "2px", background: "linear-gradient(to right, #ff0080, #ff6ec7)" }} />
+              <p style={{ marginTop: "0.5rem", fontSize: "0.6rem", color: "rgba(220,180,255,0.4)", fontFamily: "monospace", lineHeight: 1.7 }}>
+                Bağımsız oyun geliştirici<br />Cranus Games Studio
+              </p>
+            </div>
           </motion.div>
 
           {/* Social cards — 2×2 */}
