@@ -1534,7 +1534,7 @@ setLeaderboard(prev => {
                       textShadow: `0 0 10px hsl(${(e.id * 47) % 360}, 80%, 60%)` }}>
                       {e.name}
                     </span>
-                    <span style={{ fontFamily: "monospace", fontSize: "0.44rem", color: "var(--text-dim)", letterSpacing: "0.08em" }}>
+                    <span style={{ fontFamily: "monospace", fontSize: "0.55rem", color: "var(--text-dim)", letterSpacing: "0.06em" }}>
                       {new Date(e.created_at).toLocaleDateString(isTR ? "tr-TR" : "en-US", { day: "numeric", month: "short", year: "numeric" })}
                     </span>
                   </div>
