@@ -912,13 +912,13 @@ setLeaderboard(prev => {
     ctaGames:    isTR ? "⚡ Oyunları Keşfet" : "⚡ Explore Games",
     ctaAbout:    isTR ? "Hakkımda →"         : "About Me →",
     bioLevel:    isTR ? "Boyut 01" : "Level 01",
-    bioTitle:    isTR ? "Biyografi" : "Biography",
+    bioTitle:    "About Me",
     bioPara1:    isTR
-      ? "Karanlık atmosferler, derin hikayeler ve yaratıcı oyun mekanikleri üzerine çalışan bağımsız bir oyun geliştiriciyim. Cranus Games çatısı altında 30’u aşkın oyun yayınladım."
-      : "I'm an indie game developer working on dark atmospheres, deep stories, and creative game mechanics. I've published over 30 games under the Cranus Games label.",
+      ? "Cranus Games çatısı altında 30’dan fazla oyun yayınlamış bağımsız bir oyun geliştiricisiyim. Unity ile horror, adventure, survival ve puzzle dahil pek çok türde oyun geliştirdim. Blender ve Substance Painter kullanarak 3D modelleme, doku boyama ve optimizasyon alanlarında deneyim kazandım."
+      : "I’m an indie game developer who has published over 30 games under the Cranus Games label. I’ve built games in Unity across many genres — horror, adventure, survival, puzzle and more. I specialize in 3D modeling, texturing, and optimization using Blender and Substance Painter.",
     bioPara2:    isTR
-      ? "Horror, adventure ve survival türlerine özel bir tutkum var. Her proje, farklı bir evrenin kapısını aralıyor."
-      : "I have a special passion for horror, adventure, and survival genres. Each project opens a door to a different universe.",
+      ? "Teknik becerilerimi yaratıcı hikaye anlatımıyla birleştirerek her projede özgün deneyimler oluşturmaya çalışıyorum. Android uygulama geliştirme konusunda da yeni adımlar atıyorum."
+      : "I combine technical skills with creative storytelling to craft unique experiences in every project. I’m also taking my first steps into Android app development.",
     calLess:     isTR ? "az"  : "less",
     calMore:     isTR ? "çok" : "more",
     gamesLevel:  isTR ? "Boyut 02" : "Level 02",
@@ -944,7 +944,7 @@ setLeaderboard(prev => {
   };
 
   const title = useTypewriter(t.heroTyping);
-  const skills = ["Unity", "C#", "Blender", "Game Design", "Pixel Art", "Level Design", "Narrative", "UI/UX"];
+  const skills = ["Unity", "C#", "Blender", "Adobe Substance Painter", "Adobe Photoshop", "Adobe Substance Designer", "Adobe Illustrator", "Adobe After Effects", "Krita", "3D Animation", "2D Animation", "Unreal Engine", "Game Design", "Android Dev ✦"];
 
   const scrollTo = (i: number) => document.getElementById(`section-${i}`)?.scrollIntoView({ behavior: "smooth" });
 
