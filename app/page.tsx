@@ -155,6 +155,10 @@ export default function Home() {
   const arcadeCanvasRef = useRef<HTMLCanvasElement>(null);
   const [active, setActive] = useState(0);
   const [photoHovered, setPhotoHovered] = useState(false);
+  const [arcadeScore, setArcadeScore] = useState(0);
+  const [arcadePopup, setArcadePopup] = useState<{ title: string; x: number; y: number; key: number } | null>(null);
+  const arcadeHitRef = useRef<(gameIdx: number, bx: number, by: number) => void>(() => {});
+  const popupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /* Mouse → 3-D tilt */
   const mx = useMotionValue(0);
@@ -246,6 +250,16 @@ export default function Home() {
     const handleResize = () => { resize(); initDrops(); };
     window.addEventListener("resize", handleResize);
     return () => { cancelAnimationFrame(id); window.removeEventListener("resize", handleResize); };
+  }, []);
+
+  /* Arcade hit callback */
+  useEffect(() => {
+    arcadeHitRef.current = (gameIdx: number, bx: number, by: number) => {
+      if (popupTimer.current) clearTimeout(popupTimer.current);
+      setArcadeScore(s => s + 100);
+      setArcadePopup({ title: games.slice(0, 12)[gameIdx]?.title ?? "???", x: bx, y: by, key: Date.now() });
+      popupTimer.current = setTimeout(() => setArcadePopup(null), 2200);
+    };
   }, []);
 
   /* Arcade — Space Invader sprites + bullets + sparks */
@@ -346,12 +360,36 @@ export default function Home() {
       }
 
       ctx.fillStyle = "#ffff44";
+      const section2 = document.getElementById("section-2");
+      const secRect = section2?.getBoundingClientRect();
+      const cards = section2?.querySelectorAll(".game-card");
+
       for (let i = bullets.length - 1; i >= 0; i--) {
         const b = bullets[i];
         b.y += 5;
         ctx.globalAlpha = 0.9;
         ctx.fillRect(Math.floor(b.x - 1), Math.floor(b.y), 3, 10);
-        if (b.y > canvas.height) {
+
+        let hitCard = false;
+        if (secRect && cards) {
+          cards.forEach((card, idx) => {
+            if (hitCard) return;
+            const r = card.getBoundingClientRect();
+            const top  = r.top  - secRect.top;
+            const left = r.left - secRect.left;
+            if (b.x >= left && b.x <= left + r.width && b.y >= top && b.y <= top + r.height) {
+              hitCard = true;
+              arcadeHitRef.current(idx, b.x, b.y);
+              for (let s = 0; s < 12; s++)
+                sparks.push({ x: b.x, y: b.y,
+                  vx: (Math.random() - 0.5) * 7, vy: (Math.random() - 0.5) * 7,
+                  life: 1, c: palette[Math.floor(Math.random() * palette.length)] });
+              bullets.splice(i, 1);
+            }
+          });
+        }
+
+        if (!hitCard && b.y > canvas.height) {
           for (let s = 0; s < 8; s++)
             sparks.push({ x: b.x, y: canvas.height - 8,
               vx: (Math.random() - 0.5) * 5, vy: -Math.random() * 4 - 1,
@@ -658,7 +696,7 @@ export default function Home() {
               <motion.div key={game.slug}
                 initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.35, delay: i * 0.04 }}>
                 <a href={`https://cranus.itch.io/${game.itchSlug}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
-                  <motion.div whileHover={{ y: -4, scale: 1.03 }} transition={{ type: "spring", stiffness: 300, damping: 22 }}
+                  <motion.div className="game-card" whileHover={{ y: -4, scale: 1.03 }} transition={{ type: "spring", stiffness: 300, damping: 22 }}
                     style={{ border: "1px solid rgba(0,180,255,0.2)", background: "rgba(1,15,30,0.85)", overflow: "hidden", cursor: "pointer", position: "relative", transition: "border-color 0.25s" }}
                     onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "#00d4ff"; el.style.boxShadow = "0 0 14px rgba(0,212,255,0.25)"; }}
                     onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "rgba(0,180,255,0.2)"; el.style.boxShadow = "none"; }}>
@@ -690,6 +728,28 @@ export default function Home() {
             </a>
           </motion.div>
         </div>
+
+        {/* Score */}
+        <div style={{ position: "absolute", bottom: "1.5rem", left: "2rem", zIndex: 20, fontFamily: "monospace", lineHeight: 1.2 }}>
+          <div style={{ fontSize: "0.5rem", letterSpacing: "0.2em", color: "rgba(0,212,255,0.5)", textTransform: "uppercase" }}>Score</div>
+          <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: "#00d4ff", textShadow: "0 0 14px rgba(0,212,255,0.8)" }}>
+            {String(arcadeScore).padStart(6, "0")}
+          </div>
+        </div>
+
+        {/* Hit popup */}
+        {arcadePopup && (
+          <div key={arcadePopup.key} style={{
+            position: "absolute", left: Math.min(arcadePopup.x - 60, window.innerWidth - 160), top: Math.max(arcadePopup.y - 80, 10),
+            zIndex: 30, pointerEvents: "none", textAlign: "center", animation: "popupFade 2.2s ease forwards",
+          }}>
+            <div style={{ fontSize: "1.2rem", fontWeight: "bold", color: "#ffff44", fontFamily: "monospace", textShadow: "0 0 12px #ffff44" }}>+100</div>
+            <div style={{ fontSize: "0.65rem", color: "#00d4ff", fontFamily: "monospace", letterSpacing: "0.1em", marginTop: "2px",
+              background: "rgba(0,13,26,0.85)", padding: "4px 10px", border: "1px solid rgba(0,212,255,0.5)" }}>
+              {arcadePopup.title}
+            </div>
+          </div>
+        )}
 
         <motion.div animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 1.8 }}
           onClick={() => scrollTo(3)}
