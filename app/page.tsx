@@ -1195,23 +1195,23 @@ export default function Home() {
               <span style={{ fontSize: "0.65rem", color: "#ff6ec7", fontFamily: "monospace", flexShrink: 0, opacity: 0.7 }}>İNDİR →</span>
             </motion.a>
 
-            {/* Email */}
+            {/* Email icon button */}
             <motion.a href="mailto:aycibinemirhan5353@gmail.com"
-              initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, delay: 0.45 }}
-              whileHover={{ y: -3 }}
-              style={{ display: "flex", flexDirection: "column", justifyContent: "center", padding: "16px 22px", minWidth: "230px",
-                border: "1px solid rgba(255,110,200,0.18)", background: "linear-gradient(135deg, rgba(255,110,200,0.07) 0%, rgba(0,0,0,0) 70%)",
-                backdropFilter: "blur(10px)", textDecoration: "none", transition: "all 0.3s" }}
-              onMouseEnter={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = "rgba(255,110,200,0.5)"; el.style.boxShadow = "0 0 30px rgba(255,110,200,0.15)"; }}
-              onMouseLeave={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = "rgba(255,110,200,0.18)"; el.style.boxShadow = "none"; }}>
-              <p style={{ fontSize: "0.5rem", textTransform: "uppercase", letterSpacing: "0.18em", color: "rgba(255,110,200,0.5)", fontFamily: "monospace", marginBottom: "8px" }}>
-                ✉ İletişim
-              </p>
-              <p style={{ fontSize: "0.72rem", color: "#ff6ec7", fontFamily: "monospace", letterSpacing: "0.04em", marginBottom: "6px",
-                textShadow: "0 0 14px rgba(255,110,200,0.4)" }}>
-                aycibinemirhan<br />5353@gmail.com
-              </p>
-              <p style={{ fontSize: "0.52rem", color: "rgba(220,200,230,0.3)", fontFamily: "monospace" }}>E-posta gönder →</p>
+              title="aycibinemirhan5353@gmail.com"
+              initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.45, delay: 0.45 }}
+              whileHover={{ scale: 1.08, y: -2 }} whileTap={{ scale: 0.95 }}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                width: "72px", alignSelf: "stretch",
+                border: "1px solid rgba(255,110,200,0.22)",
+                background: "linear-gradient(135deg, rgba(255,110,200,0.08) 0%, rgba(0,0,0,0) 70%)",
+                backdropFilter: "blur(10px)", textDecoration: "none", transition: "all 0.3s", position: "relative" }}
+              onMouseEnter={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = "rgba(255,110,200,0.6)"; el.style.boxShadow = "0 0 28px rgba(255,110,200,0.2)"; el.style.background = "linear-gradient(135deg, rgba(255,110,200,0.15) 0%, rgba(0,0,0,0) 70%)"; }}
+              onMouseLeave={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = "rgba(255,110,200,0.22)"; el.style.boxShadow = "none"; el.style.background = "linear-gradient(135deg, rgba(255,110,200,0.08) 0%, rgba(0,0,0,0) 70%)"; }}>
+              <svg width="30" height="24" viewBox="0 0 30 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                style={{ filter: "drop-shadow(0 0 8px rgba(255,110,200,0.6))" }}>
+                <rect x="1" y="1" width="28" height="22" rx="4" stroke="#ff6ec7" strokeWidth="1.8"/>
+                <path d="M1,5 L15,14 L29,5" stroke="#ff6ec7" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </motion.a>
           </div>
 
