@@ -785,7 +785,7 @@ export default function Home() {
                       position: "absolute", inset: 0, borderRadius: "50%", overflow: "hidden",
                       backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden",
                     }}>
-                      <img src="/cranusweb/foto.jpeg" alt="Emirhan Aycibin"
+                      <img src="/cranusweb/ben.png" alt="Emirhan Aycibin"
                         style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                       <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "linear-gradient(135deg, rgba(255,255,255,0.13) 0%, transparent 55%)", pointerEvents: "none" }} />
                     </div>
@@ -806,61 +806,95 @@ export default function Home() {
 
           {/* Name */}
           <motion.h1 initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 1 }}
-            style={{ fontSize: "clamp(1.9rem, 5vw, 4.8rem)", fontWeight: "bold", color: "var(--text)", letterSpacing: "-0.02em", marginBottom: "0.6rem",
-              textShadow: "0 0 60px rgba(200,169,110,0.3), 0 0 120px rgba(121,40,202,0.2)" }}>
+            style={{ fontSize: "clamp(1.9rem, 5vw, 4.8rem)", fontWeight: "bold", letterSpacing: "-0.02em", marginBottom: "0.5rem",
+              background: "linear-gradient(135deg, #e8e0d0 5%, #c8a96e 30%, #ff6ec7 65%, #e8e0d0 92%)",
+              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
+              filter: "drop-shadow(0 0 32px rgba(200,169,110,0.35))" }}>
             EMİRHAN AYCİBİN
           </motion.h1>
 
           {/* Typewriter */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4, duration: 0.8 }}
-            style={{ height: "26px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1.4rem" }}>
+            style={{ height: "26px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1.2rem" }}>
             <span style={{ fontSize: "0.85rem", letterSpacing: "0.3em", color: "var(--accent)", fontFamily: "monospace" }}>
               {title}<span style={{ animation: "blink-cursor 1.1s step-end infinite" }}>|</span>
             </span>
           </motion.div>
 
-          {/* Gradient line */}
-          <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.9, delay: 1.6 }}
-            style={{ width: "100px", height: "1px", background: "linear-gradient(to right, transparent, var(--accent), #ff6ec7, transparent)", marginBottom: "1.8rem" }} />
-
-          {/* Social icons */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.8, duration: 0.8 }}
-            style={{ display: "flex", gap: "2.2rem", marginBottom: "1.8rem", flexWrap: "wrap", justifyContent: "center" }}>
+          {/* Stats chips */}
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.6, duration: 0.7 }}
+            style={{ display: "flex", gap: "8px", marginBottom: "1.4rem", flexWrap: "wrap", justifyContent: "center" }}>
             {[
-              { href: "https://cranus.itch.io/", label: "itch.io", sym: "⚡", hc: "#ff6ec7" },
-              { href: "https://www.youtube.com/@cranuss/videos", label: "YouTube", sym: "▶", hc: "#ff4444" },
-              { href: "https://www.instagram.com/cranusgamess/", label: "Instagram", sym: "◈", hc: "#e1306c" },
-              { href: "https://play.google.com/store/apps/details?id=com.cranusgames.DenDenMushi", label: "Play", sym: "◉", hc: "#00d4ff" },
+              { v: "33", l: "Oyun", c: "#c8a96e" },
+              { v: "21", l: "Game Jam", c: "#ff6ec7" },
+              { v: "5+", l: "Yıl", c: "#00d4ff" },
+              { v: "∞",  l: "Fikir", c: "#7928ca" },
             ].map(s => (
-              <motion.a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer"
-                whileHover={{ scale: 1.2, y: -5 }} whileTap={{ scale: 0.92 }}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "5px", textDecoration: "none" }}>
-                <span style={{ fontSize: "1.2rem", color: "var(--accent-dim)", transition: "color 0.3s, text-shadow 0.3s" }}
-                  onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.color = s.hc; el.style.textShadow = `0 0 14px ${s.hc}`; }}
-                  onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.color = "var(--accent-dim)"; el.style.textShadow = "none"; }}>
-                  {s.sym}
-                </span>
-                <span style={{ color: "var(--text-dim)", fontFamily: "monospace", fontSize: "0.52rem", textTransform: "uppercase", letterSpacing: "0.1em" }}>{s.label}</span>
-              </motion.a>
+              <div key={s.l} style={{ display: "flex", flexDirection: "column", alignItems: "center",
+                padding: "7px 16px", border: `1px solid ${s.c}38`, background: `${s.c}0c` }}>
+                <span style={{ fontSize: "1rem", fontWeight: "bold", color: s.c, lineHeight: 1,
+                  textShadow: `0 0 14px ${s.c}88` }}>{s.v}</span>
+                <span style={{ fontSize: "0.46rem", textTransform: "uppercase", letterSpacing: "0.12em",
+                  color: `${s.c}70`, fontFamily: "monospace", marginTop: "3px" }}>{s.l}</span>
+              </div>
             ))}
           </motion.div>
 
+          {/* Gradient line */}
+          <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.9, delay: 1.8 }}
+            style={{ width: "100px", height: "1px", background: "linear-gradient(to right, transparent, var(--accent), #ff6ec7, transparent)", marginBottom: "1.6rem" }} />
+
+          {/* Social icons — SVG logos */}
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 2.0, duration: 0.8 }}
+            style={{ display: "flex", gap: "10px", marginBottom: "1.8rem", flexWrap: "wrap", justifyContent: "center" }}>
+            {(() => {
+              const HS = [
+                { href: "https://cranus.itch.io/", label: "itch.io", hc: "#fa5c5c",
+                  logo: <svg width="26" height="22" viewBox="0 0 245 220" fill="currentColor"><path d="M31.9,0C14.4,0,0,14.4,0,31.9v156.2C0,205.6,14.4,220,31.9,220h181.2c17.5,0,31.9-14.4,31.9-31.9V31.9C245,14.4,230.6,0,213.1,0H31.9z"/><path fill="#050505" d="M207,60.7c-5.3-3.6-14.8-9.6-34.5-12.1L167.6,43.8c-12.5-12.5-32.6-14.7-46.3-4.3C107.6,29.1,87.5,31.3,75,43.8l-4.9,4.9C50.4,51.1,40.9,57.1,35.6,60.7C9.3,65.5,4.2,74.1,4.2,83.6v21.7c0,17.4,14.1,31.6,31.6,31.6h0.5c7.9,0,15.1-3.1,20.5-8c5.4,5,12.6,8,20.5,8h64.1c7.9,0,15.1-3,20.5-8c5.4,5,12.6,8,20.5,8h0.5c17.4,0,31.6-14.1,31.6-31.6V83.6C214.9,74.1,209.8,65.5,207,60.7z"/><rect fill="#050505" x="73" y="148" width="99" height="56" rx="4"/><rect fill="#050505" x="82" y="173" width="81" height="31" rx="3"/></svg> },
+                { href: "https://www.youtube.com/@cranuss/videos", label: "YouTube", hc: "#ff4444",
+                  logo: <svg width="30" height="22" viewBox="0 0 46 32"><rect width="46" height="32" rx="7" fill="#FF0000"/><polygon points="18,8 34,16 18,24" fill="white"/></svg> },
+                { href: "https://www.instagram.com/cranusgamess/", label: "Instagram", hc: "#e040fb",
+                  logo: <svg width="24" height="24" viewBox="0 0 38 38"><defs><radialGradient id="ig_h" cx="30%" cy="110%" r="140%"><stop offset="0%" stopColor="#fdf497"/><stop offset="20%" stopColor="#fd5949"/><stop offset="55%" stopColor="#d6249f"/><stop offset="100%" stopColor="#285AEB"/></radialGradient></defs><rect width="38" height="38" rx="9" fill="url(#ig_h)"/><rect x="4" y="4" width="30" height="30" rx="6" fill="none" stroke="white" strokeWidth="2.2"/><circle cx="19" cy="19" r="7.5" fill="none" stroke="white" strokeWidth="2.2"/><circle cx="28" cy="10" r="2" fill="white"/></svg> },
+                { href: "https://play.google.com/store/apps/details?id=com.cranusgames.DenDenMushi", label: "Play", hc: "#00e676",
+                  logo: <svg width="22" height="24" viewBox="0 0 38 38"><path d="M5,3 L20,19 L5,35 Q3,34 3,32 L3,6 Q3,4 5,3 Z" fill="#00D2FF"/><path d="M5,3 L26,13 L20,19 Z" fill="#FF3D00"/><path d="M26,25 L20,19 L5,35 Z" fill="#FFD600"/><path d="M30,16 Q33,17.5 33,19 Q33,20.5 30,22 L26,25 L20,19 L26,13 Z" fill="#00F076"/></svg> },
+              ];
+              return HS.map(s => (
+                <motion.a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer"
+                  whileHover={{ scale: 1.08, y: -4 }} whileTap={{ scale: 0.94 }}
+                  style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 14px",
+                    border: `1px solid ${s.hc}30`, background: `${s.hc}0a`,
+                    textDecoration: "none", transition: "all 0.3s" }}
+                  onMouseEnter={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = s.hc + "70"; el.style.background = s.hc + "18"; el.style.boxShadow = `0 0 20px ${s.hc}30`; }}
+                  onMouseLeave={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = s.hc + "30"; el.style.background = s.hc + "0a"; el.style.boxShadow = "none"; }}>
+                  <div style={{ filter: `drop-shadow(0 0 6px ${s.hc}80)`, display: "flex" }}>{s.logo}</div>
+                  <span style={{ color: `${s.hc}cc`, fontFamily: "monospace", fontSize: "0.55rem", textTransform: "uppercase", letterSpacing: "0.1em" }}>{s.label}</span>
+                </motion.a>
+              ));
+            })()}
+          </motion.div>
+
           {/* CTA */}
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 2.1, duration: 0.8 }}
+          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 2.3, duration: 0.8 }}
             style={{ display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center" }}>
             <Link href="/games">
               <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}
-                style={{ padding: "13px 36px", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.2em", border: "1px solid var(--accent)", color: "var(--accent)", background: "transparent", fontFamily: "monospace", cursor: "pointer", transition: "all 0.3s" }}
-                onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "var(--accent)"; b.style.color = "#050505"; }}
-                onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "transparent"; b.style.color = "var(--accent)"; }}>
-                Oyunları Keşfet
+                style={{ padding: "13px 38px", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.2em",
+                  border: "1px solid var(--accent)", color: "var(--accent)",
+                  background: "linear-gradient(135deg, rgba(200,169,110,0.1) 0%, transparent 100%)",
+                  fontFamily: "monospace", cursor: "pointer", transition: "all 0.3s",
+                  boxShadow: "0 0 24px rgba(200,169,110,0.1)" }}
+                onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "var(--accent)"; b.style.color = "#050505"; b.style.boxShadow = "0 0 36px rgba(200,169,110,0.4)"; }}
+                onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "linear-gradient(135deg, rgba(200,169,110,0.1) 0%, transparent 100%)"; b.style.color = "var(--accent)"; b.style.boxShadow = "0 0 24px rgba(200,169,110,0.1)"; }}>
+                ⚡ Oyunları Keşfet
               </motion.button>
             </Link>
             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}
               onClick={() => scrollTo(1)}
-              style={{ padding: "13px 36px", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "#ff6ec7", background: "transparent", border: "1px solid rgba(255,110,200,0.35)", fontFamily: "monospace", cursor: "pointer", transition: "all 0.3s" }}
-              onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = "#ff6ec7"; b.style.boxShadow = "0 0 20px rgba(255,110,200,0.3)"; }}
-              onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = "rgba(255,110,200,0.35)"; b.style.boxShadow = "none"; }}>
+              style={{ padding: "13px 38px", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.2em",
+                color: "#ff6ec7", background: "linear-gradient(135deg, rgba(255,110,200,0.08) 0%, transparent 100%)",
+                border: "1px solid rgba(255,110,200,0.35)", fontFamily: "monospace", cursor: "pointer", transition: "all 0.3s" }}
+              onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = "#ff6ec7"; b.style.boxShadow = "0 0 28px rgba(255,110,200,0.3)"; b.style.background = "rgba(255,110,200,0.12)"; }}
+              onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = "rgba(255,110,200,0.35)"; b.style.boxShadow = "none"; b.style.background = "linear-gradient(135deg, rgba(255,110,200,0.08) 0%, transparent 100%)"; }}>
               Hakkımda →
             </motion.button>
           </motion.div>
