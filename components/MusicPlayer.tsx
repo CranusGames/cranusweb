@@ -55,7 +55,7 @@ export default function MusicPlayer() {
     window.onYouTubeIframeAPIReady = () => {
       if (!containerRef.current) return;
       playerRef.current = new window.YT.Player(containerRef.current, {
-        videoId: "",
+        videoId: "MEyyQh-9NW0",
         playerVars: {
           autoplay: 0,
           controls: 0,
