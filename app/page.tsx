@@ -226,11 +226,17 @@ export default function Home() {
   const contactCanvasRef = useRef<HTMLCanvasElement>(null);
   const [active, setActive] = useState(0);
   const [photoHovered, setPhotoHovered] = useState(false);
-  const [arcadeScore, setArcadeScore] = useState(0);
+  const [arcadeScore, setArcadeScore] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    return Number(localStorage.getItem("arcade_score") ?? 0);
+  });
   const [arcadePopup, setArcadePopup] = useState<{ title: string; x: number; y: number; key: number } | null>(null);
   const arcadeHitRef = useRef<(killerName: string, victimName: string, bx: number, by: number) => void>(() => {});
   const popupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [leaderboard, setLeaderboard] = useState<{ name: string; kills: number }[]>([]);
+  const [leaderboard, setLeaderboard] = useState<{ name: string; kills: number }[]>(() => {
+    if (typeof window === "undefined") return [];
+    try { return JSON.parse(localStorage.getItem("arcade_lb") ?? "[]"); } catch { return []; }
+  });
   const [lang, setLang] = useState<"tr" | "en">("tr");
 
   /* Mouse → 3-D tilt */
@@ -249,6 +255,10 @@ export default function Home() {
     window.addEventListener("mousemove", move);
     return () => window.removeEventListener("mousemove", move);
   }, [mx, my]);
+
+  /* Persist battle state */
+  useEffect(() => { localStorage.setItem("arcade_score", String(arcadeScore)); }, [arcadeScore]);
+  useEffect(() => { localStorage.setItem("arcade_lb", JSON.stringify(leaderboard)); }, [leaderboard]);
 
   /* Particles */
   useEffect(() => {
