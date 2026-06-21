@@ -66,6 +66,88 @@ function NavDots({ active }: { active: number }) {
   );
 }
 
+/* ─── GitHub Calendar ───────────────────────────────────── */
+type ContribDay = { date: string; count: number; level: number };
+
+function GitHubCalendar({ username, year }: { username: string; year: number }) {
+  const [weeks, setWeeks] = useState<ContribDay[][]>([]);
+  const [total, setTotal] = useState(0);
+
+  useEffect(() => {
+    fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=${year}`)
+      .then(r => r.json())
+      .then(data => {
+        const contribs: ContribDay[] = data.contributions;
+        setTotal(data.total?.[year] ?? 0);
+        const ws: ContribDay[][] = [];
+        let week: ContribDay[] = [];
+        contribs.forEach((d, i) => {
+          const dow = new Date(d.date).getDay();
+          if (i === 0 && dow > 0) for (let k = 0; k < dow; k++) week.push({ date: "", count: 0, level: 0 });
+          week.push(d);
+          if (week.length === 7) { ws.push(week); week = []; }
+        });
+        if (week.length > 0) ws.push(week);
+        setWeeks(ws);
+      })
+      .catch(() => {});
+  }, [username, year]);
+
+  const COLORS = [
+    "rgba(121,40,202,0.1)",
+    "rgba(121,40,202,0.35)",
+    "rgba(121,40,202,0.6)",
+    "rgba(255,110,200,0.7)",
+    "#ff6ec7",
+  ];
+
+  if (weeks.length === 0) return (
+    <div style={{ textAlign: "center", padding: "1rem", color: "rgba(220,200,230,0.4)", fontFamily: "monospace", fontSize: "0.65rem" }}>
+      YÜKLENİYOR...
+    </div>
+  );
+
+  return (
+    <div style={{ width: "100%" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "10px" }}>
+        <span style={{ fontSize: "0.58rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "rgba(220,200,230,0.4)", fontFamily: "monospace" }}>
+          GitHub · {year} katkıları
+        </span>
+        <span style={{ fontSize: "0.75rem", color: "#ff6ec7", fontFamily: "monospace", textShadow: "0 0 12px rgba(255,110,200,0.5)" }}>
+          {total.toLocaleString()} commit
+        </span>
+      </div>
+      <div style={{ overflowX: "auto", paddingBottom: "4px" }}>
+        <div style={{ display: "flex", gap: "3px", minWidth: "max-content" }}>
+          {weeks.map((week, wi) => (
+            <div key={wi} style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+              {week.map((day, di) => (
+                <div key={di}
+                  title={day.date ? `${day.date}: ${day.count} commit` : ""}
+                  style={{
+                    width: "10px", height: "10px",
+                    background: COLORS[day.level] ?? COLORS[0],
+                    borderRadius: "2px",
+                    transition: "transform 0.12s",
+                    cursor: day.count > 0 ? "crosshair" : "default",
+                  }}
+                  onMouseEnter={e => { if (day.count > 0) (e.currentTarget as HTMLElement).style.transform = "scale(1.5)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: "4px", alignItems: "center", marginTop: "8px" }}>
+        <span style={{ fontSize: "0.52rem", color: "rgba(220,200,230,0.35)", fontFamily: "monospace" }}>az</span>
+        {COLORS.map((c, i) => <div key={i} style={{ width: "8px", height: "8px", background: c, borderRadius: "2px" }} />)}
+        <span style={{ fontSize: "0.52rem", color: "rgba(220,200,230,0.35)", fontFamily: "monospace" }}>çok</span>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Main ───────────────────────────────────────────────── */
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -377,7 +459,7 @@ export default function Home() {
 
           {/* Stats */}
           <div style={{ display: "flex", justifyContent: "center", gap: "16px", marginBottom: "2.2rem", flexWrap: "wrap" }}>
-            {[{ num: "30+", label: "Oyun" }, { num: "3+", label: "Yıl" }, { num: "∞", label: "Fikir" }].map((s, i) => (
+            {[{ num: "33", label: "Oyun" }, { num: "21", label: "Game Jam" }, { num: "3+", label: "Yıl" }, { num: "∞", label: "Fikir" }].map((s, i) => (
               <motion.div key={s.label}
                 initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, delay: i * 0.1 }}
                 style={{ padding: "16px 28px", textAlign: "center", border: "1px solid rgba(121,40,202,0.4)", background: "rgba(121,40,202,0.08)", backdropFilter: "blur(6px)", minWidth: "110px" }}>
@@ -388,7 +470,7 @@ export default function Home() {
           </div>
 
           {/* Skills */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", justifyContent: "center" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", justifyContent: "center", marginBottom: "2rem" }}>
             {skills.map((skill, i) => (
               <motion.span key={skill}
                 initial={{ opacity: 0, scale: 0.7 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.3, delay: i * 0.06 }}
@@ -399,6 +481,12 @@ export default function Home() {
               </motion.span>
             ))}
           </div>
+
+          {/* GitHub Contribution Calendar */}
+          <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.5 }}
+            style={{ padding: "16px 20px", border: "1px solid rgba(121,40,202,0.3)", background: "rgba(12,0,24,0.5)", backdropFilter: "blur(8px)" }}>
+            <GitHubCalendar username="CranusGames" year={2026} />
+          </motion.div>
         </div>
 
         {/* Next arrow */}
