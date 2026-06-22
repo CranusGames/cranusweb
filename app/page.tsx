@@ -1542,111 +1542,122 @@ setLeaderboard(prev => {
       ════════════════════════════════════════ */}
       <section id="section-4" data-idx="4"
         style={{ height: "100vh", scrollSnapAlign: "start", position: "relative",
-          background: "linear-gradient(160deg, #0d0020 0%, #150030 55%, #0a0018 100%)",
+          background: "linear-gradient(160deg, #0a0018 0%, #130028 50%, #0a0018 100%)",
           display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
 
-        <SynthGrid color="rgba(168,85,247,0.18)" />
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 40%, rgba(168,85,247,0.1) 0%, transparent 65%)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(to right, transparent, #a855f7, #ff6ec7, transparent)" }} />
+        <SynthGrid color="rgba(168,85,247,0.25)" />
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 30% 50%, rgba(168,85,247,0.18) 0%, transparent 55%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 75% 50%, rgba(255,110,200,0.1) 0%, transparent 50%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: "linear-gradient(to right, transparent, #a855f7, #ff6ec7, transparent)" }} />
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(to right, transparent, #a855f7, transparent)" }} />
 
-        <div style={{ position: "relative", zIndex: 10, maxWidth: "980px", width: "100%", margin: "0 auto", padding: "0 28px", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", gap: "1.4rem" }}>
+        <div style={{ position: "relative", zIndex: 10, maxWidth: "1000px", width: "100%", margin: "0 auto", padding: "0 24px", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", gap: "1.2rem" }}>
 
           {/* Title */}
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
             style={{ textAlign: "center" }}>
-            <p style={{ fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.55em", color: "#a855f7", fontFamily: "monospace", marginBottom: "0.4rem", textShadow: "0 0 18px rgba(168,85,247,0.8)" }}>
+            <p style={{ fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.55em", color: "#a855f7", fontFamily: "monospace", marginBottom: "0.3rem", textShadow: "0 0 20px rgba(168,85,247,1)" }}>
               {isTR ? "Boyut 04" : "Level 04"}
             </p>
-            <h2 style={{ fontSize: "clamp(1.8rem, 4.5vw, 3.2rem)", fontWeight: "bold", color: "var(--text)", letterSpacing: "-0.02em",
-              textShadow: "0 0 40px rgba(168,85,247,0.5), 0 0 80px rgba(168,85,247,0.2)" }}>
+            <h2 style={{ fontSize: "clamp(1.8rem, 4.5vw, 3rem)", fontWeight: "bold", color: "var(--text)", letterSpacing: "-0.02em",
+              textShadow: "0 0 50px rgba(168,85,247,0.7), 0 0 100px rgba(168,85,247,0.3)" }}>
               {isTR ? "Projeler" : "Projects"}
             </h2>
-            <div style={{ width: "60px", height: "2px", background: "linear-gradient(to right, #a855f7, #ff6ec7)", margin: "8px auto 0" }} />
+            <div style={{ width: "80px", height: "2px", background: "linear-gradient(to right, #a855f7, #ff6ec7)", margin: "6px auto 0", boxShadow: "0 0 12px rgba(168,85,247,0.6)" }} />
           </motion.div>
 
-          {/* Grid */}
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "16px", overflowY: isMobile ? "auto" : undefined }}>
+          {/* Two columns with divider */}
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 2px 1fr", gap: isMobile ? "16px" : "24px", alignItems: "start" }}>
 
             {/* ── Unity Oyunları ── */}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <p style={{ fontSize: "0.52rem", textTransform: "uppercase", letterSpacing: "0.3em", color: "rgba(168,85,247,0.6)", fontFamily: "monospace", marginBottom: "2px" }}>
-                ◈ {isTR ? "Unity Oyunları" : "Unity Games"}
-              </p>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                <div style={{ width: "3px", height: "14px", background: "linear-gradient(to bottom, #a855f7, #ff6ec7)", boxShadow: "0 0 8px #a855f7" }} />
+                <p style={{ fontSize: "0.52rem", textTransform: "uppercase", letterSpacing: "0.3em", color: "#c084fc", fontFamily: "monospace", fontWeight: "bold" }}>
+                  {isTR ? "Unity Oyunları" : "Unity Games"}
+                </p>
+              </div>
 
-              {/* Proje #1 */}
               {[
                 {
-                  id: "1", pct: 75,
+                  id: "1", pct: 75, img: "/cranusweb/proje1.png",
                   genres: isTR ? ["Multiplayer", "Korku", "Bulmaca"] : ["Multiplayer", "Horror", "Puzzle"],
                   desc: isTR
                     ? "Sovyet nükleer araştırma tesisinde arkadaşlarınla hayatta kal, bölmeleri keşfet ve gizli sistemleri çöz."
-                    : "Survive in a Soviet nuclear research facility with friends — explore sectors and solve hidden systems.",
+                    : "Survive in a Soviet nuclear research facility — explore sectors and solve hidden systems with friends.",
                   genreColor: "#a855f7",
                 },
                 {
-                  id: "2", pct: 10,
+                  id: "2", pct: 10, img: "/cranusweb/proje2.png",
                   genres: isTR ? ["Multiplayer", "Party"] : ["Multiplayer", "Party"],
                   desc: isTR
-                    ? "Arkadaşlarınla eğlenceli çok oyunculu bir parti deneyimi. Erken geliştirme aşamasında."
-                    : "A fun multiplayer party experience with friends. Currently in very early development.",
+                    ? "Arkadaşlarınla eğlenceli çok oyunculu parti deneyimi. Erken geliştirme aşamasında."
+                    : "A fun multiplayer party experience with friends. Very early in development.",
                   genreColor: "#ff6ec7",
                 },
               ].map(g => (
                 <motion.div key={g.id}
-                  initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: Number(g.id) * 0.1 }}
-                  style={{ padding: "14px 16px", border: "1px solid rgba(168,85,247,0.25)", background: "linear-gradient(135deg, rgba(168,85,247,0.07) 0%, rgba(0,0,0,0) 70%)", backdropFilter: "blur(8px)", position: "relative", overflow: "hidden" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
-                    <span style={{ fontFamily: "monospace", fontWeight: "bold", fontSize: "0.8rem", color: "var(--text)", letterSpacing: "0.05em" }}>
-                      {isTR ? `Proje #${g.id}` : `Project #${g.id}`}
-                    </span>
-                    <span style={{ fontSize: "0.46rem", letterSpacing: "0.15em", color: "#a855f7", fontFamily: "monospace", padding: "2px 7px", border: "1px solid rgba(168,85,247,0.4)", background: "rgba(168,85,247,0.08)" }}>
+                  initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: Number(g.id) * 0.1 }}
+                  style={{ border: `1px solid ${g.genreColor}50`, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(12px)", overflow: "hidden",
+                    boxShadow: `0 0 24px ${g.genreColor}18, inset 0 0 24px rgba(0,0,0,0.3)` }}>
+                  {/* Screenshot */}
+                  <div style={{ position: "relative", height: "90px", overflow: "hidden" }}>
+                    <img src={g.img} alt={`Proje #${g.id}`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: "brightness(0.75)" }} />
+                    <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.85) 100%)` }} />
+                    <span style={{ position: "absolute", top: "8px", right: "8px", fontSize: "0.42rem", letterSpacing: "0.15em", color: g.genreColor, fontFamily: "monospace", padding: "2px 7px", border: `1px solid ${g.genreColor}70`, background: "rgba(0,0,0,0.7)" }}>
                       ● {isTR ? "GELİŞTİRİLİYOR" : "IN DEV"}
                     </span>
                   </div>
-                  <div style={{ display: "flex", gap: "6px", marginBottom: "7px", flexWrap: "wrap" }}>
-                    {g.genres.map(genre => (
-                      <span key={genre} style={{ fontSize: "0.48rem", padding: "2px 8px", border: `1px solid ${g.genreColor}40`, color: g.genreColor, fontFamily: "monospace", letterSpacing: "0.1em", textTransform: "uppercase", background: `${g.genreColor}0d` }}>{genre}</span>
-                    ))}
-                  </div>
-                  <p style={{ fontSize: "0.68rem", color: "rgba(220,200,230,0.5)", lineHeight: 1.6, marginBottom: "10px" }}>{g.desc}</p>
-                  {/* Progress bar */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <div style={{ flex: 1, height: "4px", background: "rgba(168,85,247,0.12)", borderRadius: "2px", overflow: "hidden" }}>
-                      <motion.div
-                        initial={{ width: 0 }} whileInView={{ width: `${g.pct}%` }} viewport={{ once: true }} transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
-                        style={{ height: "100%", background: `linear-gradient(to right, #a855f7, ${g.genreColor})`, borderRadius: "2px", boxShadow: `0 0 8px ${g.genreColor}80` }} />
+                  {/* Content */}
+                  <div style={{ padding: "10px 14px 12px" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "5px" }}>
+                      <span style={{ fontFamily: "monospace", fontWeight: "bold", fontSize: "0.82rem", color: "var(--text)" }}>
+                        {isTR ? `Proje #${g.id}` : `Project #${g.id}`}
+                      </span>
+                      <div style={{ display: "flex", gap: "4px" }}>
+                        {g.genres.map(genre => (
+                          <span key={genre} style={{ fontSize: "0.42rem", padding: "1px 6px", border: `1px solid ${g.genreColor}50`, color: g.genreColor, fontFamily: "monospace", textTransform: "uppercase", background: `${g.genreColor}12` }}>{genre}</span>
+                        ))}
+                      </div>
                     </div>
-                    <span style={{ fontFamily: "monospace", fontSize: "0.65rem", fontWeight: "bold", color: g.genreColor, flexShrink: 0 }}>{g.pct}%</span>
+                    <p style={{ fontSize: "0.62rem", color: "rgba(220,200,230,0.6)", lineHeight: 1.55, marginBottom: "8px" }}>{g.desc}</p>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <div style={{ flex: 1, height: "5px", background: "rgba(255,255,255,0.08)", borderRadius: "3px", overflow: "hidden" }}>
+                        <motion.div
+                          initial={{ width: 0 }} whileInView={{ width: `${g.pct}%` }} viewport={{ once: true }} transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
+                          style={{ height: "100%", background: `linear-gradient(to right, #a855f7, ${g.genreColor})`, borderRadius: "3px", boxShadow: `0 0 10px ${g.genreColor}` }} />
+                      </div>
+                      <span style={{ fontFamily: "monospace", fontSize: "0.7rem", fontWeight: "bold", color: g.genreColor, flexShrink: 0, textShadow: `0 0 8px ${g.genreColor}` }}>{g.pct}%</span>
+                    </div>
                   </div>
-                  <div style={{ position: "absolute", bottom: -20, right: -20, width: 70, height: 70, borderRadius: "50%", background: `radial-gradient(circle, ${g.genreColor}18 0%, transparent 70%)`, pointerEvents: "none" }} />
                 </motion.div>
               ))}
             </div>
 
+            {/* Vertical divider */}
+            {!isMobile && (
+              <div style={{ alignSelf: "stretch", background: "linear-gradient(to bottom, transparent, rgba(168,85,247,0.5) 20%, rgba(255,110,200,0.4) 80%, transparent)", minHeight: "300px" }} />
+            )}
+
             {/* ── Uygulamalar ── */}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <p style={{ fontSize: "0.52rem", textTransform: "uppercase", letterSpacing: "0.3em", color: "rgba(168,85,247,0.6)", fontFamily: "monospace", marginBottom: "2px" }}>
-                ◈ {isTR ? "Uygulamalar" : "Applications"}
-              </p>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                <div style={{ width: "3px", height: "14px", background: "linear-gradient(to bottom, #f43f5e, #f97316)", boxShadow: "0 0 8px #f43f5e" }} />
+                <p style={{ fontSize: "0.52rem", textTransform: "uppercase", letterSpacing: "0.3em", color: "#fb7185", fontFamily: "monospace", fontWeight: "bold" }}>
+                  {isTR ? "Uygulamalar" : "Applications"}
+                </p>
+              </div>
 
               {[
                 {
-                  name: "İtiraf Et",
-                  tag: "SOSYAL MEDYA",
-                  color: "#f43f5e",
-                  icon: "✦",
+                  name: "İtiraf Et", tag: "SOSYAL MEDYA", color: "#f43f5e", img: "/cranusweb/itiraf.png",
                   desc: isTR
                     ? "Anonim itirafını yaz, Instagram hikayesi veya gönderisi olarak otomatik paylaş."
                     : "Write your anonymous confession and auto-share it as an Instagram story or post.",
                   platform: "Instagram API",
                 },
                 {
-                  name: isTR ? "Oto Video Yükleyici" : "Auto Video Uploader",
-                  tag: "OTOMASYON",
-                  color: "#f97316",
-                  icon: "▶",
+                  name: isTR ? "Oto Video Yükleyici" : "Auto Video Uploader", tag: "OTOMASYON", color: "#f97316", img: "/cranusweb/autovid.png",
                   desc: isTR
                     ? "Profesyonel Instagram hesaplarına her gün otomatik video içerik yükleme sistemi."
                     : "Automated daily video content publishing system for professional Instagram accounts.",
@@ -1654,25 +1665,26 @@ setLeaderboard(prev => {
                 },
               ].map((app, i) => (
                 <motion.div key={app.name}
-                  initial={{ opacity: 0, x: 16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 + 0.15 }}
-                  style={{ padding: "14px 16px", border: `1px solid ${app.color}28`, background: `linear-gradient(135deg, ${app.color}08 0%, rgba(0,0,0,0) 70%)`, backdropFilter: "blur(8px)", position: "relative", overflow: "hidden" }}>
-                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "6px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                      <span style={{ fontSize: "1.4rem", filter: `drop-shadow(0 0 8px ${app.color}88)` }}>{app.icon}</span>
-                      <div>
-                        <div style={{ fontFamily: "monospace", fontWeight: "bold", fontSize: "0.85rem", color: "var(--text)" }}>{app.name}</div>
-                        <div style={{ fontSize: "0.46rem", color: app.color, fontFamily: "monospace", letterSpacing: "0.18em", marginTop: "1px" }}>{app.tag}</div>
-                      </div>
-                    </div>
-                    <span style={{ fontSize: "0.46rem", letterSpacing: "0.12em", color: "#00d4ff", fontFamily: "monospace", padding: "2px 7px", border: "1px solid rgba(0,212,255,0.3)", background: "rgba(0,212,255,0.06)", whiteSpace: "nowrap" }}>
+                  initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.12 + 0.1 }}
+                  style={{ border: `1px solid ${app.color}50`, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(12px)", overflow: "hidden",
+                    boxShadow: `0 0 24px ${app.color}18, inset 0 0 24px rgba(0,0,0,0.3)` }}>
+                  {/* Screenshot */}
+                  <div style={{ position: "relative", height: "90px", overflow: "hidden" }}>
+                    <img src={app.img} alt={app.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: "brightness(0.75)" }} />
+                    <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.85) 100%)` }} />
+                    <span style={{ position: "absolute", top: "8px", right: "8px", fontSize: "0.42rem", letterSpacing: "0.12em", color: "#00d4ff", fontFamily: "monospace", padding: "2px 7px", border: "1px solid rgba(0,212,255,0.5)", background: "rgba(0,0,0,0.7)" }}>
                       ✓ {isTR ? "TAMAMLANDI" : "COMPLETE"}
                     </span>
+                    <span style={{ position: "absolute", bottom: "8px", left: "10px", fontSize: "0.44rem", letterSpacing: "0.15em", color: app.color, fontFamily: "monospace", textShadow: `0 0 8px ${app.color}` }}>{app.tag}</span>
                   </div>
-                  <p style={{ fontSize: "0.68rem", color: "rgba(220,200,230,0.5)", lineHeight: 1.6, marginBottom: "8px" }}>{app.desc}</p>
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <span style={{ fontSize: "0.46rem", padding: "2px 8px", border: `1px solid ${app.color}35`, color: `${app.color}cc`, fontFamily: "monospace", letterSpacing: "0.1em", background: `${app.color}0d` }}>{app.platform}</span>
+                  {/* Content */}
+                  <div style={{ padding: "10px 14px 12px" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "5px" }}>
+                      <span style={{ fontFamily: "monospace", fontWeight: "bold", fontSize: "0.82rem", color: "var(--text)", textShadow: `0 0 12px ${app.color}60` }}>{app.name}</span>
+                      <span style={{ fontSize: "0.42rem", padding: "1px 7px", border: `1px solid ${app.color}50`, color: `${app.color}dd`, fontFamily: "monospace", background: `${app.color}10` }}>{app.platform}</span>
+                    </div>
+                    <p style={{ fontSize: "0.62rem", color: "rgba(220,200,230,0.6)", lineHeight: 1.55 }}>{app.desc}</p>
                   </div>
-                  <div style={{ position: "absolute", bottom: -20, right: -20, width: 70, height: 70, borderRadius: "50%", background: `radial-gradient(circle, ${app.color}15 0%, transparent 70%)`, pointerEvents: "none" }} />
                 </motion.div>
               ))}
             </div>
@@ -1681,7 +1693,7 @@ setLeaderboard(prev => {
 
         <motion.div animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 1.8 }}
           onClick={() => scrollTo(5)}
-          style={{ position: "absolute", bottom: "1.5rem", left: "50%", transform: "translateX(-50%)", cursor: "pointer", color: "rgba(168,85,247,0.4)", fontSize: "1.2rem", fontFamily: "monospace", userSelect: "none" }}>▼</motion.div>
+          style={{ position: "absolute", bottom: "1.5rem", left: "50%", transform: "translateX(-50%)", cursor: "pointer", color: "rgba(168,85,247,0.5)", fontSize: "1.2rem", fontFamily: "monospace", userSelect: "none" }}>▼</motion.div>
       </section>
 
       {/* ════════════════════════════════════════
