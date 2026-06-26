@@ -19,36 +19,32 @@ jobs:
           SB_URL="https://nqvchcmsixrouidbvqsg.supabase.co"
           SB_KEY="sb_publishable_rOawnH56NXFr_T7NAZE55Q_n0F_bZGS"
 
-          # Battle state: visitors + score
-          BATTLE=$(curl -s \
+          # Battle state: visitors + score (fallback to [] on error)
+          BATTLE=$(curl -sf \
             -H "apikey: $SB_KEY" \
             -H "Authorization: Bearer $SB_KEY" \
-            "$SB_URL/rest/v1/battle_state?select=visitors,score&id=eq.1")
+            "$SB_URL/rest/v1/battle_state?select=visitors,score&id=eq.1" || echo "[]")
 
-          VISITORS=$(echo "$BATTLE" | jq -r '.[0].visitors // 0')
-          SCORE=$(echo "$BATTLE"    | jq -r '.[0].score    // 0')
+          VISITORS=$(echo "$BATTLE" | jq -r 'if type=="array" and length>0 then .[0].visitors else 0 end' 2>/dev/null || echo "0")
+          SCORE=$(echo "$BATTLE"    | jq -r 'if type=="array" and length>0 then .[0].score    else 0 end' 2>/dev/null || echo "0")
 
-          # Guestbook count
-          GB_COUNT=$(curl -s \
+          # Guestbook count (fallback to [] on error)
+          GB_RAW=$(curl -sf \
             -H "apikey: $SB_KEY" \
             -H "Authorization: Bearer $SB_KEY" \
-            "$SB_URL/rest/v1/guestbook?select=id&limit=1000" | jq 'length')
+            "$SB_URL/rest/v1/guestbook?select=id&limit=1000" || echo "[]")
+          GB_COUNT=$(echo "$GB_RAW" | jq 'if type=="array" then length else 0 end' 2>/dev/null || echo "0")
 
           # Days since launch
-          LAUNCH="2026-06-21"
-          DAYS=$(( ( $(date -d "$(date +%Y-%m-%d)" +%s) - $(date -d "$LAUNCH" +%s) ) / 86400 ))
+          DAYS=$(( ( $(date +%s) - $(date -d "2026-06-21" +%s) ) / 86400 ))
 
-          cat > public/stats.json << EOF
-          {
-            "updated": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "visitors": $VISITORS,
-            "battleScore": $SCORE,
-            "guestbookCount": $GB_COUNT,
-            "daysSinceLaunch": $DAYS
-          }
-          EOF
+          printf '{\n  "updated": "%s",\n  "visitors": %s,\n  "battleScore": %s,\n  "guestbookCount": %s,\n  "daysSinceLaunch": %s\n}\n' \
+            "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            "${VISITORS:-0}" "${SCORE:-0}" "${GB_COUNT:-0}" "${DAYS:-0}" \
+            > public/stats.json
 
-          echo "✓ visitors=$VISITORS score=$SCORE guestbook=$GB_COUNT days=$DAYS"
+          echo "✓ visitors=${VISITORS:-0} score=${SCORE:-0} guestbook=${GB_COUNT:-0} days=${DAYS:-0}"
+          cat public/stats.json
 
       - name: Commit and push
         run: |
