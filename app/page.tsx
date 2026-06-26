@@ -258,7 +258,7 @@ export default function Home() {
   const arcadeHitRef = useRef<(killerName: string, victimName: string, bx: number, by: number) => void>(() => {});
   const popupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [leaderboard, setLeaderboard] = useState<{ name: string; kills: number }[]>([]);
-  const [lang, setLang] = useState<"tr" | "en">("tr");
+  const [lang, setLang] = useState<"tr" | "en">("en");
   const [uptime, setUptime] = useState("");
   const [visitors, setVisitors] = useState<number | null>(null);
   type GBEntry = { id: number; name: string; message: string; created_at: string };
