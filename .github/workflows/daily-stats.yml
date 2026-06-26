@@ -1,0 +1,57 @@
+name: Daily Stats Update
+
+on:
+  schedule:
+    - cron: '0 2 * * *'   # Her gece 02:00 UTC
+  workflow_dispatch:        # Manuel tetikleme (Actions sekmesinden)
+
+jobs:
+  update-stats:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch stats from Supabase
+        run: |
+          SB_URL="https://nqvchcmsixrouidbvqsg.supabase.co"
+          SB_KEY="sb_publishable_rOawnH56NXFr_T7NAZE55Q_n0F_bZGS"
+
+          # Battle state: visitors + score
+          BATTLE=$(curl -s \
+            -H "apikey: $SB_KEY" \
+            -H "Authorization: Bearer $SB_KEY" \
+            "$SB_URL/rest/v1/battle_state?select=visitors,score&id=eq.1")
+
+          VISITORS=$(echo "$BATTLE" | jq -r '.[0].visitors // 0')
+          SCORE=$(echo "$BATTLE"    | jq -r '.[0].score    // 0')
+
+          # Guestbook count
+          GB_COUNT=$(curl -s \
+            -H "apikey: $SB_KEY" \
+            -H "Authorization: Bearer $SB_KEY" \
+            "$SB_URL/rest/v1/guestbook?select=id&limit=1000" | jq 'length')
+
+          # Days since launch
+          LAUNCH="2026-06-21"
+          DAYS=$(( ( $(date -d "$(date +%Y-%m-%d)" +%s) - $(date -d "$LAUNCH" +%s) ) / 86400 ))
+
+          cat > public/stats.json << EOF
+          {
+            "updated": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "visitors": $VISITORS,
+            "battleScore": $SCORE,
+            "guestbookCount": $GB_COUNT,
+            "daysSinceLaunch": $DAYS
+          }
+          EOF
+
+          echo "✓ visitors=$VISITORS score=$SCORE guestbook=$GB_COUNT days=$DAYS"
+
+      - name: Commit and push
+        run: |
+          git config user.name  "Cranus Stats Bot"
+          git config user.email "bot@cranusgames.github.io"
+          git add public/stats.json
+          git diff --staged --quiet && echo "No changes" || \
+            git commit -m "chore: daily stats [$(date -u +%Y-%m-%d)] 📊" && git push
