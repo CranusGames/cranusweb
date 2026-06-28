@@ -224,6 +224,11 @@ export default function HistoryPage() {
   const isMobile = useIsMobile();
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
+    document.body.style.overflow = "auto";
+    return () => { document.body.style.overflow = "hidden"; };
+  }, []);
+
+  useEffect(() => {
     const t = setTimeout(() => setMounted(true), 60);
     return () => clearTimeout(t);
   }, []);
