@@ -43,7 +43,7 @@ jobs:
             "${VISITORS:-0}" "${SCORE:-0}" "${GB_COUNT:-0}" "${DAYS:-0}" \
             > public/stats.json
 
-          echo "✓ visitors=${VISITORS:-0} score=${SCORE:-0} guestbook=${GB_COUNT:-0} days=${DAYS:-0}"
+          echo "visitors=${VISITORS:-0} score=${SCORE:-0} guestbook=${GB_COUNT:-0} days=${DAYS:-0}"
           cat public/stats.json
 
       - name: Commit and push
@@ -51,5 +51,9 @@ jobs:
           git config user.name  "Cranus Stats Bot"
           git config user.email "bot@cranusgames.github.io"
           git add public/stats.json
-          git diff --staged --quiet && echo "No changes" || \
-            git commit -m "chore: daily stats [$(date -u +%Y-%m-%d)] 📊" && git push
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: daily stats $(date -u +%Y-%m-%d)"
+            git push origin HEAD
+          fi
