@@ -101,7 +101,7 @@ function GameEntry({ game, isMobile }: { game: (typeof games)[0]; isMobile: bool
           fontWeight: 700,
           letterSpacing: "0.04em",
           textTransform: "uppercase",
-          color: hovered ? "#ffffff" : "#d8d0c4",
+          color: "#ffffff",
           transition: "color 0.2s",
           whiteSpace: "nowrap",
           overflow: "hidden",
@@ -119,18 +119,16 @@ function GameEntry({ game, isMobile }: { game: (typeof games)[0]; isMobile: bool
         }}>
           {game.genre}
         </p>
-        {dateStr && !isMobile && (
-          <p style={{
-            margin: "6px 0 0",
-            fontFamily: "monospace",
-            fontSize: "11px",
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            color: "rgba(255,255,255,0.35)",
-          }}>
-            {dateStr}
-          </p>
-        )}
+        <p style={{
+          margin: isMobile ? "4px 0 0" : "6px 0 0",
+          fontFamily: "monospace",
+          fontSize: isMobile ? "10px" : "12px",
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
+          color: "rgba(255,255,255,0.45)",
+        }}>
+          {dateStr ?? String(game.year)}
+        </p>
       </div>
 
       {/* Arrow */}
