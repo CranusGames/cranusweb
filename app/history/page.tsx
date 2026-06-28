@@ -28,8 +28,17 @@ const GENRE_COLORS: Record<string, string> = {
 };
 const gc = (genre: string) => GENRE_COLORS[genre] ?? "#888";
 
-// Flat list newest → oldest
-const sorted = [...games].sort((a, b) => b.year - a.year);
+const MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+function formatDate(year: number, month?: number) {
+  if (month) return `${MONTHS[month - 1]} ${year}`;
+  return `${year}`;
+}
+
+// Flat list newest → oldest (by year desc, then month desc within year)
+const sorted = [...games].sort((a, b) => {
+  if (b.year !== a.year) return b.year - a.year;
+  return (b.month ?? 0) - (a.month ?? 0);
+});
 
 function GameRow({
   game,
@@ -43,6 +52,7 @@ function GameRow({
   const [hovered, setHovered] = useState(false);
   const yearChanged = game.year !== prevYear;
   const color = gc(game.genre);
+  const dateLabel = formatDate(game.year, game.month);
 
   return (
     <>
@@ -111,8 +121,19 @@ function GameRow({
           paddingRight: isMobile ? "8px" : "16px",
         }}
       >
-        {/* Left: Year column (empty, for alignment) */}
-        <div style={{ width: isMobile ? "52px" : "120px", flexShrink: 0 }} />
+        {/* Left: date label */}
+        <div style={{ width: isMobile ? "52px" : "120px", flexShrink: 0, textAlign: "right" }}>
+          <span style={{
+            fontFamily: "monospace",
+            fontSize: isMobile ? "8px" : "10px",
+            letterSpacing: "0.12em",
+            color: hovered ? "var(--accent)" : "rgba(255,255,255,0.22)",
+            textTransform: "uppercase",
+            transition: "color 0.2s",
+          }}>
+            {dateLabel}
+          </span>
+        </div>
 
         {/* Timeline line */}
         <div

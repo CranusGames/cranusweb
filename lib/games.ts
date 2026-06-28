@@ -2,6 +2,7 @@ export type Game = {
   slug: string;
   title: string;
   year: number;
+  month?: number; // 1-12, only where known
   genre: string;
   description: string;
   itchSlug: string;
@@ -10,6 +11,7 @@ export type Game = {
 };
 
 export const games: Game[] = [
+  // ── 2026 ──────────────────────────────────────────────────
   {
     slug: "dream-land",
     title: "Dream Land",
@@ -23,17 +25,19 @@ export const games: Game[] = [
   {
     slug: "what-the-duck",
     title: "What The Duck",
-    year: 2026,
+    year: 2025,
     genre: "Adventure",
     description: "Ördeklerle dolu sürpriz dolu bir macera.",
     itchSlug: "what-the-duck",
     coverImage: "https://img.itch.zone/aW1nLzI0NTc5NDMwLmpwZw==/315x250%23c/WJJKiE.jpg",
     tags: ["adventure", "funny"],
   },
+  // ── 2025 ──────────────────────────────────────────────────
   {
     slug: "annie-3",
     title: "Annie 3",
-    year: 2026,
+    year: 2025,
+    month: 10,
     genre: "Horror",
     description: "Serinin üçüncü bölümü. Karanlık bir korku deneyimi.",
     itchSlug: "annie-3",
@@ -43,7 +47,7 @@ export const games: Game[] = [
   {
     slug: "mini-pekka-vs-sneaky-golem",
     title: "Mini Pekka vs Sneaky Golem",
-    year: 2026,
+    year: 2025,
     genre: "Action",
     description: "Battle for the Pancake — epik bir mücadele.",
     itchSlug: "pancake",
@@ -53,7 +57,7 @@ export const games: Game[] = [
   {
     slug: "platform",
     title: "PLATFORM",
-    year: 2026,
+    year: 2025,
     genre: "Platformer",
     description: "Klasik platform oyunu deneyimi.",
     itchSlug: "platform",
@@ -63,7 +67,7 @@ export const games: Game[] = [
   {
     slug: "star-swipe",
     title: "STAR SWIPE",
-    year: 2026,
+    year: 2025,
     genre: "Action",
     description: "Yıldızlar arasında hızlı refleks gerektiren bir oyun.",
     itchSlug: "star-swipe",
@@ -120,10 +124,12 @@ export const games: Game[] = [
     coverImage: "https://img.itch.zone/aW1nLzE4NjMzMjI2LmpwZw==/315x250%23c/HTTM2s.jpg",
     tags: ["adventure", "sci-fi"],
   },
+  // ── 2024 ──────────────────────────────────────────────────
   {
     slug: "annie-2",
     title: "Annie 2",
-    year: 2025,
+    year: 2024,
+    month: 10,
     genre: "RPG",
     description: "Annie serisinin ikinci bölümü.",
     itchSlug: "annie-chapter-2",
@@ -131,9 +137,19 @@ export const games: Game[] = [
     tags: ["rpg", "horror"],
   },
   {
+    slug: "turtle-adventure",
+    title: "Turtle Adventure",
+    year: 2024,
+    genre: "Adventure",
+    description: "Kaplumbağanın epik macera yolculuğu.",
+    itchSlug: "turtleadvanture",
+    coverImage: "https://img.itch.zone/aW1nLzE4NTEwMjk5LnBuZw==/315x250%23c/olFPGM.png",
+    tags: ["adventure", "casual"],
+  },
+  {
     slug: "the-silent-depths",
     title: "The Silent Depths DLC",
-    year: 2025,
+    year: 2024,
     genre: "Adventure",
     description: "Sessizliğin derinliklerine inen DLC bölümü.",
     itchSlug: "silentdephts",
@@ -143,7 +159,7 @@ export const games: Game[] = [
   {
     slug: "alone-duck",
     title: "Alone Duck",
-    year: 2025,
+    year: 2024,
     genre: "Adventure",
     description: "Yalnız bir ördek olarak dünyayı keşfet.",
     itchSlug: "survivorduck",
@@ -184,16 +200,18 @@ export const games: Game[] = [
     slug: "diamondsion",
     title: "DIAMONDSION",
     year: 2024,
+    month: 2,
     genre: "Puzzle",
     description: "Elmas boyutunda bulmaca çözme macerası.",
     itchSlug: "diamondsion",
     coverImage: "https://img.itch.zone/aW1nLzE1MDg0NDA3LnBuZw==/315x250%23c/%2BXXsRm.png",
     tags: ["puzzle"],
   },
+  // ── 2023 ──────────────────────────────────────────────────
   {
     slug: "anteaters-coffee-simulator",
     title: "AntEaters Coffee Simulator",
-    year: 2024,
+    year: 2023,
     genre: "Simulation",
     description: "Karıncayiyen kahve simülatörü. Beklenmedik bir deneyim.",
     itchSlug: "milliyeti-karnca-yiyen-oyunu-pastaneci-oldu-xd",
@@ -203,7 +221,7 @@ export const games: Game[] = [
   {
     slug: "cirque",
     title: "Cirque",
-    year: 2024,
+    year: 2023,
     genre: "Adventure",
     description: "Sirk temalı macera oyunu.",
     itchSlug: "cirquedenemegame",
@@ -213,7 +231,7 @@ export const games: Game[] = [
   {
     slug: "syntos",
     title: "Syntos",
-    year: 2024,
+    year: 2023,
     genre: "Action",
     description: "Aksiyon dolu bir Syntos deneyimi.",
     itchSlug: "syntos",
@@ -223,7 +241,8 @@ export const games: Game[] = [
   {
     slug: "annie",
     title: "Annie",
-    year: 2024,
+    year: 2023,
+    month: 10,
     genre: "Adventure",
     description: "Terk edilmiş bir kasabada terk edilmiş bir kişiyle karşılaşıyorsunuz.",
     itchSlug: "annie",
@@ -234,6 +253,7 @@ export const games: Game[] = [
     slug: "trident",
     title: "Trident",
     year: 2023,
+    month: 10,
     genre: "Adventure",
     description: "Trident ile epik bir maceraya atıl.",
     itchSlug: "trident",
@@ -254,6 +274,7 @@ export const games: Game[] = [
     slug: "infinity-duck",
     title: "Infinity Duck",
     year: 2023,
+    month: 9,
     genre: "Adventure",
     description: "Sonsuz ördek macerası.",
     itchSlug: "infinity-duck",
@@ -284,6 +305,7 @@ export const games: Game[] = [
     slug: "stuck-in-console",
     title: "Stuck in Console",
     year: 2023,
+    month: 5,
     genre: "Adventure",
     description: "Konsolun içinde sıkışan bir karakterin hikayesi.",
     itchSlug: "stuck-in-console",
@@ -300,6 +322,7 @@ export const games: Game[] = [
     coverImage: "https://img.itch.zone/aW1nLzExNjkyMjQ1LnBuZw==/315x250%23c/yfr6qN.png",
     tags: ["adventure"],
   },
+  // ── 2022 ──────────────────────────────────────────────────
   {
     slug: "dead-or-live",
     title: "Dead Or Live",
@@ -324,6 +347,7 @@ export const games: Game[] = [
     slug: "little-mission",
     title: "Little Mission",
     year: 2022,
+    month: 12,
     genre: "Adventure",
     description: "Küçük ama önemli bir görev.",
     itchSlug: "little-mission",
@@ -334,6 +358,7 @@ export const games: Game[] = [
     slug: "cursed-ghoul",
     title: "Cursed Ghoul",
     year: 2022,
+    month: 10,
     genre: "Adventure",
     description: "Lanetlenmiş ghoul olarak karanlıkta yürü.",
     itchSlug: "cursed-ghoul",
@@ -344,21 +369,12 @@ export const games: Game[] = [
     slug: "witch-of-the-nature",
     title: "Witch of the Nature",
     year: 2022,
+    month: 9,
     genre: "Adventure",
     description: "Doğanın cadısı olarak büyü ve keşfet.",
     itchSlug: "witch-of-the-nature",
     coverImage: "https://img.itch.zone/aW1nLzEwMTE5NTI2LnBuZw==/315x250%23c/4NWpuD.png",
     tags: ["adventure", "magic"],
-  },
-  {
-    slug: "endless-deathly-hallow",
-    title: "Endless Deathly Hallow",
-    year: 2022,
-    genre: "Adventure",
-    description: "Sonsuz ölüm gölgesinde hayatta kal.",
-    itchSlug: "endlessdeathlyhallow",
-    coverImage: "https://img.itch.zone/aW1nLzk1ODUzNzAucG5n/315x250%23c/J7ikKD.png",
-    tags: ["adventure", "dark"],
   },
   {
     slug: "pier-mage",
@@ -371,9 +387,19 @@ export const games: Game[] = [
     tags: ["adventure", "story", "magic"],
   },
   {
+    slug: "endless-deathly-hallow",
+    title: "Endless Deathly Hallow",
+    year: 2022,
+    genre: "Adventure",
+    description: "Sonsuz ölüm gölgesinde hayatta kal.",
+    itchSlug: "endlessdeathlyhallow",
+    coverImage: "https://img.itch.zone/aW1nLzk1ODUzNzAucG5n/315x250%23c/J7ikKD.png",
+    tags: ["adventure", "dark"],
+  },
+  {
     slug: "robotica",
     title: "ROBOTİCA",
-    year: 2021,
+    year: 2022,
     genre: "Adventure",
     description: "Robot dünyasında geçen bir macera.",
     itchSlug: "robotica",
@@ -383,7 +409,7 @@ export const games: Game[] = [
   {
     slug: "mafia-duck",
     title: "Mafia Duck",
-    year: 2021,
+    year: 2022,
     genre: "Adventure",
     description: "Mafya ördek dünyasının karanlık hikayeleri.",
     itchSlug: "mafia-duck",
@@ -393,13 +419,15 @@ export const games: Game[] = [
   {
     slug: "pix-in-game",
     title: "Pix İn Game",
-    year: 2021,
+    year: 2022,
+    month: 2,
     genre: "Adventure",
     description: "Piksel dünyasında oyun içinde oyun deneyimi.",
     itchSlug: "pixingame",
     coverImage: "https://img.itch.zone/aW1nLzgyMjc0NTgucG5n/315x250%23c/Qd7MDf.png",
     tags: ["adventure", "meta", "pixel"],
   },
+  // ── 2021 ──────────────────────────────────────────────────
   {
     slug: "arabventure",
     title: "ArabVenture",
@@ -424,21 +452,12 @@ export const games: Game[] = [
     slug: "pixelren",
     title: "Pixelren",
     year: 2021,
+    month: 7,
     genre: "Action",
     description: "Evrensel düzeni koruyan piksel savaşçının hikayesi.",
     itchSlug: "pixelren",
     coverImage: "https://img.itch.zone/aW1nLzY0OTQxNTMucG5n/315x250%23c/Ejc0rv.png",
     tags: ["action", "pixel"],
-  },
-  {
-    slug: "turtle-adventure",
-    title: "Turtle Adventure",
-    year: 2021,
-    genre: "Adventure",
-    description: "Kaplumbağanın epik macera yolculuğu.",
-    itchSlug: "turtleadvanture",
-    coverImage: "https://img.itch.zone/aW1nLzE4NTEwMjk5LnBuZw==/315x250%23c/olFPGM.png",
-    tags: ["adventure", "casual"],
   },
 ];
 
