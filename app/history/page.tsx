@@ -40,7 +40,7 @@ const yearGroups = Object.entries(
   .sort(([a], [b]) => Number(b) - Number(a))
   .map(([year, list]) => ({
     year: Number(year),
-    list: [...list].sort((a, b) => (b.month ?? 0) - (a.month ?? 0)),
+    list, // preserve games.ts insertion order — already newest-first
   }));
 
 const MAX_W   = 960;
@@ -51,19 +51,19 @@ const HEADER_H = 50;
 function GameEntry({ game, isMobile }: { game: (typeof games)[0]; isMobile: boolean }) {
   const [hovered, setHovered] = useState(false);
   const color = gc(game.genre);
-  const dateStr = game.month ? MONTHS[game.month - 1] : String(game.year);
-  const IMG_H = isMobile ? 160 : 300;
+  const dateStr = game.month ? `${MONTHS[game.month - 1]} ${game.year}` : null;
+  const IMG_H = isMobile ? 180 : 320;
 
   return (
-    <div style={{ display: "flex", alignItems: "flex-start", marginBottom: isMobile ? "24px" : "36px" }}>
+    <div style={{ display: "flex", alignItems: "flex-start", marginBottom: isMobile ? "40px" : "72px" }}>
 
       {/* Dot + date — sits against the left border line */}
       <div style={{
         flexShrink: 0,
         display: "flex",
         alignItems: "center",
-        paddingTop: isMobile ? "20px" : "28px",
-        marginLeft: "-5px",   // center the dot on the 1px border line
+        paddingTop: isMobile ? "22px" : "32px",
+        marginLeft: "-5px",
         gap: "6px",
       }}>
         {/* Dot */}
@@ -71,28 +71,30 @@ function GameEntry({ game, isMobile }: { game: (typeof games)[0]; isMobile: bool
           width: isMobile ? "8px" : "10px",
           height: isMobile ? "8px" : "10px",
           borderRadius: "50%",
-          background: hovered ? "var(--accent)" : "rgba(255,255,255,0.35)",
+          background: hovered ? "var(--accent)" : "rgba(255,255,255,0.55)",
           boxShadow: hovered ? "0 0 10px var(--accent)" : "none",
           flexShrink: 0,
           transition: "background 0.25s, box-shadow 0.25s",
           zIndex: 1,
         }} />
         {/* Horizontal connector */}
-        <div style={{ width: isMobile ? "8px" : "16px", height: "1px", background: "rgba(255,255,255,0.2)", flexShrink: 0 }} />
-        {/* Date text */}
-        <span style={{
-          fontFamily: "monospace",
-          fontSize: isMobile ? "9px" : "11px",
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-          color: hovered ? "var(--accent)" : "rgba(255,255,255,0.4)",
-          whiteSpace: "nowrap",
-          transition: "color 0.25s",
-        }}>
-          {dateStr}
-        </span>
+        <div style={{ width: isMobile ? "8px" : "18px", height: "1px", background: "rgba(255,255,255,0.3)", flexShrink: 0 }} />
+        {/* Date text — only shown when month is known */}
+        {dateStr && (
+          <span style={{
+            fontFamily: "monospace",
+            fontSize: isMobile ? "9px" : "11px",
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: hovered ? "var(--accent)" : "#ffffff",
+            whiteSpace: "nowrap",
+            transition: "color 0.25s",
+          }}>
+            {dateStr}
+          </span>
+        )}
         {/* Connector to image */}
-        <div style={{ width: isMobile ? "8px" : "16px", height: "1px", background: "rgba(255,255,255,0.2)", flexShrink: 0 }} />
+        <div style={{ width: isMobile ? "8px" : "18px", height: "1px", background: "rgba(255,255,255,0.3)", flexShrink: 0 }} />
       </div>
 
       {/* Large cover image with title overlay */}
@@ -191,7 +193,7 @@ function GameEntry({ game, isMobile }: { game: (typeof games)[0]; isMobile: bool
 /* ─── Year section ───────────────────────────────── */
 function YearSection({ year, list, isMobile }: { year: number; list: typeof games; isMobile: boolean }) {
   return (
-    <div style={{ display: "flex", gap: 0, marginTop: isMobile ? "48px" : "72px" }}>
+    <div style={{ display: "flex", gap: 0, marginTop: isMobile ? "64px" : "108px" }}>
 
       {/* Left: sticky year label */}
       <div style={{ width: YEAR_W, flexShrink: 0, paddingRight: isMobile ? "12px" : "20px", textAlign: "right" }}>
@@ -200,7 +202,7 @@ function YearSection({ year, list, isMobile }: { year: number; list: typeof game
             fontFamily: "monospace",
             fontSize: isMobile ? "22px" : "52px",
             fontWeight: 900,
-            color: "rgba(255,255,255,0.2)",
+            color: "#ffffff",
             letterSpacing: "-0.03em",
             lineHeight: 1,
           }}>
