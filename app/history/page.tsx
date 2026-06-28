@@ -24,137 +24,199 @@ const GENRE_COLORS: Record<string, string> = {
   Simulation:   "#c8a96e",
   RPG:          "#ff6ec7",
   Platformer:   "#00d4ff",
-  Adventure:    "var(--text-dim)",
+  Adventure:    "#888",
 };
+const gc = (genre: string) => GENRE_COLORS[genre] ?? "#888";
 
-function genreColor(genre: string) {
-  return GENRE_COLORS[genre] ?? "var(--text-dim)";
-}
+// Flat list newest → oldest
+const sorted = [...games].sort((a, b) => b.year - a.year);
 
-// Group games by year, newest first
-const grouped = games.reduce<Record<number, typeof games>>((acc, g) => {
-  if (!acc[g.year]) acc[g.year] = [];
-  acc[g.year].push(g);
-  return acc;
-}, {});
-const yearGroups = Object.entries(grouped)
-  .sort(([a], [b]) => Number(b) - Number(a))
-  .map(([year, list]) => ({ year: Number(year), list }));
-
-function GameCard({ game, isMobile }: { game: (typeof games)[0]; isMobile: boolean }) {
+function GameRow({
+  game,
+  prevYear,
+  isMobile,
+}: {
+  game: (typeof games)[0];
+  prevYear: number | null;
+  isMobile: boolean;
+}) {
   const [hovered, setHovered] = useState(false);
-  const color = genreColor(game.genre);
+  const yearChanged = game.year !== prevYear;
+  const color = gc(game.genre);
 
   return (
-    <a
-      href={`https://cranus.itch.io/${game.itchSlug}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        display: "block",
-        textDecoration: "none",
-        cursor: "pointer",
-        transition: "transform 0.3s ease",
-        transform: hovered ? "translateY(-6px)" : "translateY(0)",
-      }}
-    >
-      {/* Image container */}
-      <div
+    <>
+      {/* Year marker — only when year changes */}
+      {yearChanged && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: isMobile ? "12px" : "32px",
+            padding: isMobile ? "36px 0 12px" : "56px 0 16px",
+          }}
+        >
+          {/* Year label */}
+          <div
+            style={{
+              width: isMobile ? "52px" : "120px",
+              flexShrink: 0,
+              textAlign: "right",
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "monospace",
+                fontSize: isMobile ? "28px" : "56px",
+                fontWeight: 900,
+                color: "rgba(255,255,255,0.12)",
+                letterSpacing: "-0.03em",
+                lineHeight: 1,
+              }}
+            >
+              {game.year}
+            </span>
+          </div>
+
+          {/* Timeline dot + line */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
+            <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--accent)", boxShadow: "0 0 8px var(--accent)" }} />
+          </div>
+
+          {/* Year divider line */}
+          <div style={{ flex: 1, height: "1px", background: "linear-gradient(to right, rgba(200,169,110,0.4), transparent)" }} />
+        </div>
+      )}
+
+      {/* Game row */}
+      <a
+        href={`https://cranus.itch.io/${game.itchSlug}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
         style={{
-          position: "relative",
-          width: "100%",
-          paddingBottom: "79%", // 315:250 aspect ratio
-          overflow: "hidden",
-          background: "#0a0a0a",
-          border: `1px solid ${hovered ? color : "rgba(255,255,255,0.07)"}`,
-          transition: "border-color 0.3s ease",
-          boxShadow: hovered ? `0 0 24px ${color}33` : "none",
+          display: "flex",
+          alignItems: "center",
+          gap: isMobile ? "12px" : "32px",
+          padding: isMobile ? "12px 0" : "20px 0",
+          borderBottom: "1px solid rgba(255,255,255,0.04)",
+          textDecoration: "none",
+          cursor: "pointer",
+          transition: "background 0.2s",
+          background: hovered ? "rgba(255,255,255,0.02)" : "transparent",
+          borderRadius: "4px",
+          marginLeft: isMobile ? "-8px" : "-16px",
+          paddingLeft: isMobile ? "8px" : "16px",
+          paddingRight: isMobile ? "8px" : "16px",
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={game.coverImage}
-          alt={game.title}
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            transition: "transform 0.5s ease, opacity 0.3s ease",
-            transform: hovered ? "scale(1.05)" : "scale(1)",
-            opacity: hovered ? 1 : 0.85,
-          }}
-        />
-        {/* Gradient overlay */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: hovered
-              ? "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)"
-              : "linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%)",
-            transition: "background 0.3s ease",
-          }}
-        />
-        {/* Genre badge */}
-        <div
-          style={{
-            position: "absolute",
-            top: "10px",
-            left: "10px",
-            padding: "3px 8px",
-            background: "rgba(0,0,0,0.75)",
-            border: `1px solid ${color}55`,
-            color: color,
-            fontFamily: "monospace",
-            fontSize: "9px",
-            letterSpacing: "0.15em",
-            textTransform: "uppercase",
-            backdropFilter: "blur(4px)",
-            opacity: hovered ? 1 : 0,
-            transition: "opacity 0.2s ease",
-          }}
-        >
-          {game.genre}
-        </div>
-      </div>
+        {/* Left: Year column (empty, for alignment) */}
+        <div style={{ width: isMobile ? "52px" : "120px", flexShrink: 0 }} />
 
-      {/* Title */}
-      <div style={{ paddingTop: "12px" }}>
-        <p
+        {/* Timeline line */}
+        <div
           style={{
-            margin: 0,
-            fontFamily: "monospace",
-            fontSize: isMobile ? "11px" : "12px",
-            letterSpacing: "0.05em",
-            color: hovered ? "var(--text)" : "rgba(255,255,255,0.75)",
-            transition: "color 0.2s ease",
-            textTransform: "uppercase",
-            whiteSpace: "nowrap",
+            width: "1px",
+            alignSelf: "stretch",
+            background: hovered ? "rgba(200,169,110,0.3)" : "rgba(255,255,255,0.07)",
+            flexShrink: 0,
+            transition: "background 0.2s",
+          }}
+        />
+
+        {/* Cover image */}
+        <div
+          style={{
+            width: isMobile ? "80px" : "200px",
+            height: isMobile ? "64px" : "130px",
+            flexShrink: 0,
             overflow: "hidden",
-            textOverflow: "ellipsis",
+            border: `1px solid ${hovered ? color + "66" : "rgba(255,255,255,0.06)"}`,
+            transition: "border-color 0.25s, box-shadow 0.25s",
+            boxShadow: hovered ? `0 0 20px ${color}33` : "none",
           }}
         >
-          {game.title}
-        </p>
-        <p
-          style={{
-            margin: "3px 0 0",
-            fontFamily: "monospace",
-            fontSize: "10px",
-            letterSpacing: "0.08em",
-            color: color,
-            textTransform: "uppercase",
-            opacity: 0.7,
-          }}
-        >
-          {game.genre}
-        </p>
-      </div>
-    </a>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={game.coverImage}
+            alt={game.title}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transition: "transform 0.4s ease, opacity 0.25s",
+              transform: hovered ? "scale(1.06)" : "scale(1)",
+              opacity: hovered ? 1 : 0.8,
+            }}
+          />
+        </div>
+
+        {/* Info */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p
+            style={{
+              margin: 0,
+              fontFamily: "monospace",
+              fontSize: isMobile ? "13px" : "18px",
+              fontWeight: 700,
+              letterSpacing: isMobile ? "0.04em" : "0.06em",
+              textTransform: "uppercase",
+              color: hovered ? "#fff" : "rgba(255,255,255,0.8)",
+              transition: "color 0.2s",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {game.title}
+          </p>
+          <p
+            style={{
+              margin: isMobile ? "3px 0 0" : "6px 0 0",
+              fontFamily: "monospace",
+              fontSize: isMobile ? "9px" : "11px",
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: color,
+              opacity: 0.85,
+            }}
+          >
+            {game.genre}
+          </p>
+          {!isMobile && (
+            <p
+              style={{
+                margin: "8px 0 0",
+                fontFamily: "monospace",
+                fontSize: "10px",
+                letterSpacing: "0.1em",
+                color: "rgba(255,255,255,0.25)",
+                textTransform: "uppercase",
+              }}
+            >
+              {game.year} · itch.io →
+            </p>
+          )}
+        </div>
+
+        {/* Arrow on hover */}
+        {!isMobile && (
+          <div
+            style={{
+              opacity: hovered ? 1 : 0,
+              transform: hovered ? "translateX(0)" : "translateX(-8px)",
+              transition: "opacity 0.2s, transform 0.2s",
+              color: color,
+              fontSize: "18px",
+              flexShrink: 0,
+            }}
+          >
+            →
+          </div>
+        )}
+      </a>
+    </>
   );
 }
 
@@ -162,11 +224,9 @@ export default function HistoryPage() {
   const isMobile = useIsMobile();
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setMounted(true), 50);
+    const t = setTimeout(() => setMounted(true), 60);
     return () => clearTimeout(t);
   }, []);
-
-  const cols = isMobile ? 2 : 4;
 
   return (
     <div
@@ -174,12 +234,11 @@ export default function HistoryPage() {
         minHeight: "100vh",
         background: "var(--bg)",
         color: "var(--text)",
-        fontFamily: "monospace",
         opacity: mounted ? 1 : 0,
-        transition: "opacity 0.6s ease",
+        transition: "opacity 0.5s ease",
       }}
     >
-      {/* ── Header ─────────────────────────────────── */}
+      {/* ── Header ─────────────────────────────────────────── */}
       <header
         style={{
           position: "sticky",
@@ -202,6 +261,7 @@ export default function HistoryPage() {
             gap: "8px",
             color: "var(--text-dim)",
             textDecoration: "none",
+            fontFamily: "monospace",
             fontSize: "11px",
             letterSpacing: "0.18em",
             textTransform: "uppercase",
@@ -216,66 +276,37 @@ export default function HistoryPage() {
           {isMobile ? "Back" : "Back to Main"}
         </Link>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <span
-            style={{
-              fontSize: isMobile ? "11px" : "13px",
-              letterSpacing: "0.3em",
-              textTransform: "uppercase",
-              color: "var(--text)",
-            }}
-          >
+        <div style={{ display: "flex", alignItems: "center", gap: "16px", fontFamily: "monospace" }}>
+          <span style={{ fontSize: isMobile ? "11px" : "13px", letterSpacing: "0.28em", textTransform: "uppercase", color: "var(--text)" }}>
             CRANUS GAMES
           </span>
           {!isMobile && (
-            <span
-              style={{
-                width: "1px",
-                height: "14px",
-                background: "rgba(255,255,255,0.15)",
-                display: "inline-block",
-              }}
-            />
-          )}
-          {!isMobile && (
-            <span
-              style={{
-                fontSize: "11px",
-                letterSpacing: "0.2em",
-                color: "var(--text-dim)",
-                textTransform: "uppercase",
-              }}
-            >
-              {games.length} TITLES
-            </span>
+            <>
+              <span style={{ width: "1px", height: "14px", background: "rgba(255,255,255,0.15)", display: "inline-block" }} />
+              <span style={{ fontSize: "11px", letterSpacing: "0.2em", color: "var(--text-dim)", textTransform: "uppercase" }}>
+                {games.length} TITLES
+              </span>
+            </>
           )}
         </div>
       </header>
 
-      {/* ── Page Title ─────────────────────────────── */}
+      {/* ── Page Title ─────────────────────────────────────── */}
       <div
         style={{
-          padding: isMobile ? "48px 20px 32px" : "80px 48px 48px",
+          padding: isMobile ? "48px 20px 24px" : "80px 48px 40px",
           borderBottom: "1px solid rgba(255,255,255,0.05)",
         }}
       >
-        <p
-          style={{
-            margin: "0 0 12px",
-            fontSize: "10px",
-            letterSpacing: "0.4em",
-            color: "var(--accent)",
-            textTransform: "uppercase",
-          }}
-        >
+        <p style={{ margin: "0 0 10px", fontFamily: "monospace", fontSize: "10px", letterSpacing: "0.4em", color: "var(--accent)", textTransform: "uppercase" }}>
           Game Library
         </p>
         <h1
           style={{
             margin: 0,
-            fontSize: isMobile ? "52px" : "96px",
+            fontSize: isMobile ? "56px" : "108px",
             fontWeight: 900,
-            letterSpacing: "-0.03em",
+            letterSpacing: "-0.04em",
             lineHeight: 1,
             color: "var(--text)",
             fontFamily: "monospace",
@@ -283,98 +314,45 @@ export default function HistoryPage() {
         >
           HISTORY
         </h1>
-        <p
-          style={{
-            margin: "16px 0 0",
-            fontSize: "12px",
-            letterSpacing: "0.15em",
-            color: "var(--text-dim)",
-            textTransform: "uppercase",
-          }}
-        >
+        <p style={{ margin: "14px 0 0", fontFamily: "monospace", fontSize: "11px", letterSpacing: "0.18em", color: "var(--text-dim)", textTransform: "uppercase" }}>
           2021 — 2026 &nbsp;·&nbsp; {games.length} Games &nbsp;·&nbsp; Cranus Games Studio
         </p>
       </div>
 
-      {/* ── Year Sections ──────────────────────────── */}
+      {/* ── Timeline ───────────────────────────────────────── */}
       <div style={{ padding: isMobile ? "0 20px 80px" : "0 48px 120px" }}>
-        {yearGroups.map(({ year, list }, yi) => (
-          <div
-            key={year}
-            style={{
-              paddingTop: isMobile ? "48px" : "72px",
-              borderTop: yi === 0 ? "none" : "1px solid rgba(255,255,255,0.05)",
-              marginTop: yi === 0 ? "0" : "0",
-            }}
-          >
-            {/* Year row */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "baseline",
-                gap: isMobile ? "16px" : "24px",
-                marginBottom: isMobile ? "28px" : "40px",
-              }}
-            >
-              <span
-                style={{
-                  fontSize: isMobile ? "48px" : "80px",
-                  fontWeight: 900,
-                  letterSpacing: "-0.04em",
-                  color: "rgba(255,255,255,0.08)",
-                  lineHeight: 1,
-                  userSelect: "none",
-                  fontFamily: "monospace",
-                }}
-              >
-                {year}
-              </span>
-              <div
-                style={{
-                  height: "1px",
-                  flex: 1,
-                  background: "linear-gradient(to right, rgba(200,169,110,0.3), transparent)",
-                }}
-              />
-              <span
-                style={{
-                  fontSize: "11px",
-                  letterSpacing: "0.2em",
-                  color: "var(--text-dim)",
-                  textTransform: "uppercase",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {list.length} {list.length === 1 ? "title" : "titles"}
-              </span>
-            </div>
-
-            {/* Game grid */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: `repeat(${cols}, 1fr)`,
-                gap: isMobile ? "20px 16px" : "32px 24px",
-              }}
-            >
-              {list.map((game) => (
-                <GameCard key={game.slug} game={game} isMobile={isMobile} />
-              ))}
-            </div>
-          </div>
+        {sorted.map((game, i) => (
+          <GameRow
+            key={game.slug}
+            game={game}
+            prevYear={i === 0 ? null : sorted[i - 1].year}
+            isMobile={isMobile}
+          />
         ))}
+
+        {/* End of timeline */}
+        <div style={{ display: "flex", alignItems: "center", gap: isMobile ? "12px" : "32px", paddingTop: "40px" }}>
+          <div style={{ width: isMobile ? "52px" : "120px", flexShrink: 0, textAlign: "right" }}>
+            <span style={{ fontFamily: "monospace", fontSize: "10px", letterSpacing: "0.2em", color: "rgba(255,255,255,0.15)", textTransform: "uppercase" }}>
+              Origin
+            </span>
+          </div>
+          <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "rgba(255,255,255,0.15)", flexShrink: 0 }} />
+          <div style={{ flex: 1, height: "1px", background: "rgba(255,255,255,0.05)" }} />
+        </div>
       </div>
 
-      {/* ── Footer ─────────────────────────────────── */}
+      {/* ── Footer ─────────────────────────────────────────── */}
       <div
         style={{
           borderTop: "1px solid rgba(255,255,255,0.06)",
-          padding: isMobile ? "24px 20px" : "32px 48px",
+          padding: isMobile ? "24px 20px" : "28px 48px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           flexWrap: "wrap",
           gap: "12px",
+          fontFamily: "monospace",
         }}
       >
         <span style={{ fontSize: "10px", letterSpacing: "0.2em", color: "var(--text-dim)", textTransform: "uppercase" }}>
@@ -382,14 +360,7 @@ export default function HistoryPage() {
         </span>
         <Link
           href="/"
-          style={{
-            fontSize: "10px",
-            letterSpacing: "0.2em",
-            color: "var(--text-dim)",
-            textDecoration: "none",
-            textTransform: "uppercase",
-            transition: "color 0.2s",
-          }}
+          style={{ fontSize: "10px", letterSpacing: "0.2em", color: "var(--text-dim)", textDecoration: "none", textTransform: "uppercase", transition: "color 0.2s" }}
           onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "var(--accent)")}
           onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "var(--text-dim)")}
         >
