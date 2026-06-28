@@ -952,6 +952,31 @@ setLeaderboard(prev => {
     <div style={{ height: "100vh", overflowY: "scroll", scrollSnapType: "y mandatory" }}>
       {!isMobile && <NavDots active={active} />}
 
+      {/* History Button */}
+      <Link
+        href="/history"
+        style={{
+          position: "fixed", top: "14px", left: isMobile ? "10px" : "20px", zIndex: 200,
+          padding: "5px 13px", fontSize: "0.58rem", letterSpacing: "0.22em", fontFamily: "monospace",
+          background: "rgba(0,0,0,0.5)", color: "var(--text-dim)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          borderRadius: "3px", textDecoration: "none",
+          backdropFilter: "blur(8px)", transition: "all 0.2s", display: "inline-block",
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLAnchorElement).style.color = "var(--accent)";
+          (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(200,169,110,0.55)";
+          (e.currentTarget as HTMLAnchorElement).style.background = "rgba(200,169,110,0.1)";
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLAnchorElement).style.color = "var(--text-dim)";
+          (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.1)";
+          (e.currentTarget as HTMLAnchorElement).style.background = "rgba(0,0,0,0.5)";
+        }}
+      >
+        HISTORY
+      </Link>
+
       {/* Language Switch */}
       <div style={{ position: "fixed", top: "14px", right: isMobile ? "10px" : "20px", zIndex: 200, display: "flex" }}>
         {(["TR", "EN"] as const).map((l, i) => (
