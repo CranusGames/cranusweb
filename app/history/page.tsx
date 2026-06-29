@@ -313,10 +313,45 @@ export default function HistoryPage() {
         {yearGroups.map(({ year, list }) => (
           <YearSection key={year} year={year} list={list} isMobile={isMobile} />
         ))}
-        {/* End */}
-        <div style={{ display: "flex", gap: 0, marginTop: "40px" }}>
-          <div style={{ width: YEAR_W, flexShrink: 0 }} />
-          <div style={{ borderLeft: "1px solid rgba(255,255,255,0.06)", paddingLeft: 0 }}>
+        {/* ── Founded 2020 ── */}
+        <div style={{ display: "flex", gap: 0, marginTop: isMobile ? "64px" : "108px" }}>
+          {/* Left: year */}
+          <div style={{ width: YEAR_W, flexShrink: 0, paddingRight: isMobile ? "12px" : "20px", textAlign: "right" }}>
+            <div style={{ position: "sticky", top: HEADER_H + 20, paddingTop: isMobile ? "10px" : "14px" }}>
+              <span style={{ fontFamily: "monospace", fontSize: isMobile ? "22px" : "52px", fontWeight: 900, color: "#ffffff", letterSpacing: "-0.03em", lineHeight: 1 }}>
+                2020
+              </span>
+            </div>
+          </div>
+          {/* Right: line + founding entry */}
+          <div style={{ flex: 1, borderLeft: "1px solid rgba(255,255,255,0.12)" }}>
+            {/* Top dot */}
+            <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: "var(--accent)", boxShadow: "0 0 10px var(--accent)", marginLeft: "-5px", marginBottom: isMobile ? "16px" : "24px", marginTop: isMobile ? "10px" : "16px" }} />
+            {/* Founding note */}
+            <div style={{ display: "flex", alignItems: "flex-start", marginBottom: isMobile ? "40px" : "72px" }}>
+              {/* Dot + date */}
+              <div style={{ flexShrink: 0, display: "flex", alignItems: "center", paddingTop: isMobile ? "10px" : "14px", marginLeft: "-5px", gap: "6px" }}>
+                <div style={{ width: isMobile ? "8px" : "10px", height: isMobile ? "8px" : "10px", borderRadius: "50%", background: "rgba(255,255,255,0.55)", flexShrink: 0, zIndex: 1 }} />
+                <div style={{ width: isMobile ? "8px" : "18px", height: "1px", background: "rgba(255,255,255,0.3)", flexShrink: 0 }} />
+                <span style={{ fontFamily: "monospace", fontSize: isMobile ? "9px" : "11px", letterSpacing: "0.12em", textTransform: "uppercase", color: "#ffffff", whiteSpace: "nowrap" }}>
+                  JUN 2020
+                </span>
+                <div style={{ width: isMobile ? "8px" : "18px", height: "1px", background: "rgba(255,255,255,0.3)", flexShrink: 0 }} />
+              </div>
+              {/* Founding card */}
+              <div style={{ flex: 1, border: "1px solid rgba(255,255,255,0.1)", padding: isMobile ? "20px 16px" : "32px 36px", background: "rgba(255,255,255,0.03)" }}>
+                <p style={{ margin: "0 0 8px", fontFamily: "monospace", fontSize: isMobile ? "9px" : "10px", letterSpacing: "0.4em", textTransform: "uppercase", color: "var(--accent)" }}>
+                  Studio Founded
+                </p>
+                <p style={{ margin: 0, fontFamily: "monospace", fontSize: isMobile ? "20px" : "32px", fontWeight: 900, letterSpacing: "0.02em", textTransform: "uppercase", color: "#ffffff", lineHeight: 1.1 }}>
+                  CRANUS GAMES
+                </p>
+                <p style={{ margin: isMobile ? "8px 0 0" : "12px 0 0", fontFamily: "monospace", fontSize: isMobile ? "10px" : "12px", letterSpacing: "0.14em", color: "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>
+                  June 2020 &nbsp;·&nbsp; Cranus Games Studio established
+                </p>
+              </div>
+            </div>
+            {/* End dot */}
             <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "rgba(255,255,255,0.1)", marginLeft: "-4px" }} />
           </div>
         </div>
