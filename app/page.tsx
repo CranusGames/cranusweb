@@ -1168,18 +1168,6 @@ setLeaderboard(prev => {
           {/* CTA */}
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 2.3, duration: 0.8 }}
             style={{ display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center" }}>
-            <Link href="/games">
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}
-                style={{ padding: isMobile ? "10px 22px" : "13px 38px", fontSize: isMobile ? "0.62rem" : "0.7rem", textTransform: "uppercase", letterSpacing: "0.2em",
-                  border: "1px solid var(--accent)", color: "var(--accent)",
-                  background: "linear-gradient(135deg, rgba(200,169,110,0.1) 0%, transparent 100%)",
-                  fontFamily: "monospace", cursor: "pointer", transition: "all 0.3s",
-                  boxShadow: "0 0 24px rgba(200,169,110,0.1)" }}
-                onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "var(--accent)"; b.style.color = "#050505"; b.style.boxShadow = "0 0 36px rgba(200,169,110,0.4)"; }}
-                onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "linear-gradient(135deg, rgba(200,169,110,0.1) 0%, transparent 100%)"; b.style.color = "var(--accent)"; b.style.boxShadow = "0 0 24px rgba(200,169,110,0.1)"; }}>
-                {t.ctaGames}
-              </motion.button>
-            </Link>
             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}
               onClick={() => scrollTo(1)}
               style={{ padding: isMobile ? "10px 22px" : "13px 38px", fontSize: isMobile ? "0.62rem" : "0.7rem", textTransform: "uppercase", letterSpacing: "0.2em",
